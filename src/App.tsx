@@ -1,10 +1,29 @@
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import { connect } from 'twilio-video';
+import { connect, LocalVideoTrack, RemoteVideoTrack } from 'twilio-video';
 import * as PIXI from 'pixi.js';
 import * as Colyseus from 'colyseus.js';
 import * as S from './App.styles';
 import { useFakeMinimize } from './util/useFakeMinimize';
+
+interface MapPanelData {
+  type: 'map';
+}
+
+interface LocalCameraPanelData {
+  type: 'local-camera';
+  track: LocalVideoTrack;
+}
+
+interface RemoteCameraPanelData {
+  type: 'remote-camera';
+  track: RemoteVideoTrack;
+}
+
+export type PanelData =
+  | MapPanelData
+  | LocalCameraPanelData
+  | RemoteCameraPanelData;
 
 const Hello = () => {
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -243,6 +262,8 @@ const Hello = () => {
   });
 
   useFakeMinimize();
+
+  const panels = { map: <div ref={containerRef}></div> };
 
   return (
     <>
