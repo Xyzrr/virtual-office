@@ -1,42 +1,38 @@
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import icon from '../assets/icon.svg';
+import * as PIXI from 'pixi.js';
+
+const app = new PIXI.Application();
+
+const player = new PIXI.Graphics();
+player.beginFill(0xffffff);
+player.drawCircle(0, 0, 10);
+player.endFill();
+
+app.stage.addChild(player);
+
+app.ticker.add(() => {
+  player.x += 1;
+});
 
 const Hello = () => {
-  return (
-    <div>
-      <div className="Hello">
-        <img width="200px" alt="icon" src={icon} />
-      </div>
-      <h1>Virtual Office</h1>
-      <div className="Hello">
-        <a
-          href="https://electron-react-boilerplate.js.org/"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <button type="button">
-            <span role="img" aria-label="books">
-              📚
-            </span>
-            Read our docs
-          </button>
-        </a>
-        <a
-          href="https://github.com/sponsors/electron-react-boilerplate"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <button type="button">
-            <span role="img" aria-label="books">
-              🙏
-            </span>
-            Donate
-          </button>
-        </a>
-      </div>
-    </div>
-  );
+  const containerRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const container = containerRef.current;
+
+    if (container == null) {
+      return undefined;
+    }
+
+    container.appendChild(app.view);
+
+    return () => {
+      container.removeChild(app.view);
+      app.destroy();
+    };
+  }, []);
+  return <div ref={containerRef} />;
 };
 
 export default function App() {
