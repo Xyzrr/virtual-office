@@ -2,11 +2,17 @@ import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import * as PIXI from 'pixi.js';
 
-const app = new PIXI.Application();
+const app = new PIXI.Application({
+  width: 256,
+  height: 256,
+  antialias: true,
+  resolution: window.devicePixelRatio,
+  autoDensity: true,
+});
 
 const player = new PIXI.Graphics();
 player.beginFill(0xffffff);
-player.drawCircle(0, 0, 10);
+player.drawCircle(0, 0, 50);
 player.endFill();
 
 app.stage.addChild(player);
@@ -32,6 +38,7 @@ const Hello = () => {
       app.destroy();
     };
   }, []);
+
   return <div ref={containerRef} />;
 };
 
