@@ -1,6 +1,14 @@
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import { connect, LocalVideoTrack, RemoteVideoTrack } from 'twilio-video';
+import {
+  connect,
+  LocalAudioTrack,
+  LocalParticipant,
+  LocalVideoTrack,
+  RemoteAudioTrack,
+  RemoteParticipant,
+  RemoteVideoTrack,
+} from 'twilio-video';
 import * as PIXI from 'pixi.js';
 import * as Colyseus from 'colyseus.js';
 import * as S from './App.styles';
@@ -10,26 +18,38 @@ interface MapPanelData {
   type: 'map';
 }
 
-interface LocalCameraPanelData {
-  type: 'local-camera';
-  track: LocalVideoTrack;
+interface LocalUserPanelData {
+  type: 'local-user';
+  participant: LocalParticipant;
 }
 
-interface RemoteCameraPanelData {
-  type: 'remote-camera';
-  track: RemoteVideoTrack;
+export const isLocalUserPanel = (
+  panel: PanelData
+): panel is LocalUserPanelData => {
+  return panel.type === 'local-user';
+};
+
+interface RemoteUserPanelData {
+  type: 'remote-user';
+  participant: RemoteParticipant;
 }
 
-export type PanelData =
-  | MapPanelData
-  | LocalCameraPanelData
-  | RemoteCameraPanelData;
+export const isRemoteUserPanel = (
+  panel: PanelData
+): panel is RemoteUserPanelData => {
+  return panel.type === 'remote-user';
+};
+
+export type PanelData = MapPanelData | LocalUserPanelData | RemoteUserPanelData;
 
 const Hello = () => {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const videoRef = React.useRef<HTMLDivElement>(null);
   const appRef = React.useRef<PIXI.Application | null>(null);
   const roomRef = React.useRef<Colyseus.Room | null>(null);
+  const panels = React.useRef<{ [key: string]: PanelData }>({
+    map: { type: 'map' },
+  });
 
   React.useEffect(() => {
     // const endpoint = 'http://localhost:5000/token';
@@ -55,27 +75,41 @@ const Hello = () => {
 
       connect(token, {
         name: 'cool-room',
-        audio: false,
+        audio: true,
         video: { width: 320 },
       }).then(
         (room) => {
           room.participants.forEach((participant) => {
-            console.log('room', room);
-            console.log('local', room.localParticipant);
-            console.log('existing participant');
-            participant.tracks.forEach((publication) => {
-              console.log('existing track');
-              if (publication.track) {
-                console.log('actual track');
-                videoRef.current?.appendChild(
-                  (publication.track as any).attach()
-                );
-              }
-            });
+            const panelId = `remote-user-${participant.identity}`;
+            panels.current[panelId] = { type: 'remote-user', participant };
+            // participant.tracks.forEach((publication) => {
+            //   if (publication.track) {
+            //     console.log('existing track', publication.track);
+            //     const existing =
+            //       panels.current[panelId];
+            //     if (existing && isRemoteUserPanel(existing)) {
+            //       if (publication.track.kind === 'video') {
+            //         existing.videoTrack = publication.track;
+            //       }
+            //       if (publication.track.kind === 'audio') {
+            //         existing.audioTrack = publication.track;
+            //       }
+            //     } else {
+            //       panels.current[panelId] = {
+            //         type: 'remote-user',
+            //         tracks:
+            //       }
+            //     }
 
-            participant.on('trackSubscribed', (track) => {
-              videoRef.current?.appendChild((track as any).attach());
-            });
+            //     videoRef.current?.appendChild(
+            //       (publication.track as any).attach()
+            //     );
+            //   }
+            // });
+
+            // participant.on('trackSubscribed', (track) => {
+            //   videoRef.current?.appendChild((track as any).attach());
+            // });
           });
           console.log('joined room');
           room.on('participantConnected', (participant) => {
@@ -84,11 +118,13 @@ const Hello = () => {
             participant.tracks.forEach((publication: any) => {
               if (publication.isSubscribed) {
                 const track = publication.track;
+                console.log('new track', publication.track);
                 videoRef.current?.appendChild(track.attach());
               }
             });
 
             participant.on('trackSubscribed', (track: any) => {
+              console.log('subscribed track', track);
               videoRef.current?.appendChild(track.attach());
             });
           });
@@ -262,8 +298,6 @@ const Hello = () => {
   });
 
   useFakeMinimize();
-
-  const panels = { map: <div ref={containerRef}></div> };
 
   return (
     <>
