@@ -4,6 +4,7 @@ import { connect } from 'twilio-video';
 import * as PIXI from 'pixi.js';
 import * as Colyseus from 'colyseus.js';
 import * as S from './App.styles';
+import { useFakeMinimize } from './util/useFakeMinimize';
 
 const Hello = () => {
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -241,8 +242,11 @@ const Hello = () => {
     };
   });
 
+  useFakeMinimize();
+
   return (
     <>
+      <S.DraggableBar />
       <S.Container ref={containerRef} />
       <S.TracksContainer ref={videoRef} />
     </>
