@@ -3,8 +3,8 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import * as PIXI from 'pixi.js';
 
 const app = new PIXI.Application({
-  width: 256,
-  height: 256,
+  width: window.innerWidth,
+  height: window.innerHeight,
   antialias: true,
   resolution: window.devicePixelRatio,
   autoDensity: true,
@@ -60,6 +60,19 @@ const Hello = () => {
     window.addEventListener('resize', onResize);
     return () => {
       window.removeEventListener('resize', onResize);
+    };
+  });
+
+  const onKeyDown = React.useCallback((e: KeyboardEvent) => {
+    if (e.key === 'ArrowRight') {
+      const a = 2;
+    }
+  }, []);
+
+  React.useEffect(() => {
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
     };
   });
 
