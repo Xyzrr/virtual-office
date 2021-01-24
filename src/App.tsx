@@ -10,7 +10,20 @@ const app = new PIXI.Application({
   autoDensity: true,
 });
 
+for (let i = 0; i < 32; i++) {
+  for (let j = 0; j < 32; j++) {
+    const dot = new PIXI.Graphics();
+
+    dot.beginFill(0x444444);
+    dot.drawCircle(i * 32, j * 32, 2);
+    dot.endFill();
+
+    app.stage.addChild(dot);
+  }
+}
+
 const player = new PIXI.Graphics();
+
 player.beginFill(0xffffff);
 player.drawCircle(0, 0, 50);
 player.endFill();
@@ -38,6 +51,17 @@ const Hello = () => {
       app.destroy();
     };
   }, []);
+
+  const onResize = React.useCallback(() => {
+    app.renderer.resize(window.innerWidth, window.innerHeight);
+  }, []);
+
+  React.useEffect(() => {
+    window.addEventListener('resize', onResize);
+    return () => {
+      window.removeEventListener('resize', onResize);
+    };
+  });
 
   return <div ref={containerRef} />;
 };
