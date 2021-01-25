@@ -59,7 +59,7 @@ const Hello = () => {
         return;
       }
 
-      console.log('token', token);
+      console.log('Twilio access token:', token);
 
       connect(token, {
         name: 'cool-room',
@@ -67,10 +67,11 @@ const Hello = () => {
         video: { width: 240, height: 135 },
       }).then(
         (room) => {
-          console.log('Joined room', room);
+          console.log('Joined Twilio room', room);
           twilioRoomRef.current = room;
 
           room.participants.forEach((participant) => {
+            console.log(`Existing remote Twilio participant: ${participant}`);
             const panelId = `remote-user-${participant.identity}`;
             setPanels((panels) =>
               produce(panels, (draft) => {
@@ -83,7 +84,7 @@ const Hello = () => {
           });
 
           room.on('participantConnected', (participant) => {
-            console.log(`Remote participant connected: ${participant}`);
+            console.log(`Remote Twilio participant connected: ${participant}`);
             const panelId = `remote-user-${participant.identity}`;
             setPanels((panels) =>
               produce(panels, (draft) => {
@@ -94,12 +95,28 @@ const Hello = () => {
               })
             );
           });
+
+          room.on('participantDisconnected', (participant) => {
+            console.log(
+              `Remote Twilio participant disconnected: ${participant}`
+            );
+            const panelId = `remote-user-${participant.identity}`;
+            setPanels((panels) =>
+              produce(panels, (draft) => {
+                delete draft[panelId];
+              })
+            );
+          });
         },
         (error) => {
           console.log(`Unable to connect to room: ${error.message}`);
         }
       );
     });
+
+    return () => {
+      twilioRoomRef.current?.disconnect();
+    };
   }, []);
 
   console.log('PANELS', panels);
@@ -111,6 +128,7 @@ const Hello = () => {
     // const client = new Colyseus.Client('ws://localhost:3434');
 
     client.joinOrCreate('main').then((room: Colyseus.Room<any>) => {
+      console.log('Joined or created Colyseus room:', room);
       setColyseusRoom(room);
     });
   }, []);
@@ -242,7 +260,7 @@ const Hello = () => {
 
           return (
             <S.PanelWrapper key={key} x={x} y={y} width={width} height={height}>
-              <MapPanel key={key} colyseusRoom={colyseusRoom} />;
+              <MapPanel colyseusRoom={colyseusRoom} />;
             </S.PanelWrapper>
           );
         }

@@ -16,6 +16,7 @@ export const PanelWrapper = styled.div<{
   height: number;
 }>`
   position: absolute;
+  background: rgba(255, 255, 255, 0.2);
   top: 0;
   left: 0;
   transition: transform 0.2s;
