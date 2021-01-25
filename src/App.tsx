@@ -41,6 +41,7 @@ const Hello = () => {
   const [panels, setPanels] = React.useState<{ [key: string]: PanelData }>({
     map: { type: 'map' },
   });
+  const [expandedPanels, setExpandedPanels] = React.useState<string[]>(['map']);
 
   React.useEffect(() => {
     // const endpoint = 'http://localhost:5000/token';
@@ -263,19 +264,27 @@ const Hello = () => {
 
   useFakeMinimize();
 
+  const smallPanelOrder = Object.keys(panels).filter(
+    (k) => !expandedPanels.includes(k)
+  );
+
   return (
     <>
       <S.DraggableBar />
       <S.Container ref={containerRef} />
       {Object.entries(panels).map(([key, panel]) => {
+        const orderPosition = smallPanelOrder.indexOf(key);
         if (panel.type === 'remote-user') {
           return (
-            <RemoteUserPanel
-              key={key}
-              participant={panel.participant}
-            ></RemoteUserPanel>
+            <S.PanelWrapper x={8} y={8 + orderPosition * (196 + 8)}>
+              <RemoteUserPanel
+                key={key}
+                participant={panel.participant}
+              ></RemoteUserPanel>
+            </S.PanelWrapper>
           );
         }
+        return null;
       })}
       <S.TracksContainer ref={videoRef} />
     </>
