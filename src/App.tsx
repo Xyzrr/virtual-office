@@ -283,7 +283,7 @@ const Hello = () => {
 
           return (
             <S.PanelWrapper key={key} x={x} y={y} width={width} height={height}>
-              <MapPanel colyseusRoom={colyseusRoom} />;
+              <MapPanel colyseusRoom={colyseusRoom} minimized={minimized} />;
             </S.PanelWrapper>
           );
         }

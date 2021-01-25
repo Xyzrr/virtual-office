@@ -9,9 +9,14 @@ import * as _ from 'lodash';
 export interface MapPanelProps {
   className?: string;
   colyseusRoom: Colyseus.Room;
+  minimized: boolean;
 }
 
-const MapPanel: React.FC<MapPanelProps> = ({ className, colyseusRoom }) => {
+const MapPanel: React.FC<MapPanelProps> = ({
+  className,
+  colyseusRoom,
+  minimized,
+}) => {
   const wrapperRef = React.useRef<HTMLDivElement>(null);
 
   const {
@@ -52,14 +57,20 @@ const MapPanel: React.FC<MapPanelProps> = ({ className, colyseusRoom }) => {
     []
   );
 
+  const scale = React.useMemo(() => {
+    return minimized ? 0.5 : 1;
+  }, [minimized]);
+
   const centerCamera = React.useCallback(() => {
     const player = colyseusRoom.state.players.get(colyseusRoom.sessionId);
 
     if (player != null) {
-      pixiApp.stage.position.x = -player.x + width / 2;
-      pixiApp.stage.position.y = -player.y + height / 2;
+      pixiApp.stage.scale.x = scale;
+      pixiApp.stage.scale.y = scale;
+      pixiApp.stage.position.x = -player.x * scale + width / 2;
+      pixiApp.stage.position.y = -player.y * scale + height / 2;
     }
-  }, [colyseusRoom, pixiApp, width, height]);
+  }, [colyseusRoom, pixiApp, width, height, scale]);
 
   React.useEffect(() => {
     pixiApp.renderer.resize(width, height);
