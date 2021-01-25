@@ -14,7 +14,7 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = ({
   const wrapperRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
-    participant.tracks.forEach((publication) => {
+    participant.videoTracks.forEach((publication) => {
       const track = publication.track;
       wrapperRef.current?.appendChild((track as any).attach());
     });
