@@ -119,8 +119,6 @@ const Hello = () => {
     };
   }, []);
 
-  console.log('PANELS', panels);
-
   React.useEffect(() => {
     const client = new Colyseus.Client(
       'ws://virtual-office-server.herokuapp.com'
@@ -132,6 +130,17 @@ const Hello = () => {
       setColyseusRoom(room);
     });
   }, []);
+
+  React.useEffect(() => {
+    if (colyseusRoom == null) {
+      return;
+    }
+
+    return () => {
+      console.log('Leaving Colyseus room');
+      colyseusRoom.leave();
+    };
+  }, [colyseusRoom]);
 
   const onResize = React.useCallback(() => {
     setWindowSize({ width: window.innerWidth, height: window.innerHeight });

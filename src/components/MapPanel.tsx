@@ -26,6 +26,8 @@ const MapPanel: React.FC<MapPanelProps> = ({ className, colyseusRoom }) => {
       autoDensity: true,
     });
 
+    console.log('Creating PIXI app', app);
+
     for (let i = 0; i < 32; i++) {
       for (let j = 0; j < 32; j++) {
         const dot = new PIXI.Graphics();
@@ -56,6 +58,8 @@ const MapPanel: React.FC<MapPanelProps> = ({ className, colyseusRoom }) => {
     []
   );
 
+  console.log('graphics', playerGraphics);
+
   React.useEffect(() => {
     colyseusRoom.state.players.onAdd = (player: any, sessionId: any) => {
       console.log('Colyseus player added', player);
@@ -79,17 +83,13 @@ const MapPanel: React.FC<MapPanelProps> = ({ className, colyseusRoom }) => {
       pixiApp?.stage.removeChild(playerGraphics[sessionId]);
       delete playerGraphics[sessionId];
     };
-
-    return () => {
-      console.log('Leaving Colyseus room');
-      colyseusRoom.leave();
-    };
   }, [colyseusRoom]);
 
   React.useEffect(() => {
     wrapperRef.current?.appendChild(pixiApp.view);
 
     return () => {
+      wrapperRef.current?.removeChild(pixiApp.view);
       pixiApp.destroy();
     };
   }, [pixiApp]);
