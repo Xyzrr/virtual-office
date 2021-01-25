@@ -11,15 +11,20 @@ export const useFakeMinimize = (minimizedHeight: number) => {
         e.preventDefault();
         const win = electron.remote.getCurrentWindow();
 
-        if (e.shiftKey) {
+        if (e.shiftKey && minimized) {
           if (previousBounds.current != null) {
             win.setBounds(previousBounds.current);
           } else {
             win.setBounds({ width: 640, height: 480 });
           }
           win.setWindowButtonVisibility(true);
+          window.setTimeout(() => {
+            win.shadow = true;
+          }, 200);
           setMinimized(false);
-        } else {
+        }
+
+        if (!e.shiftKey && !minimized) {
           previousBounds.current = win.getBounds();
           win.setBounds({
             x: 8,
@@ -28,12 +33,12 @@ export const useFakeMinimize = (minimizedHeight: number) => {
             height: minimizedHeight,
           });
           win.setWindowButtonVisibility(false);
-          setMinimized(true);
           win.shadow = false;
+          setMinimized(true);
         }
       }
     },
-    [minimizedHeight]
+    [minimizedHeight, minimized]
   );
 
   React.useEffect(() => {
@@ -41,7 +46,7 @@ export const useFakeMinimize = (minimizedHeight: number) => {
     return () => {
       window.removeEventListener('keydown', onKeyDown);
     };
-  });
+  }, [onKeyDown]);
 
   React.useEffect(() => {
     if (!minimized) {
