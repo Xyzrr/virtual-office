@@ -155,44 +155,62 @@ const Hello = () => {
     };
   });
 
-  const keys = React.useRef<{ [key: string]: boolean }>({});
+  const heldCommands = React.useRef<{ [key: string]: boolean }>({});
 
   const getDir = React.useCallback(() => {
-    if (keys.current.ArrowRight && keys.current.ArrowUp) {
+    if (heldCommands.current.right && heldCommands.current.up) {
       return Math.PI / 4;
     }
-    if (keys.current.ArrowRight && keys.current.ArrowDown) {
+    if (heldCommands.current.right && heldCommands.current.down) {
       return -Math.PI / 4;
     }
-    if (keys.current.ArrowLeft && keys.current.ArrowUp) {
+    if (heldCommands.current.left && heldCommands.current.up) {
       return (3 * Math.PI) / 4;
     }
-    if (keys.current.ArrowLeft && keys.current.ArrowDown) {
+    if (heldCommands.current.left && heldCommands.current.down) {
       return (-3 * Math.PI) / 4;
     }
-    if (keys.current.ArrowRight) {
+    if (heldCommands.current.right) {
       return 0;
     }
-    if (keys.current.ArrowUp) {
+    if (heldCommands.current.up) {
       return Math.PI / 2;
     }
-    if (keys.current.ArrowLeft) {
+    if (heldCommands.current.left) {
       return Math.PI;
     }
-    if (keys.current.ArrowDown) {
+    if (heldCommands.current.down) {
       return (3 * Math.PI) / 2;
     }
     return 0;
   }, []);
 
+  const keyMap: { [key: string]: string } = {
+    ArrowRight: 'right',
+    ArrowUp: 'up',
+    ArrowLeft: 'left',
+    ArrowDown: 'down',
+    d: 'right',
+    w: 'up',
+    a: 'left',
+    s: 'down',
+  };
+
   const onKeyDown = React.useCallback(
     (e: KeyboardEvent) => {
-      keys.current[e.key] = true;
+      const command = keyMap[e.key];
+
+      if (command == null) {
+        return;
+      }
+
+      heldCommands.current[command] = true;
+
       if (
-        e.key === 'ArrowRight' ||
-        e.key === 'ArrowUp' ||
-        e.key === 'ArrowDown' ||
-        e.key === 'ArrowLeft'
+        command === 'right' ||
+        command === 'up' ||
+        command === 'left' ||
+        command === 'down'
       ) {
         colyseusRoom?.send('setMovement', {
           dir: getDir(),
@@ -205,20 +223,27 @@ const Hello = () => {
 
   const onKeyUp = React.useCallback(
     (e: KeyboardEvent) => {
-      delete keys.current[e.key];
+      const command = keyMap[e.key];
+
+      if (command == null) {
+        return;
+      }
+
+      delete heldCommands.current[command];
+
       if (
-        e.key === 'ArrowRight' ||
-        e.key === 'ArrowUp' ||
-        e.key === 'ArrowDown' ||
-        e.key === 'ArrowLeft'
+        command === 'right' ||
+        command === 'up' ||
+        command === 'left' ||
+        command === 'down'
       ) {
         colyseusRoom?.send('setMovement', {
           dir: getDir(),
           speed:
-            keys.current.ArrowRight ||
-            keys.current.ArrowLeft ||
-            keys.current.ArrowUp ||
-            keys.current.ArrowDown
+            heldCommands.current.right ||
+            heldCommands.current.up ||
+            heldCommands.current.left ||
+            heldCommands.current.down
               ? 100
               : 0,
         });

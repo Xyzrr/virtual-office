@@ -52,10 +52,9 @@ const MapPanel: React.FC<MapPanelProps> = ({
     return app;
   }, []);
 
-  const playerGraphics: { [sessionId: string]: PIXI.Graphics } = React.useMemo(
-    () => ({}),
-    []
-  );
+  const playerGraphics: {
+    [sessionId: string]: PIXI.Graphics;
+  } = React.useMemo(() => ({}), []);
 
   const scale = React.useMemo(() => {
     return minimized ? 0.5 : 1;
