@@ -8,6 +8,7 @@ import {
   RemoteAudioTrack,
   RemoteParticipant,
   RemoteVideoTrack,
+  Room,
 } from 'twilio-video';
 import * as PIXI from 'pixi.js';
 import * as Colyseus from 'colyseus.js';
@@ -23,12 +24,12 @@ interface MapPanelData {
 
 interface LocalUserPanelData {
   type: 'local-user';
-  participant: LocalParticipant;
+  participantSID: string;
 }
 
 interface RemoteUserPanelData {
   type: 'remote-user';
-  participant: RemoteParticipant;
+  participantSID: string;
 }
 
 export type PanelData = MapPanelData | LocalUserPanelData | RemoteUserPanelData;
@@ -37,7 +38,8 @@ const Hello = () => {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const videoRef = React.useRef<HTMLDivElement>(null);
   const appRef = React.useRef<PIXI.Application | null>(null);
-  const roomRef = React.useRef<Colyseus.Room | null>(null);
+  const colyseusRoomRef = React.useRef<Colyseus.Room | null>(null);
+  const twilioRoomRef = React.useRef<Room | null>(null);
   const [panels, setPanels] = React.useState<{ [key: string]: PanelData }>({
     map: { type: 'map' },
   });
@@ -71,13 +73,17 @@ const Hello = () => {
         video: { width: 320 },
       }).then(
         (room) => {
-          console.log('Joined room');
+          console.log('Joined room', room);
+          twilioRoomRef.current = room;
 
           room.participants.forEach((participant) => {
             const panelId = `remote-user-${participant.identity}`;
-            setPanels(
-              produce(panels, (draft: { [key: string]: PanelData }) => {
-                draft[panelId] = { type: 'remote-user', participant };
+            setPanels((panels) =>
+              produce(panels, (draft) => {
+                draft[panelId] = {
+                  type: 'remote-user',
+                  participantSID: participant.sid,
+                };
               })
             );
           });
@@ -85,9 +91,12 @@ const Hello = () => {
           room.on('participantConnected', (participant) => {
             console.log(`Remote participant connected: ${participant}`);
             const panelId = `remote-user-${participant.identity}`;
-            setPanels(
-              produce(panels, (draft: { [key: string]: PanelData }) => {
-                draft[panelId] = { type: 'remote-user', participant };
+            setPanels((panels) =>
+              produce(panels, (draft) => {
+                draft[panelId] = {
+                  type: 'remote-user',
+                  participantSID: participant.sid,
+                };
               })
             );
           });
@@ -147,7 +156,7 @@ const Hello = () => {
     const playerGraphics: { [sessionId: string]: PIXI.Graphics } = {};
 
     client.joinOrCreate('main').then((room: Colyseus.Room<any>) => {
-      roomRef.current = room;
+      colyseusRoomRef.current = room;
 
       room.state.players.onAdd = (player: any, sessionId: any) => {
         console.log('add playserssarz');
@@ -174,7 +183,7 @@ const Hello = () => {
     });
 
     return () => {
-      roomRef.current?.leave(false);
+      colyseusRoomRef.current?.leave(false);
     };
   }, []);
 
@@ -228,7 +237,10 @@ const Hello = () => {
       e.key === 'ArrowDown' ||
       e.key === 'ArrowLeft'
     ) {
-      roomRef.current?.send('setMovement', { dir: getDir(), speed: 100 });
+      colyseusRoomRef.current?.send('setMovement', {
+        dir: getDir(),
+        speed: 100,
+      });
     }
   }, []);
 
@@ -240,7 +252,7 @@ const Hello = () => {
       e.key === 'ArrowDown' ||
       e.key === 'ArrowLeft'
     ) {
-      roomRef.current?.send('setMovement', {
+      colyseusRoomRef.current?.send('setMovement', {
         dir: getDir(),
         speed:
           keys.current.ArrowRight ||
@@ -275,11 +287,19 @@ const Hello = () => {
       {Object.entries(panels).map(([key, panel]) => {
         const orderPosition = smallPanelOrder.indexOf(key);
         if (panel.type === 'remote-user') {
+          const participant = twilioRoomRef.current?.participants.get(
+            panel.participantSID
+          );
+
+          if (participant == null) {
+            return null;
+          }
+
           return (
             <S.PanelWrapper x={8} y={8 + orderPosition * (196 + 8)}>
               <RemoteUserPanel
                 key={key}
-                participant={panel.participant}
+                participant={participant}
               ></RemoteUserPanel>
             </S.PanelWrapper>
           );
