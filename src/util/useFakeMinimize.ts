@@ -21,6 +21,7 @@ export const useFakeMinimize = (minimizedHeight: number) => {
           }
           win.setWindowButtonVisibility(true);
           win.setResizable(true);
+          win.setAlwaysOnTop(false);
           window.setTimeout(() => {
             win.shadow = true;
           }, 200);
@@ -47,6 +48,7 @@ export const useFakeMinimize = (minimizedHeight: number) => {
           }
           win.setWindowButtonVisibility(false);
           win.setResizable(false);
+          win.setAlwaysOnTop(true);
           win.shadow = false;
           setMinimized(true);
         }
