@@ -17,12 +17,10 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = ({
     participant.tracks.forEach((publication: any) => {
       if (publication.isSubscribed) {
         const track = publication.track;
-        console.log('new track', publication.track);
         wrapperRef.current?.appendChild(track.attach());
       }
     });
     participant.on('trackSubscribed', (track: any) => {
-      console.log('subscribed track', track);
       wrapperRef.current?.appendChild(track.attach());
     });
   }, [participant]);

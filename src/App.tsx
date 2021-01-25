@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import { connect, Room } from 'twilio-video';
+import { connect, Room, createLocalVideoTrack } from 'twilio-video';
 import * as PIXI from 'pixi.js';
 import * as Colyseus from 'colyseus.js';
 import * as S from './App.styles';
@@ -9,6 +9,7 @@ import produce from 'immer';
 import RemoteUserPanel from './components/RemoteUserPanel';
 import MapPanel from './components/MapPanel';
 import * as electron from 'electron';
+import LocalUserPanel from './components/LocalUserPanel';
 
 interface MapPanelData {
   type: 'map';
@@ -16,7 +17,6 @@ interface MapPanelData {
 
 interface LocalUserPanelData {
   type: 'local-user';
-  participantSID: string;
 }
 
 interface RemoteUserPanelData {
@@ -30,6 +30,7 @@ const Hello = () => {
   const twilioRoomRef = React.useRef<Room | null>(null);
   const [panels, setPanels] = React.useState<{ [key: string]: PanelData }>({
     map: { type: 'map' },
+    'local-user': { type: 'local-user' },
   });
   const [expandedPanels, setExpandedPanels] = React.useState<string[]>(['map']);
   const [windowSize, setWindowSize] = React.useState({
@@ -242,7 +243,7 @@ const Hello = () => {
   const minimized = useFakeMinimize(minimizedHeight);
 
   const smallPanelOrder = minimized
-    ? Object.keys(panels)
+    ? Object.keys(panels).filter((k) => k !== 'local-user')
     : Object.keys(panels).filter((k) => !expandedPanels.includes(k));
 
   return (
@@ -250,6 +251,10 @@ const Hello = () => {
       <S.GlobalStyles />
       <S.DraggableBar />
       {Object.entries(panels).map(([key, panel]) => {
+        if (minimized && key === 'local-user') {
+          return null;
+        }
+
         let x: number;
         let y: number;
         let width: number;
@@ -280,6 +285,20 @@ const Hello = () => {
           );
         }
 
+        if (panel.type === 'local-user') {
+          const participant = twilioRoomRef.current?.localParticipant;
+
+          if (participant == null) {
+            return null;
+          }
+
+          return (
+            <S.PanelWrapper key={key} x={x} y={y} width={width} height={height}>
+              <LocalUserPanel participant={participant} />
+            </S.PanelWrapper>
+          );
+        }
+
         if (panel.type === 'remote-user') {
           const participant = twilioRoomRef.current?.participants.get(
             panel.participantSID
@@ -291,7 +310,7 @@ const Hello = () => {
 
           return (
             <S.PanelWrapper key={key} x={x} y={y} width={width} height={height}>
-              <RemoteUserPanel participant={participant}></RemoteUserPanel>
+              <RemoteUserPanel participant={participant} />
             </S.PanelWrapper>
           );
         }
