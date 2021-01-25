@@ -3,7 +3,8 @@ import * as electron from 'electron';
 
 export const useFakeMinimize = (minimizedHeight: number) => {
   const [minimized, setMinimized] = React.useState(false);
-  const previousBounds = React.useRef<electron.Rectangle | undefined>();
+  const previousExpandedBounds = React.useRef<electron.Rectangle | undefined>();
+  const previousMinimizedPosition = React.useRef<number[] | undefined>();
 
   const onKeyDown = React.useCallback(
     (e: KeyboardEvent) => {
@@ -12,8 +13,9 @@ export const useFakeMinimize = (minimizedHeight: number) => {
         const win = electron.remote.getCurrentWindow();
 
         if (e.shiftKey && minimized) {
-          if (previousBounds.current != null) {
-            win.setBounds(previousBounds.current);
+          previousMinimizedPosition.current = win.getPosition();
+          if (previousExpandedBounds.current != null) {
+            win.setBounds(previousExpandedBounds.current);
           } else {
             win.setBounds({ width: 640, height: 480 });
           }
@@ -25,13 +27,23 @@ export const useFakeMinimize = (minimizedHeight: number) => {
         }
 
         if (!e.shiftKey && !minimized) {
-          previousBounds.current = win.getBounds();
-          win.setBounds({
-            x: 8,
-            y: 24,
-            width: 240 + 16,
-            height: minimizedHeight,
-          });
+          previousExpandedBounds.current = win.getBounds();
+
+          if (previousMinimizedPosition.current) {
+            win.setBounds({
+              x: previousMinimizedPosition.current[0],
+              y: previousMinimizedPosition.current[1],
+              width: 240 + 16,
+              height: minimizedHeight,
+            });
+          } else {
+            win.setBounds({
+              x: 8,
+              y: 24,
+              width: 240 + 16,
+              height: minimizedHeight,
+            });
+          }
           win.setWindowButtonVisibility(false);
           win.shadow = false;
           setMinimized(true);
