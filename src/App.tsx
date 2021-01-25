@@ -1,22 +1,13 @@
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import {
-  connect,
-  LocalAudioTrack,
-  LocalParticipant,
-  LocalVideoTrack,
-  RemoteAudioTrack,
-  RemoteParticipant,
-  RemoteVideoTrack,
-  Room,
-} from 'twilio-video';
+import { connect, Room } from 'twilio-video';
 import * as PIXI from 'pixi.js';
 import * as Colyseus from 'colyseus.js';
 import * as S from './App.styles';
 import { useFakeMinimize } from './util/useFakeMinimize';
 import produce from 'immer';
-import { objectTraps } from 'immer/dist/internal';
 import RemoteUserPanel from './components/RemoteUserPanel';
+import MapPanel from './components/MapPanel';
 
 interface MapPanelData {
   type: 'map';
@@ -35,15 +26,18 @@ interface RemoteUserPanelData {
 export type PanelData = MapPanelData | LocalUserPanelData | RemoteUserPanelData;
 
 const Hello = () => {
-  const containerRef = React.useRef<HTMLDivElement>(null);
-  const videoRef = React.useRef<HTMLDivElement>(null);
-  const appRef = React.useRef<PIXI.Application | null>(null);
-  const colyseusRoomRef = React.useRef<Colyseus.Room | null>(null);
   const twilioRoomRef = React.useRef<Room | null>(null);
   const [panels, setPanels] = React.useState<{ [key: string]: PanelData }>({
     map: { type: 'map' },
   });
   const [expandedPanels, setExpandedPanels] = React.useState<string[]>(['map']);
+  const [windowSize, setWindowSize] = React.useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
+  const [colyseusRoom, setColyseusRoom] = React.useState<Colyseus.Room | null>(
+    null
+  );
 
   React.useEffect(() => {
     // const endpoint = 'http://localhost:5000/token';
@@ -111,84 +105,18 @@ const Hello = () => {
   console.log('PANELS', panels);
 
   React.useEffect(() => {
-    const app = new PIXI.Application({
-      width: window.innerWidth,
-      height: window.innerHeight,
-      antialias: true,
-      resolution: window.devicePixelRatio,
-      autoDensity: true,
-    });
-    appRef.current = app;
-
-    const container = containerRef.current;
-
-    if (container == null) {
-      return undefined;
-    }
-
-    container.appendChild(app.view);
-
-    return () => {
-      container.removeChild(app.view);
-      app.destroy();
-    };
-  }, []);
-
-  React.useEffect(() => {
-    for (let i = 0; i < 32; i++) {
-      for (let j = 0; j < 32; j++) {
-        const dot = new PIXI.Graphics();
-
-        dot.beginFill(0x444444);
-        dot.drawCircle(i * 32, j * 32, 2);
-        dot.endFill();
-
-        appRef.current?.stage.addChild(dot);
-      }
-    }
-  }, []);
-
-  React.useEffect(() => {
     const client = new Colyseus.Client(
       'ws://virtual-office-server.herokuapp.com'
     );
     // const client = new Colyseus.Client('ws://localhost:3434');
-    const playerGraphics: { [sessionId: string]: PIXI.Graphics } = {};
 
     client.joinOrCreate('main').then((room: Colyseus.Room<any>) => {
-      colyseusRoomRef.current = room;
-
-      room.state.players.onAdd = (player: any, sessionId: any) => {
-        console.log('add playserssarz');
-        const graphic = new PIXI.Graphics();
-        graphic.beginFill(0xffffff);
-        graphic.drawCircle(player.x, player.y, 16);
-        graphic.endFill();
-        appRef.current?.stage.addChild(graphic);
-
-        player.onChange = () => {
-          graphic.x = player.x;
-          graphic.y = player.y;
-        };
-
-        playerGraphics[sessionId] = graphic;
-      };
-
-      console.log('state', room.state);
-
-      room.state.players.onRemove = (player: any, sessionId: any) => {
-        appRef.current?.stage.removeChild(playerGraphics[sessionId]);
-        delete playerGraphics[sessionId];
-      };
+      setColyseusRoom(room);
     });
-
-    return () => {
-      colyseusRoomRef.current?.leave(false);
-    };
   }, []);
 
   const onResize = React.useCallback(() => {
-    appRef.current?.renderer.resize(window.innerWidth, window.innerHeight);
+    setWindowSize({ width: window.innerWidth, height: window.innerWidth });
   }, []);
 
   React.useEffect(() => {
@@ -228,42 +156,47 @@ const Hello = () => {
     return 0;
   }, []);
 
-  const onKeyDown = React.useCallback((e: KeyboardEvent) => {
-    keys.current[e.key] = true;
-    console.log('dirz', getDir());
-    if (
-      e.key === 'ArrowRight' ||
-      e.key === 'ArrowUp' ||
-      e.key === 'ArrowDown' ||
-      e.key === 'ArrowLeft'
-    ) {
-      colyseusRoomRef.current?.send('setMovement', {
-        dir: getDir(),
-        speed: 100,
-      });
-    }
-  }, []);
+  const onKeyDown = React.useCallback(
+    (e: KeyboardEvent) => {
+      keys.current[e.key] = true;
+      if (
+        e.key === 'ArrowRight' ||
+        e.key === 'ArrowUp' ||
+        e.key === 'ArrowDown' ||
+        e.key === 'ArrowLeft'
+      ) {
+        colyseusRoom?.send('setMovement', {
+          dir: getDir(),
+          speed: 100,
+        });
+      }
+    },
+    [colyseusRoom]
+  );
 
-  const onKeyUp = React.useCallback((e: KeyboardEvent) => {
-    delete keys.current[e.key];
-    if (
-      e.key === 'ArrowRight' ||
-      e.key === 'ArrowUp' ||
-      e.key === 'ArrowDown' ||
-      e.key === 'ArrowLeft'
-    ) {
-      colyseusRoomRef.current?.send('setMovement', {
-        dir: getDir(),
-        speed:
-          keys.current.ArrowRight ||
-          keys.current.ArrowLeft ||
-          keys.current.ArrowUp ||
-          keys.current.ArrowDown
-            ? 100
-            : 0,
-      });
-    }
-  }, []);
+  const onKeyUp = React.useCallback(
+    (e: KeyboardEvent) => {
+      delete keys.current[e.key];
+      if (
+        e.key === 'ArrowRight' ||
+        e.key === 'ArrowUp' ||
+        e.key === 'ArrowDown' ||
+        e.key === 'ArrowLeft'
+      ) {
+        colyseusRoom?.send('setMovement', {
+          dir: getDir(),
+          speed:
+            keys.current.ArrowRight ||
+            keys.current.ArrowLeft ||
+            keys.current.ArrowUp ||
+            keys.current.ArrowDown
+              ? 100
+              : 0,
+        });
+      }
+    },
+    [colyseusRoom]
+  );
 
   React.useEffect(() => {
     window.addEventListener('keydown', onKeyDown);
@@ -272,20 +205,55 @@ const Hello = () => {
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('keyup', onKeyUp);
     };
-  });
+  }, [onKeyUp, onKeyDown]);
 
-  useFakeMinimize();
+  const minimized = useFakeMinimize();
 
-  const smallPanelOrder = Object.keys(panels).filter(
-    (k) => !expandedPanels.includes(k)
-  );
+  const smallPanelOrder = minimized
+    ? Object.keys(panels)
+    : Object.keys(panels).filter((k) => !expandedPanels.includes(k));
 
   return (
     <>
       <S.DraggableBar />
-      <S.Container ref={containerRef} />
       {Object.entries(panels).map(([key, panel]) => {
-        const orderPosition = smallPanelOrder.indexOf(key);
+        let x: number;
+        let y: number;
+        let width: number;
+        let height: number;
+
+        if (key in expandedPanels) {
+          x = 0;
+          y = 0;
+          width = windowSize.width;
+          height = windowSize.height;
+        } else {
+          const orderPosition = smallPanelOrder.indexOf(key);
+          x = 8;
+          y = 8 + orderPosition * (135 + 8);
+          width = 240;
+          height = 135;
+        }
+
+        if (panel.type === 'map') {
+          if (colyseusRoom == null) {
+            return null;
+          }
+
+          return (
+            <S.PanelWrapper
+              className="wrap-that"
+              key={key}
+              x={x}
+              y={y}
+              width={width}
+              height={height}
+            >
+              <MapPanel key={key} colyseusRoom={colyseusRoom} />;
+            </S.PanelWrapper>
+          );
+        }
+
         if (panel.type === 'remote-user') {
           const participant = twilioRoomRef.current?.participants.get(
             panel.participantSID
@@ -296,17 +264,13 @@ const Hello = () => {
           }
 
           return (
-            <S.PanelWrapper x={8} y={8 + orderPosition * (196 + 8)}>
-              <RemoteUserPanel
-                key={key}
-                participant={participant}
-              ></RemoteUserPanel>
+            <S.PanelWrapper key={key} x={x} y={y} width={width} height={height}>
+              <RemoteUserPanel participant={participant}></RemoteUserPanel>
             </S.PanelWrapper>
           );
         }
         return null;
       })}
-      <S.TracksContainer ref={videoRef} />
     </>
   );
 };
