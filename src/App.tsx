@@ -235,7 +235,11 @@ const Hello = () => {
     };
   }, [onKeyUp, onKeyDown]);
 
-  const minimized = useFakeMinimize();
+  const minimizedHeight = React.useMemo(() => {
+    return Object.keys(panels).length * (135 + 8) + 8;
+  }, [panels]);
+
+  const minimized = useFakeMinimize(minimizedHeight);
 
   const smallPanelOrder = minimized
     ? Object.keys(panels)
@@ -247,10 +251,10 @@ const Hello = () => {
     }
 
     const win = electron.remote.getCurrentWindow();
-    win.setBounds(
-      { width: 240 + 16, height: Object.keys(panels).length * (135 + 8) + 8 },
-      true
-    );
+    win.setBounds({
+      width: 240 + 16,
+      height: minimizedHeight,
+    });
   }, [panels, minimized]);
 
   return (

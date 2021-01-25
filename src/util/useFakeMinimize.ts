@@ -1,42 +1,40 @@
 import React from 'react';
 import * as electron from 'electron';
 
-export const useFakeMinimize = () => {
+export const useFakeMinimize = (minimizedHeight: number) => {
   const [minimized, setMinimized] = React.useState(false);
   const previousBounds = React.useRef<electron.Rectangle | undefined>();
 
-  const onKeyDown = React.useCallback((e: KeyboardEvent) => {
-    if (e.key === 'm' && e.metaKey) {
-      e.preventDefault();
-      const win = electron.remote.getCurrentWindow();
+  const onKeyDown = React.useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === 'm' && e.metaKey) {
+        e.preventDefault();
+        const win = electron.remote.getCurrentWindow();
 
-      if (e.shiftKey) {
-        if (previousBounds.current != null) {
-          win.setBounds(previousBounds.current, true);
+        if (e.shiftKey) {
+          if (previousBounds.current != null) {
+            win.setBounds(previousBounds.current);
+          } else {
+            win.setBounds({ width: 640, height: 480 });
+          }
+          win.setWindowButtonVisibility(true);
+          setMinimized(false);
         } else {
-          win.setBounds({ width: 640, height: 480 }, true);
+          previousBounds.current = win.getBounds();
+          win.setBounds({
+            x: 8,
+            y: 24,
+            width: 240 + 16,
+            height: minimizedHeight,
+          });
+          win.setWindowButtonVisibility(false);
+          setMinimized(true);
+          win.shadow = false;
         }
-        win.setClosable(true);
-        win.setMinimizable(true);
-        win.setMaximizable(true);
-        setMinimized(false);
-        window.setTimeout(() => {
-          win.shadow = true;
-        }, 500);
-        window.setTimeout(() => {
-          win.shadow = true;
-        }, 1000);
-      } else {
-        previousBounds.current = win.getBounds();
-        win.setBounds({ x: 8, y: 24 }, true);
-        win.setClosable(false);
-        win.setMinimizable(false);
-        win.setMaximizable(false);
-        setMinimized(true);
-        win.shadow = false;
       }
-    }
-  }, []);
+    },
+    [minimizedHeight]
+  );
 
   React.useEffect(() => {
     window.addEventListener('keydown', onKeyDown);

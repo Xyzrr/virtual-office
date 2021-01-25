@@ -44,21 +44,20 @@ const MapPanel: React.FC<MapPanelProps> = ({ className, colyseusRoom }) => {
     return app;
   }, []);
 
-  const debouncedResize = React.useMemo(
-    () =>
-      _.debounce((width: number, height: number) => {
-        pixiApp.renderer.resize(width, height);
-      }, 400),
-    []
-  );
+  // const debouncedResize = React.useMemo(
+  //   () =>
+  //     _.debounce((width: number, height: number) => {
+  //       pixiApp.renderer.resize(width, height);
+  //     }, 400),
+  //   []
+  // );
 
   React.useEffect(() => {
     if (width == null || height == null) {
       return;
     }
 
-    console.log('size', width, height);
-    debouncedResize(width, height);
+    pixiApp.renderer.resize(width, height);
   }, [width, height]);
 
   const playerGraphics: { [sessionId: string]: PIXI.Graphics } = React.useMemo(
