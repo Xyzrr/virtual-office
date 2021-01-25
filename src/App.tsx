@@ -245,18 +245,6 @@ const Hello = () => {
     ? Object.keys(panels)
     : Object.keys(panels).filter((k) => !expandedPanels.includes(k));
 
-  React.useEffect(() => {
-    if (!minimized) {
-      return;
-    }
-
-    const win = electron.remote.getCurrentWindow();
-    win.setBounds({
-      width: 240 + 16,
-      height: minimizedHeight,
-    });
-  }, [panels, minimized]);
-
   return (
     <>
       <S.GlobalStyles />

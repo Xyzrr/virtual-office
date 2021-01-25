@@ -43,5 +43,17 @@ export const useFakeMinimize = (minimizedHeight: number) => {
     };
   });
 
+  React.useEffect(() => {
+    if (!minimized) {
+      return;
+    }
+
+    const win = electron.remote.getCurrentWindow();
+    win.setBounds({
+      width: 240 + 16,
+      height: minimizedHeight,
+    });
+  }, [minimizedHeight, minimized]);
+
   return minimized;
 };
