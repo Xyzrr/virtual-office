@@ -116,7 +116,7 @@ const Hello = () => {
   }, []);
 
   const onResize = React.useCallback(() => {
-    setWindowSize({ width: window.innerWidth, height: window.innerWidth });
+    setWindowSize({ width: window.innerWidth, height: window.innerHeight });
   }, []);
 
   React.useEffect(() => {
@@ -241,14 +241,7 @@ const Hello = () => {
           }
 
           return (
-            <S.PanelWrapper
-              className="wrap-that"
-              key={key}
-              x={x}
-              y={y}
-              width={width}
-              height={height}
-            >
+            <S.PanelWrapper key={key} x={x} y={y} width={width} height={height}>
               <MapPanel key={key} colyseusRoom={colyseusRoom} />;
             </S.PanelWrapper>
           );

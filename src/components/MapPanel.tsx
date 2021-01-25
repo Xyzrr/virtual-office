@@ -3,6 +3,7 @@ import React from 'react';
 import * as PIXI from 'pixi.js';
 import { app } from 'electron';
 import * as Colyseus from 'colyseus.js';
+import useResizeObserver from 'use-resize-observer';
 
 export interface MapPanelProps {
   className?: string;
@@ -10,6 +11,12 @@ export interface MapPanelProps {
 }
 
 const MapPanel: React.FC<MapPanelProps> = ({ className, colyseusRoom }) => {
+  const wrapperRef = React.useRef<HTMLDivElement>(null);
+
+  const { width, height } = useResizeObserver({
+    ref: wrapperRef,
+  });
+
   const pixiApp = React.useMemo(() => {
     const app = new PIXI.Application({
       width: window.innerWidth,
@@ -33,6 +40,16 @@ const MapPanel: React.FC<MapPanelProps> = ({ className, colyseusRoom }) => {
 
     return app;
   }, []);
+
+  React.useEffect(() => {
+    if (width == null || height == null) {
+      return;
+    }
+
+    console.log('size', width, height);
+
+    pixiApp.renderer.resize(width, height);
+  }, [width, height]);
 
   const playerGraphics: { [sessionId: string]: PIXI.Graphics } = React.useMemo(
     () => ({}),
@@ -67,9 +84,7 @@ const MapPanel: React.FC<MapPanelProps> = ({ className, colyseusRoom }) => {
     return () => {
       colyseusRoom.leave();
     };
-  }, []);
-
-  const wrapperRef = React.useRef<HTMLDivElement>(null);
+  }, [colyseusRoom]);
 
   React.useEffect(() => {
     wrapperRef.current?.appendChild(pixiApp.view);
