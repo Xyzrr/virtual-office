@@ -69,8 +69,8 @@ const Hello = () => {
 
       connect(token, {
         name: 'cool-room',
-        audio: true,
-        video: { width: 320 },
+        audio: false,
+        video: { width: 240, height: 135 },
       }).then(
         (room) => {
           console.log('Joined room', room);

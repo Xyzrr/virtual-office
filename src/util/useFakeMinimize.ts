@@ -22,7 +22,7 @@ export const useFakeMinimize = () => {
         setMinimized(false);
       } else {
         previousBounds.current = win.getBounds();
-        win.setBounds({ x: 8, y: 8, width: 256, height: 196 });
+        win.setBounds({ x: 8, y: 8, width: 256, height: 150 });
         win.setClosable(false);
         win.setMinimizable(false);
         win.setMaximizable(false);
