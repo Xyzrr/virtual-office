@@ -13,6 +13,9 @@ import * as PIXI from 'pixi.js';
 import * as Colyseus from 'colyseus.js';
 import * as S from './App.styles';
 import { useFakeMinimize } from './util/useFakeMinimize';
+import produce from 'immer';
+import { objectTraps } from 'immer/dist/internal';
+import RemoteUserPanel from './components/RemoteUserPanel';
 
 interface MapPanelData {
   type: 'map';
@@ -23,22 +26,10 @@ interface LocalUserPanelData {
   participant: LocalParticipant;
 }
 
-export const isLocalUserPanel = (
-  panel: PanelData
-): panel is LocalUserPanelData => {
-  return panel.type === 'local-user';
-};
-
 interface RemoteUserPanelData {
   type: 'remote-user';
   participant: RemoteParticipant;
 }
-
-export const isRemoteUserPanel = (
-  panel: PanelData
-): panel is RemoteUserPanelData => {
-  return panel.type === 'remote-user';
-};
 
 export type PanelData = MapPanelData | LocalUserPanelData | RemoteUserPanelData;
 
@@ -47,7 +38,7 @@ const Hello = () => {
   const videoRef = React.useRef<HTMLDivElement>(null);
   const appRef = React.useRef<PIXI.Application | null>(null);
   const roomRef = React.useRef<Colyseus.Room | null>(null);
-  const panels = React.useRef<{ [key: string]: PanelData }>({
+  const [panels, setPanels] = React.useState<{ [key: string]: PanelData }>({
     map: { type: 'map' },
   });
 
@@ -79,62 +70,35 @@ const Hello = () => {
         video: { width: 320 },
       }).then(
         (room) => {
+          console.log('Joined room');
+
           room.participants.forEach((participant) => {
             const panelId = `remote-user-${participant.identity}`;
-            panels.current[panelId] = { type: 'remote-user', participant };
-            // participant.tracks.forEach((publication) => {
-            //   if (publication.track) {
-            //     console.log('existing track', publication.track);
-            //     const existing =
-            //       panels.current[panelId];
-            //     if (existing && isRemoteUserPanel(existing)) {
-            //       if (publication.track.kind === 'video') {
-            //         existing.videoTrack = publication.track;
-            //       }
-            //       if (publication.track.kind === 'audio') {
-            //         existing.audioTrack = publication.track;
-            //       }
-            //     } else {
-            //       panels.current[panelId] = {
-            //         type: 'remote-user',
-            //         tracks:
-            //       }
-            //     }
-
-            //     videoRef.current?.appendChild(
-            //       (publication.track as any).attach()
-            //     );
-            //   }
-            // });
-
-            // participant.on('trackSubscribed', (track) => {
-            //   videoRef.current?.appendChild((track as any).attach());
-            // });
+            setPanels(
+              produce(panels, (draft: { [key: string]: PanelData }) => {
+                draft[panelId] = { type: 'remote-user', participant };
+              })
+            );
           });
-          console.log('joined room');
+
           room.on('participantConnected', (participant) => {
-            console.log(`remote participant connected: ${participant}`);
-
-            participant.tracks.forEach((publication: any) => {
-              if (publication.isSubscribed) {
-                const track = publication.track;
-                console.log('new track', publication.track);
-                videoRef.current?.appendChild(track.attach());
-              }
-            });
-
-            participant.on('trackSubscribed', (track: any) => {
-              console.log('subscribed track', track);
-              videoRef.current?.appendChild(track.attach());
-            });
+            console.log(`Remote participant connected: ${participant}`);
+            const panelId = `remote-user-${participant.identity}`;
+            setPanels(
+              produce(panels, (draft: { [key: string]: PanelData }) => {
+                draft[panelId] = { type: 'remote-user', participant };
+              })
+            );
           });
         },
         (error) => {
-          console.log(`unable to connect to room: ${error.message}`);
+          console.log(`Unable to connect to room: ${error.message}`);
         }
       );
     });
   }, []);
+
+  console.log('PANELS', panels);
 
   React.useEffect(() => {
     const app = new PIXI.Application({
@@ -303,6 +267,16 @@ const Hello = () => {
     <>
       <S.DraggableBar />
       <S.Container ref={containerRef} />
+      {Object.entries(panels).map(([key, panel]) => {
+        if (panel.type === 'remote-user') {
+          return (
+            <RemoteUserPanel
+              key={key}
+              participant={panel.participant}
+            ></RemoteUserPanel>
+          );
+        }
+      })}
       <S.TracksContainer ref={videoRef} />
     </>
   );
