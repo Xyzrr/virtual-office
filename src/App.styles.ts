@@ -1,4 +1,10 @@
-import styled from 'styled-components';
+import styled, { createGlobalStyle } from 'styled-components';
+
+export const GlobalStyles = createGlobalStyle`
+  body {
+    // background: green;
+  }
+`;
 
 export const DraggableBar = styled.div`
   position: relative;
@@ -16,7 +22,7 @@ export const PanelWrapper = styled.div<{
   height: number;
 }>`
   position: absolute;
-  // background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.2);
   top: 0;
   left: 0;
   transition: transform 0.4s, width 0.4s, height 0.4s;

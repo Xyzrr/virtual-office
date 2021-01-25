@@ -247,11 +247,15 @@ const Hello = () => {
     }
 
     const win = electron.remote.getCurrentWindow();
-    win.setBounds({ height: Object.keys(panels).length * (135 + 8) + 8 }, true);
+    win.setBounds(
+      { width: 240 + 16, height: Object.keys(panels).length * (135 + 8) + 8 },
+      true
+    );
   }, [panels, minimized]);
 
   return (
     <>
+      <S.GlobalStyles />
       <S.DraggableBar />
       {Object.entries(panels).map(([key, panel]) => {
         let x: number;
