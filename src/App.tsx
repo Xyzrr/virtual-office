@@ -8,6 +8,7 @@ import { useFakeMinimize } from './util/useFakeMinimize';
 import produce from 'immer';
 import RemoteUserPanel from './components/RemoteUserPanel';
 import MapPanel from './components/MapPanel';
+import * as electron from 'electron';
 
 interface MapPanelData {
   type: 'map';
@@ -240,6 +241,15 @@ const Hello = () => {
     ? Object.keys(panels)
     : Object.keys(panels).filter((k) => !expandedPanels.includes(k));
 
+  React.useEffect(() => {
+    if (!minimized) {
+      return;
+    }
+
+    const win = electron.remote.getCurrentWindow();
+    win.setBounds({ height: Object.keys(panels).length * (135 + 8) + 8 }, true);
+  }, [panels, minimized]);
+
   return (
     <>
       <S.DraggableBar />
@@ -249,7 +259,7 @@ const Hello = () => {
         let width: number;
         let height: number;
 
-        if (key in expandedPanels) {
+        if (!minimized && key in expandedPanels) {
           x = 0;
           y = 0;
           width = windowSize.width;

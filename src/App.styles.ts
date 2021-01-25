@@ -16,10 +16,10 @@ export const PanelWrapper = styled.div<{
   height: number;
 }>`
   position: absolute;
-  background: rgba(255, 255, 255, 0.2);
+  // background: rgba(255, 255, 255, 0.2);
   top: 0;
   left: 0;
-  transition: transform 0.2s;
+  transition: transform 0.4s, width 0.4s, height 0.4s;
   transform: translate(${(props) => props.x}px, ${(props) => props.y}px);
   width: ${(props) => props.width}px;
   height: ${(props) => props.height}px;

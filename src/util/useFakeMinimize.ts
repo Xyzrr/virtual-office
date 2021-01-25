@@ -12,21 +12,28 @@ export const useFakeMinimize = () => {
 
       if (e.shiftKey) {
         if (previousBounds.current != null) {
-          win.setBounds(previousBounds.current);
+          win.setBounds(previousBounds.current, true);
         } else {
-          win.setBounds({ width: 640, height: 480 });
+          win.setBounds({ width: 640, height: 480 }, true);
         }
         win.setClosable(true);
         win.setMinimizable(true);
         win.setMaximizable(true);
         setMinimized(false);
+        window.setTimeout(() => {
+          win.shadow = true;
+        }, 500);
+        window.setTimeout(() => {
+          win.shadow = true;
+        }, 1000);
       } else {
         previousBounds.current = win.getBounds();
-        win.setBounds({ x: 8, y: 8, width: 256, height: 150 });
+        win.setBounds({ x: 8, y: 8 }, true);
         win.setClosable(false);
         win.setMinimizable(false);
         win.setMaximizable(false);
         setMinimized(true);
+        win.shadow = false;
       }
     }
   }, []);
