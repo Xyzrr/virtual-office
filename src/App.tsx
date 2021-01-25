@@ -237,7 +237,10 @@ const Hello = () => {
   }, [onKeyUp, onKeyDown]);
 
   const minimizedHeight = React.useMemo(() => {
-    return Object.keys(panels).length * (135 + 8) + 8;
+    return (
+      Object.keys(panels).filter((k) => k !== 'local-user').length * (135 + 8) +
+      8
+    );
   }, [panels]);
 
   const minimized = useFakeMinimize(minimizedHeight);
