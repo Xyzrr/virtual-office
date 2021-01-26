@@ -7,7 +7,7 @@ export const GlobalStyles = createGlobalStyle<{ minimized?: boolean }>`
   ${(props) =>
     props.minimized
       ? css`
-          ${PanelWrapper} {
+          ${AppWrapper} {
             -webkit-app-region: drag;
           }
         `
@@ -16,6 +16,14 @@ export const GlobalStyles = createGlobalStyle<{ minimized?: boolean }>`
             -webkit-app-region: drag;
           }
         `}
+`;
+
+export const AppWrapper = styled.div`
+  width: 100vw;
+  height: 100vh;
+  &:hover {
+    background: rgba(80, 80, 80, 0.25);
+  }
 `;
 
 export const DraggableBar = styled.div`
@@ -41,4 +49,5 @@ export const PanelWrapper = styled.div<{
   height: ${(props) => props.height}px;
   border-radius: 4px;
   overflow: hidden;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.4);
 `;

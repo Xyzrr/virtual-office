@@ -275,7 +275,7 @@ const Hello = () => {
     : Object.keys(panels).filter((k) => !expandedPanels.includes(k));
 
   return (
-    <>
+    <S.AppWrapper>
       <S.GlobalStyles minimized={minimized} />
       <S.DraggableBar />
       {Object.entries(panels).map(([key, panel]) => {
@@ -344,7 +344,7 @@ const Hello = () => {
         }
         return null;
       })}
-    </>
+    </S.AppWrapper>
   );
 };
 
