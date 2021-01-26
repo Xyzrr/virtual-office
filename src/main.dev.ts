@@ -11,10 +11,12 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import path from 'path';
-import { app, BrowserWindow, shell } from 'electron';
+import { app, BrowserWindow, shell, screen, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
+import { electron } from 'process';
+import { Rectangle } from 'electron/main';
 
 export default class AppUpdater {
   constructor() {
@@ -77,7 +79,6 @@ const createWindow = async () => {
     titleBarStyle: 'hiddenInset',
     webPreferences: {
       nodeIntegration: true,
-      enableRemoteModule: true,
     },
   });
 
@@ -133,4 +134,72 @@ app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) createWindow();
+});
+
+let previousMinimizedPosition: number[] | null = null;
+let previousUnminimizedBounds: Rectangle | null = null;
+
+ipcMain.handle('unminimize', () => {
+  if (mainWindow == null) {
+    return;
+  }
+
+  previousMinimizedPosition = mainWindow.getPosition();
+  if (previousUnminimizedBounds != null) {
+    mainWindow.setBounds(previousUnminimizedBounds, true);
+  } else {
+    mainWindow.setBounds({ width: 640, height: 480 }, true);
+  }
+  mainWindow.setWindowButtonVisibility(true);
+  mainWindow.setResizable(true);
+  mainWindow.setAlwaysOnTop(false);
+  setTimeout(() => {
+    if (mainWindow != null) {
+      mainWindow.shadow = true;
+    }
+  }, 200);
+});
+
+ipcMain.handle('minimize', (e, minimizedHeight: number) => {
+  if (mainWindow == null) {
+    return;
+  }
+
+  previousUnminimizedBounds = mainWindow.getBounds();
+  const minimizedWidth = 240 + 16;
+
+  if (previousMinimizedPosition) {
+    mainWindow.setBounds(
+      {
+        x: previousMinimizedPosition[0],
+        y: previousMinimizedPosition[1],
+        width: minimizedWidth,
+        height: minimizedHeight,
+      },
+      true
+    );
+  } else {
+    mainWindow.setBounds(
+      {
+        x: screen.getPrimaryDisplay().size.width - minimizedWidth - 8,
+        y: 24,
+        width: minimizedWidth,
+        height: minimizedHeight,
+      },
+      true
+    );
+  }
+
+  mainWindow.setWindowButtonVisibility(false);
+  mainWindow.setResizable(false);
+  mainWindow.setAlwaysOnTop(true);
+  mainWindow.shadow = false;
+});
+
+ipcMain.handle('updateMinimizedHeight', (e, minimizedHeight: number) => {
+  if (mainWindow == null) {
+    return;
+  }
+
+  mainWindow.setBounds({ height: minimizedHeight });
 });
