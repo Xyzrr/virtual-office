@@ -1,9 +1,21 @@
-import styled, { createGlobalStyle } from 'styled-components';
+import styled, { createGlobalStyle, css } from 'styled-components';
 
-export const GlobalStyles = createGlobalStyle`
+export const GlobalStyles = createGlobalStyle<{ minimized?: boolean }>`
   body {
     // background: green;
   }
+  ${(props) =>
+    props.minimized
+      ? css`
+          ${PanelWrapper} {
+            -webkit-app-region: drag;
+          }
+        `
+      : css`
+          ${DraggableBar} {
+            -webkit-app-region: drag;
+          }
+        `}
 `;
 
 export const DraggableBar = styled.div`
@@ -12,7 +24,6 @@ export const DraggableBar = styled.div`
   height: 40px;
   margin-bottom: -40px;
   z-index: 100;
-  -webkit-app-region: drag;
 `;
 
 export const PanelWrapper = styled.div<{

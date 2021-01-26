@@ -276,7 +276,7 @@ const Hello = () => {
 
   return (
     <>
-      <S.GlobalStyles />
+      <S.GlobalStyles minimized={minimized} />
       <S.DraggableBar />
       {Object.entries(panels).map(([key, panel]) => {
         if (minimized && key === 'local-user') {
