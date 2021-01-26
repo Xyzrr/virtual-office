@@ -274,9 +274,27 @@ const Hello = () => {
     ? Object.keys(panels).filter((k) => k !== 'local-user')
     : Object.keys(panels).filter((k) => !expandedPanels.includes(k));
 
+  const [appFocused, setAppFocused] = React.useState(true);
+  React.useEffect(() => {
+    const onFocus = () => {
+      setAppFocused(true);
+    };
+
+    const onBlur = () => {
+      setAppFocused(false);
+    };
+
+    window.addEventListener('focus', onFocus);
+    window.addEventListener('blur', onBlur);
+    return () => {
+      window.removeEventListener('focus', onFocus);
+      window.removeEventListener('blur', onBlur);
+    };
+  });
+
   return (
     <S.AppWrapper>
-      <S.GlobalStyles minimized={minimized} />
+      <S.GlobalStyles minimized={minimized} focused={appFocused} />
       <S.DraggableBar />
       {Object.entries(panels).map(([key, panel]) => {
         if (minimized && key === 'local-user') {
@@ -297,6 +315,8 @@ const Hello = () => {
           const orderPosition = smallPanelOrder.indexOf(key);
           x = 8;
           y = 8 + orderPosition * (135 + 8);
+
+          console.log('op', orderPosition, y, panel);
           width = 240;
           height = 135;
         }

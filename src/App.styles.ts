@@ -1,6 +1,9 @@
 import styled, { createGlobalStyle, css } from 'styled-components';
 
-export const GlobalStyles = createGlobalStyle<{ minimized?: boolean }>`
+export const GlobalStyles = createGlobalStyle<{
+  minimized?: boolean;
+  focused?: boolean;
+}>`
   body {
     // background: green;
   }
@@ -14,6 +17,14 @@ export const GlobalStyles = createGlobalStyle<{ minimized?: boolean }>`
       : css`
           ${DraggableBar} {
             -webkit-app-region: drag;
+          }
+        `}
+      ${(props) =>
+        props.focused &&
+        css`
+          ${PanelWrapper} {
+            box-shadow: 0px 2px 5px 1px rgba(0, 0, 0, 0.7),
+              0px 0px 0 1px rgba(255, 255, 255, 0.2) !important;
           }
         `}
 `;
@@ -49,5 +60,6 @@ export const PanelWrapper = styled.div<{
   height: ${(props) => props.height}px;
   border-radius: 4px;
   overflow: hidden;
-  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.4);
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.4),
+    0px 0px 0 1px rgba(255, 255, 255, 0.08);
 `;
