@@ -146,9 +146,9 @@ ipcMain.handle('unminimize', () => {
 
   previousMinimizedPosition = mainWindow.getPosition();
   if (previousUnminimizedBounds != null) {
-    mainWindow.setBounds(previousUnminimizedBounds, true);
+    mainWindow.setBounds(previousUnminimizedBounds);
   } else {
-    mainWindow.setBounds({ width: 640, height: 480 }, true);
+    mainWindow.setBounds({ width: 640, height: 480 });
   }
   mainWindow.setWindowButtonVisibility(true);
   mainWindow.setResizable(true);
@@ -169,25 +169,19 @@ ipcMain.handle('minimize', (e, minimizedHeight: number) => {
   const minimizedWidth = 240 + 16;
 
   if (previousMinimizedPosition) {
-    mainWindow.setBounds(
-      {
-        x: previousMinimizedPosition[0],
-        y: previousMinimizedPosition[1],
-        width: minimizedWidth,
-        height: minimizedHeight,
-      },
-      true
-    );
+    mainWindow.setBounds({
+      x: previousMinimizedPosition[0],
+      y: previousMinimizedPosition[1],
+      width: minimizedWidth,
+      height: minimizedHeight,
+    });
   } else {
-    mainWindow.setBounds(
-      {
-        x: screen.getPrimaryDisplay().size.width - minimizedWidth - 8,
-        y: 24,
-        width: minimizedWidth,
-        height: minimizedHeight,
-      },
-      true
-    );
+    mainWindow.setBounds({
+      x: screen.getPrimaryDisplay().size.width - minimizedWidth - 8,
+      y: 24,
+      width: minimizedWidth,
+      height: minimizedHeight,
+    });
   }
 
   mainWindow.setWindowButtonVisibility(false);
