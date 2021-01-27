@@ -7,8 +7,8 @@ export const GlobalStyles = createGlobalStyle<{
   ${(props) =>
     props.minimized
       ? css`
-          ${AppWrapper} {
-            -webkit-app-region: drag;
+          ${AppWrapper}, ${PanelWrapper} {
+            -webkit-app-region: drag !important;
           }
           ${DraggableBar} {
             display: none;
@@ -42,7 +42,10 @@ export const DraggableBar = styled.div`
   width: 100%;
   height: 40px;
   margin-bottom: -40px;
-  z-index: 100;
+  z-index: 1;
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
 `;
 
 export const PanelWrapper = styled.div<{
@@ -50,9 +53,11 @@ export const PanelWrapper = styled.div<{
   y: number;
   width: number;
   height: number;
+  small?: boolean;
 }>`
   position: absolute;
   background: rgba(255, 255, 255, 0.2);
+  z-index: 0;
   top: 0;
   left: 0;
   transform: translate(${(props) => props.x}px, ${(props) => props.y}px);
@@ -62,4 +67,10 @@ export const PanelWrapper = styled.div<{
   overflow: hidden;
   box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.4),
     0px 0px 0 1px rgba(255, 255, 255, 0.08);
+  ${(props) =>
+    props.small &&
+    css`
+      z-index: 2;
+      -webkit-app-region: no-drag;
+    `}
 `;

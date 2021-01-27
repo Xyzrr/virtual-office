@@ -12,7 +12,7 @@ import * as electron from 'electron';
 import LocalUserPanel from './components/LocalUserPanel';
 import Icon from './components/Icon';
 
-const local = false;
+const local = true;
 
 let host: string;
 if (local) {
@@ -319,12 +319,9 @@ const Hello = () => {
         let width: number;
         let height: number;
 
-        if (!minimized && key in expandedPanels) {
-          x = 0;
-          y = 0;
-          width = windowSize.width;
-          height = windowSize.height;
-        } else {
+        const small = minimized || !(key in expandedPanels);
+
+        if (small) {
           const orderPosition = smallPanelOrder.indexOf(key);
           x = windowSize.width - 240 - 8;
           y = 8 + orderPosition * (135 + 8);
@@ -332,6 +329,11 @@ const Hello = () => {
           console.log('op', orderPosition, y, panel);
           width = 240;
           height = 135;
+        } else {
+          x = 0;
+          y = 0;
+          width = windowSize.width;
+          height = windowSize.height;
         }
 
         if (panel.type === 'map') {
@@ -340,7 +342,14 @@ const Hello = () => {
           }
 
           return (
-            <S.PanelWrapper key={key} x={x} y={y} width={width} height={height}>
+            <S.PanelWrapper
+              key={key}
+              x={x}
+              y={y}
+              width={width}
+              height={height}
+              small={small}
+            >
               <MapPanel colyseusRoom={colyseusRoom} minimized={minimized} />
             </S.PanelWrapper>
           );
@@ -354,7 +363,14 @@ const Hello = () => {
           }
 
           return (
-            <S.PanelWrapper key={key} x={x} y={y} width={width} height={height}>
+            <S.PanelWrapper
+              key={key}
+              x={x}
+              y={y}
+              width={width}
+              height={height}
+              small={small}
+            >
               <LocalUserPanel participant={participant} />
             </S.PanelWrapper>
           );
@@ -370,7 +386,14 @@ const Hello = () => {
           }
 
           return (
-            <S.PanelWrapper key={key} x={x} y={y} width={width} height={height}>
+            <S.PanelWrapper
+              key={key}
+              x={x}
+              y={y}
+              width={width}
+              height={height}
+              small={small}
+            >
               <RemoteUserPanel participant={participant} />
             </S.PanelWrapper>
           );
