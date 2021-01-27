@@ -74,6 +74,8 @@ const createWindow = async () => {
     show: false,
     width: 1024,
     height: 728,
+    minWidth: 750,
+    minHeight: 450,
     icon: getAssetPath('icon.png'),
     // frame: false,
     transparent: true,
@@ -149,11 +151,12 @@ ipcMain.handle('unminimize', () => {
   if (previousUnminimizedBounds != null) {
     mainWindow.setBounds(previousUnminimizedBounds);
   } else {
-    mainWindow.setBounds({ width: 640, height: 480 });
+    mainWindow.setBounds({ width: 750, height: 450 });
   }
   mainWindow.setWindowButtonVisibility(true);
   mainWindow.setResizable(true);
   mainWindow.setAlwaysOnTop(false);
+  mainWindow.setMinimumSize(750, 450);
   setTimeout(() => {
     if (mainWindow != null) {
       mainWindow.shadow = true;
@@ -189,6 +192,7 @@ ipcMain.handle('minimize', (e, minimizedHeight: number) => {
   mainWindow.setResizable(false);
   mainWindow.setAlwaysOnTop(true);
   mainWindow.shadow = false;
+  mainWindow.setMinimumSize(minimizedWidth, 135 + 16);
 });
 
 ipcMain.handle('updateMinimizedHeight', (e, minimizedHeight: number) => {
