@@ -107,6 +107,8 @@ const MapPanel: React.FC<MapPanelProps> = ({
         graphic.x = player.x;
         graphic.y = player.y;
 
+        console.log('player changed', player);
+
         if (sessionId === colyseusRoom.sessionId) {
           centerCamera();
         }

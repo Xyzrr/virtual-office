@@ -70,6 +70,7 @@ const createWindow = async () => {
   };
 
   mainWindow = new BrowserWindow({
+    title: 'Virtual Office',
     show: false,
     width: 1024,
     height: 728,

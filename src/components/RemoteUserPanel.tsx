@@ -14,14 +14,31 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = ({
   const wrapperRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
-    participant.tracks.forEach((publication: any) => {
+    participant.tracks.forEach((publication) => {
       if (publication.isSubscribed) {
+        console.log('track already subscribed');
         const track = publication.track;
-        wrapperRef.current?.appendChild(track.attach());
+        if (track != null && track.kind !== 'data') {
+          const el = track.attach();
+          wrapperRef.current?.appendChild(el);
+          publication.on('unsubscribed', () => {
+            console.log('publication unsubscribed');
+            // el.remove();
+          });
+        }
       }
     });
+
     participant.on('trackSubscribed', (track: any) => {
-      wrapperRef.current?.appendChild(track.attach());
+      console.log('track subscribed');
+      const el = track.attach();
+      wrapperRef.current?.appendChild(el);
+    });
+
+    participant.on('trackUnsubscribed', (track: any) => {
+      console.log('track unsubscribed');
+      const els = track.detach();
+      els.forEach((el: any) => el.remove());
     });
   }, [participant]);
 

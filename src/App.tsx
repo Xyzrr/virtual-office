@@ -11,6 +11,15 @@ import MapPanel from './components/MapPanel';
 import * as electron from 'electron';
 import LocalUserPanel from './components/LocalUserPanel';
 
+const local = true;
+
+let host: string;
+if (local) {
+  host = 'localhost:5000';
+} else {
+  host = 'virtual-office-server.herokuapp.com';
+}
+
 interface MapPanelData {
   type: 'map';
 }
@@ -41,11 +50,16 @@ const Hello = () => {
     null
   );
 
+  const identity = React.useMemo(() => {
+    const result = `cool-person-${Math.floor(Math.random() * 10000)}`;
+    console.log('IDENTITY', result);
+    return result;
+  }, []);
+
   React.useEffect(() => {
-    // const endpoint = 'http://localhost:5000/token';
-    const endpoint = 'https://virtual-office-server.herokuapp.com/token';
+    const endpoint = `http${local ? '' : 's'}://${host}/token`;
     const params = new window.URLSearchParams({
-      identity: `cool-person-${Math.floor(Math.random() * 10000)}`,
+      identity,
       roomName: 'cool-room',
     });
     const headers = new window.Headers();
@@ -122,13 +136,11 @@ const Hello = () => {
   }, []);
 
   React.useEffect(() => {
-    const client = new Colyseus.Client(
-      'ws://virtual-office-server.herokuapp.com'
-    );
-    // const client = new Colyseus.Client('ws://localhost:3434');
+    const client = new Colyseus.Client(`ws://${host}`);
 
     client.joinOrCreate('main').then((room: Colyseus.Room<any>) => {
       console.log('Joined or created Colyseus room:', room);
+      room.send('setIdentity', identity);
       setColyseusRoom(room);
     });
   }, []);
