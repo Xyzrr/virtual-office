@@ -4,14 +4,14 @@ export const GlobalStyles = createGlobalStyle<{
   minimized?: boolean;
   focused?: boolean;
 }>`
-  body {
-    // background: green;
-  }
   ${(props) =>
     props.minimized
       ? css`
           ${AppWrapper} {
             -webkit-app-region: drag;
+          }
+          ${DraggableBar} {
+            display: none;
           }
         `
       : css`

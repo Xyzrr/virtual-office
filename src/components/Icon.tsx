@@ -12,7 +12,7 @@ const Icon = React.forwardRef<HTMLDivElement, IconProps>(
       <S.Wrapper
         {...standardProps}
         ref={ref}
-        className={classNames(`material-icons`, className)}
+        className={classNames(`material-icons-outlined`, className)}
       >
         {name}
       </S.Wrapper>
