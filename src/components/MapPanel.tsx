@@ -19,6 +19,11 @@ const MapPanel: React.FC<MapPanelProps> = ({
 }) => {
   const wrapperRef = React.useRef<HTMLDivElement>(null);
 
+  const [roomState, setRoomState] = React.useState<any>(colyseusRoom.state);
+  const [ticks, setTicks] = React.useState(0);
+
+  console.log('state changed', roomState);
+
   const {
     width = window.innerWidth,
     height = window.innerWidth,
@@ -77,7 +82,20 @@ const MapPanel: React.FC<MapPanelProps> = ({
   }, [width, height]);
 
   React.useEffect(() => {
-    colyseusRoom.state.players.onAdd = (player: any, sessionId: any) => {
+    console.log('attaching global listener...');
+    colyseusRoom.onStateChange((s) => {
+      setRoomState(s);
+      setTicks((t) => t + 1);
+    });
+    return () => {
+      colyseusRoom.removeAllListeners();
+    };
+  }, [colyseusRoom]);
+
+  const { players } = roomState;
+
+  React.useEffect(() => {
+    players.onAdd = (player: any, sessionId: any) => {
       console.log('Colyseus player added', player);
 
       const graphic = new PIXI.Graphics();
@@ -92,15 +110,15 @@ const MapPanel: React.FC<MapPanelProps> = ({
       playerGraphics[sessionId] = graphic;
     };
 
-    colyseusRoom.state.players.onRemove = (player: any, sessionId: any) => {
+    players.onRemove = (player: any, sessionId: any) => {
       console.log('Colyseus player removed', player);
       pixiApp?.stage.removeChild(playerGraphics[sessionId]);
       delete playerGraphics[sessionId];
     };
-  }, [colyseusRoom, pixiApp, centerCamera]);
+  }, [players, pixiApp, centerCamera]);
 
   React.useEffect(() => {
-    colyseusRoom.state.players.forEach((player: any, sessionId: any) => {
+    players.forEach((player: any, sessionId: any) => {
       const graphic = playerGraphics[sessionId];
 
       player.onChange = () => {
@@ -114,7 +132,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
         }
       };
     });
-  }, [colyseusRoom, pixiApp, centerCamera]);
+  }, [players, pixiApp, centerCamera]);
 
   React.useEffect(() => {
     wrapperRef.current?.appendChild(pixiApp.view);
