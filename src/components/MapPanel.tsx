@@ -23,6 +23,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
     width: window.innerWidth,
     height: window.innerHeight,
   });
+  const localPlayerPosition = React.useRef({ x: 0, y: 0 });
 
   const scaleRef = React.useRef(1);
 
@@ -52,10 +53,6 @@ const MapPanel: React.FC<MapPanelProps> = ({
     return app;
   }, []);
 
-  React.useEffect(() => {
-    scaleRef.current = minimized ? 0.5 : 1;
-  }, [minimized]);
-
   const centerCameraAround = React.useCallback(
     (x: number, y: number) => {
       pixiApp.stage.scale.x = scaleRef.current;
@@ -68,12 +65,20 @@ const MapPanel: React.FC<MapPanelProps> = ({
     [colyseusRoom, pixiApp]
   );
 
+  React.useEffect(() => {
+    scaleRef.current = minimized ? 0.5 : 1;
+  }, [minimized]);
+
   useResizeObserver({
     ref: wrapperRef,
     onResize(size) {
       if (size.width != null && size.height != null) {
         windowSize.current = { width: size.width, height: size.height };
         pixiApp.renderer.resize(size.width, size.height);
+        centerCameraAround(
+          localPlayerPosition.current.x,
+          localPlayerPosition.current.y
+        );
       }
     },
   });
@@ -101,6 +106,8 @@ const MapPanel: React.FC<MapPanelProps> = ({
       graphic.x = player.x;
       graphic.y = player.y;
 
+      localPlayerPosition.current = { x: player.x, y: player.y };
+
       playerGraphics[sessionId] = graphic;
 
       player.onChange = () => {
@@ -111,6 +118,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
             console.log('x', graphic.x, 'y', graphic.y);
 
             if (sessionId === colyseusRoom.sessionId) {
+              localPlayerPosition.current = { x: graphic.x, y: graphic.y };
               centerCameraAround(graphic.x, graphic.y);
             }
           })
