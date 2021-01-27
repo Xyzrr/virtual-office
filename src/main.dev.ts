@@ -147,12 +147,6 @@ ipcMain.handle('unminimize', () => {
     return;
   }
 
-  previousMinimizedPosition = mainWindow.getPosition();
-  if (previousUnminimizedBounds != null) {
-    mainWindow.setBounds(previousUnminimizedBounds);
-  } else {
-    mainWindow.setBounds({ width: 1200, height: 720 });
-  }
   mainWindow.setWindowButtonVisibility(true);
   mainWindow.setResizable(true);
   mainWindow.setAlwaysOnTop(false);
@@ -162,6 +156,13 @@ ipcMain.handle('unminimize', () => {
       mainWindow.shadow = true;
     }
   }, 200);
+
+  previousMinimizedPosition = mainWindow.getPosition();
+  if (previousUnminimizedBounds != null) {
+    mainWindow.setBounds(previousUnminimizedBounds);
+  } else {
+    mainWindow.setBounds({ width: 1200, height: 720 });
+  }
 });
 
 ipcMain.handle('minimize', (e, minimizedHeight: number) => {
@@ -169,8 +170,15 @@ ipcMain.handle('minimize', (e, minimizedHeight: number) => {
     return;
   }
 
-  previousUnminimizedBounds = mainWindow.getBounds();
   const minimizedWidth = 240 + 16;
+
+  mainWindow.setMinimumSize(minimizedWidth, 135 + 16);
+  mainWindow.setWindowButtonVisibility(false);
+  mainWindow.setResizable(false);
+  mainWindow.setAlwaysOnTop(true);
+  mainWindow.shadow = false;
+
+  previousUnminimizedBounds = mainWindow.getBounds();
 
   if (previousMinimizedPosition) {
     mainWindow.setBounds({
@@ -187,12 +195,6 @@ ipcMain.handle('minimize', (e, minimizedHeight: number) => {
       height: minimizedHeight,
     });
   }
-
-  mainWindow.setWindowButtonVisibility(false);
-  mainWindow.setResizable(false);
-  mainWindow.setAlwaysOnTop(true);
-  mainWindow.shadow = false;
-  mainWindow.setMinimumSize(minimizedWidth, 135 + 16);
 });
 
 ipcMain.handle('updateMinimizedHeight', (e, minimizedHeight: number) => {

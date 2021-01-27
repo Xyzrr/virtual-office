@@ -323,7 +323,7 @@ const Hello = () => {
 
         if (small) {
           const orderPosition = smallPanelOrder.indexOf(key);
-          x = windowSize.width - 240 - 8;
+          x = windowSize.width - 240 - 16;
           y = 8 + orderPosition * (135 + 8);
 
           console.log('op', orderPosition, y, panel);
