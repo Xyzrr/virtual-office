@@ -6,18 +6,24 @@ import useResizeObserver from 'use-resize-observer';
 import * as _ from 'lodash';
 import * as TWEEN from '@tweenjs/tween.js';
 import Icon from './Icon';
+import { Room, createLocalVideoTrack } from 'twilio-video';
 
 export interface MapPanelProps {
   className?: string;
   colyseusRoom: Colyseus.Room;
   minimized: boolean;
+  twilioRoom: Room | null;
 }
 
 const MapPanel: React.FC<MapPanelProps> = ({
   className,
   colyseusRoom,
+  twilioRoom,
   minimized,
 }) => {
+  const [audioEnabled, setAudioEnabled] = React.useState(true);
+  const [videoEnabled, setVideoEnabled] = React.useState(true);
+
   const wrapperRef = React.useRef<HTMLDivElement>(null);
   const windowSize = React.useRef<{ width: number; height: number }>({
     width: window.innerWidth,
@@ -147,8 +153,53 @@ const MapPanel: React.FC<MapPanelProps> = ({
   return (
     <S.Wrapper className={className} ref={wrapperRef}>
       <S.IconButtons>
-        <S.IconButton name="mic" />
-        <S.IconButton name="videocam" />
+        <S.AudioButton
+          name="mic"
+          enabled={audioEnabled}
+          onClick={() => {
+            if (audioEnabled) {
+              twilioRoom?.localParticipant.audioTracks.forEach(
+                (publication) => {
+                  publication.track.disable();
+                }
+              );
+              setAudioEnabled(false);
+            } else {
+              twilioRoom?.localParticipant.audioTracks.forEach(
+                (publication) => {
+                  publication.track.enable();
+                }
+              );
+              setAudioEnabled(true);
+            }
+          }}
+        />
+        <S.VideoButton
+          name="videocam"
+          enabled={videoEnabled}
+          onClick={() => {
+            if (videoEnabled) {
+              twilioRoom?.localParticipant.videoTracks.forEach(
+                (publication) => {
+                  publication.track.stop();
+                  publication.unpublish();
+                }
+              );
+              setVideoEnabled(false);
+            } else {
+              createLocalVideoTrack()
+                .then((localVideoTrack) => {
+                  return twilioRoom?.localParticipant.publishTrack(
+                    localVideoTrack
+                  );
+                })
+                .then((publication) => {
+                  console.log('Successfully unmuted your video:', publication);
+                });
+              setVideoEnabled(true);
+            }
+          }}
+        />
       </S.IconButtons>
     </S.Wrapper>
   );

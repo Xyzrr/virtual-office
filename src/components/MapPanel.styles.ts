@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import Icon from './Icon';
 
 export const IconButtons = styled.div`
@@ -22,7 +22,7 @@ export const Wrapper = styled.div`
   }
 `;
 
-export const IconButton = styled(Icon)`
+const iconButtonStyles = css`
   padding: 8px;
   color: white;
   opacity: 0.5;
@@ -30,4 +30,20 @@ export const IconButton = styled(Icon)`
   &:hover {
     opacity: 1;
   }
+`;
+
+interface IconButtonProps {
+  enabled?: boolean;
+}
+
+export const AudioButton = styled(Icon).attrs<IconButtonProps>((props) => ({
+  name: props.enabled ? 'mic' : 'mic_off',
+}))<IconButtonProps>`
+  ${iconButtonStyles}
+`;
+
+export const VideoButton = styled(Icon).attrs<IconButtonProps>((props) => ({
+  name: props.enabled ? 'videocam' : 'videocam_off',
+}))<IconButtonProps>`
+  ${iconButtonStyles}
 `;

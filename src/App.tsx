@@ -350,7 +350,11 @@ const Hello = () => {
               height={height}
               small={small}
             >
-              <MapPanel colyseusRoom={colyseusRoom} minimized={minimized} />
+              <MapPanel
+                twilioRoom={twilioRoomRef.current}
+                colyseusRoom={colyseusRoom}
+                minimized={minimized}
+              />
             </S.PanelWrapper>
           );
         }
