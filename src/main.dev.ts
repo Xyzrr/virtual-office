@@ -72,8 +72,8 @@ const createWindow = async () => {
   mainWindow = new BrowserWindow({
     title: 'Virtual Office',
     show: false,
-    width: 1024,
-    height: 728,
+    width: 1200,
+    height: 720,
     minWidth: 750,
     minHeight: 450,
     icon: getAssetPath('icon.png'),
@@ -151,7 +151,7 @@ ipcMain.handle('unminimize', () => {
   if (previousUnminimizedBounds != null) {
     mainWindow.setBounds(previousUnminimizedBounds);
   } else {
-    mainWindow.setBounds({ width: 750, height: 450 });
+    mainWindow.setBounds({ width: 1200, height: 720 });
   }
   mainWindow.setWindowButtonVisibility(true);
   mainWindow.setResizable(true);
