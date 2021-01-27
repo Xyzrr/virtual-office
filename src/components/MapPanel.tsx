@@ -21,8 +21,8 @@ const MapPanel: React.FC<MapPanelProps> = ({
   twilioRoom,
   minimized,
 }) => {
-  const [audioEnabled, setAudioEnabled] = React.useState(true);
-  const [videoEnabled, setVideoEnabled] = React.useState(true);
+  const [audioDisabled, setAudioDisabled] = React.useState(false);
+  const [videoDisabled, setVideoDisabled] = React.useState(false);
 
   const wrapperRef = React.useRef<HTMLDivElement>(null);
   const windowSize = React.useRef<{ width: number; height: number }>({
@@ -153,40 +153,32 @@ const MapPanel: React.FC<MapPanelProps> = ({
   return (
     <S.Wrapper className={className} ref={wrapperRef}>
       <S.IconButtons>
-        <S.AudioButton
-          name="mic"
-          enabled={audioEnabled}
+        <S.IconButton
+          name={audioDisabled ? 'mic_off' : 'mic'}
+          disabled={audioDisabled}
           onClick={() => {
-            if (audioEnabled) {
-              twilioRoom?.localParticipant.audioTracks.forEach(
-                (publication) => {
-                  publication.track.disable();
-                }
-              );
-              setAudioEnabled(false);
-            } else {
+            if (audioDisabled) {
               twilioRoom?.localParticipant.audioTracks.forEach(
                 (publication) => {
                   publication.track.enable();
                 }
               );
-              setAudioEnabled(true);
+              setAudioDisabled(false);
+            } else {
+              twilioRoom?.localParticipant.audioTracks.forEach(
+                (publication) => {
+                  publication.track.disable();
+                }
+              );
+              setAudioDisabled(true);
             }
           }}
         />
-        <S.VideoButton
-          name="videocam"
-          enabled={videoEnabled}
+        <S.IconButton
+          name={videoDisabled ? 'videocam_off' : 'videocam'}
+          disabled={videoDisabled}
           onClick={() => {
-            if (videoEnabled) {
-              twilioRoom?.localParticipant.videoTracks.forEach(
-                (publication) => {
-                  publication.track.stop();
-                  publication.unpublish();
-                }
-              );
-              setVideoEnabled(false);
-            } else {
+            if (videoDisabled) {
               createLocalVideoTrack({
                 width: 240,
                 height: 135,
@@ -199,7 +191,15 @@ const MapPanel: React.FC<MapPanelProps> = ({
                 .then((publication) => {
                   console.log('Successfully unmuted your video:', publication);
                 });
-              setVideoEnabled(true);
+              setVideoDisabled(false);
+            } else {
+              twilioRoom?.localParticipant.videoTracks.forEach(
+                (publication) => {
+                  publication.track.stop();
+                  publication.unpublish();
+                }
+              );
+              setVideoDisabled(true);
             }
           }}
         />

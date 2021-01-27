@@ -7,7 +7,22 @@ export const IconButtons = styled.div`
   left: 0;
   padding: 8px;
   display: flex;
+`;
+
+export const IconButton = styled(Icon)<{ disabled?: boolean }>`
+  padding: 8px;
+  color: white;
+  cursor: pointer;
   opacity: 0;
+  &:hover {
+    opacity: 1 !important;
+  }
+  ${(props) =>
+    props.disabled &&
+    css`
+      color: red;
+      opacity: 1 !important;
+    `}
 `;
 
 export const Wrapper = styled.div`
@@ -16,34 +31,8 @@ export const Wrapper = styled.div`
     display: block;
   }
   &:hover {
-    ${IconButtons} {
-      opacity: 1;
+    ${IconButton} {
+      opacity: 0.5;
     }
   }
-`;
-
-const iconButtonStyles = css`
-  padding: 8px;
-  color: white;
-  opacity: 0.5;
-  cursor: pointer;
-  &:hover {
-    opacity: 1;
-  }
-`;
-
-interface IconButtonProps {
-  enabled?: boolean;
-}
-
-export const AudioButton = styled(Icon).attrs<IconButtonProps>((props) => ({
-  name: props.enabled ? 'mic' : 'mic_off',
-}))<IconButtonProps>`
-  ${iconButtonStyles}
-`;
-
-export const VideoButton = styled(Icon).attrs<IconButtonProps>((props) => ({
-  name: props.enabled ? 'videocam' : 'videocam_off',
-}))<IconButtonProps>`
-  ${iconButtonStyles}
 `;
