@@ -21,19 +21,15 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = ({
 
     participant.on('trackPublished', (publication: any) => {
       const { track } = publication;
-      if (track.kind === 'video') {
-        console.log('local track published');
-        const el = track.attach();
-        wrapperRef.current?.appendChild(el);
-      }
+      console.log('Local track published:', track);
+      const el = track.attach();
+      wrapperRef.current?.appendChild(el);
     });
 
     participant.on('trackStopped', (track: any) => {
-      if (track.kind === 'video') {
-        console.log('local track stopped', track);
-        const els = track.detach();
-        els.forEach((el: any) => el.remove());
-      }
+      console.log('Local track stopped:', track);
+      const els = track.detach();
+      els.forEach((el: any) => el.remove());
     });
   }, [participant]);
 
