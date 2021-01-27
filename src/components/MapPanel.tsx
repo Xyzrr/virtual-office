@@ -140,7 +140,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
     <S.Wrapper className={className} ref={wrapperRef}>
       <S.IconButtons>
         <S.IconButton name="mic" />
-        <S.IconButton name="video-camera" />
+        <S.IconButton name="videocam" />
       </S.IconButtons>
     </S.Wrapper>
   );
