@@ -11,7 +11,7 @@ import MapPanel from './components/MapPanel';
 import * as electron from 'electron';
 import LocalUserPanel from './components/LocalUserPanel';
 
-const local = true;
+const local = false;
 
 let host: string;
 if (local) {

@@ -106,7 +106,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
       player.onChange = () => {
         new TWEEN.Tween(graphic)
           .to({ x: player.x, y: player.y }, 100)
-          .easing(TWEEN.Easing.Linear.None)
+          .easing(TWEEN.Easing.Quadratic.Out)
           .onUpdate(() => {
             console.log('x', graphic.x, 'y', graphic.y);
 
