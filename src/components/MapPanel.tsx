@@ -187,7 +187,10 @@ const MapPanel: React.FC<MapPanelProps> = ({
               );
               setVideoEnabled(false);
             } else {
-              createLocalVideoTrack()
+              createLocalVideoTrack({
+                width: 240,
+                height: 135,
+              })
                 .then((localVideoTrack) => {
                   return twilioRoom?.localParticipant.publishTrack(
                     localVideoTrack

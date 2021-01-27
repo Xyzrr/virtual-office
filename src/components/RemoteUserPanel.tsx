@@ -23,7 +23,6 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = ({
           wrapperRef.current?.appendChild(el);
           publication.on('unsubscribed', () => {
             console.log('publication unsubscribed');
-            // el.remove();
           });
         }
       }

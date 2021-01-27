@@ -80,7 +80,7 @@ const Hello = () => {
 
       connect(token, {
         name: 'cool-room',
-        audio: false,
+        audio: true,
         video: { width: 240, height: 135 },
       }).then(
         (room) => {
