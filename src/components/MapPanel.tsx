@@ -1,11 +1,11 @@
 import * as S from './MapPanel.styles';
 import React from 'react';
 import * as PIXI from 'pixi.js';
-import { app } from 'electron';
 import * as Colyseus from 'colyseus.js';
 import useResizeObserver from 'use-resize-observer';
 import * as _ from 'lodash';
 import * as TWEEN from '@tweenjs/tween.js';
+import Icon from './Icon';
 
 export interface MapPanelProps {
   className?: string;
@@ -136,7 +136,13 @@ const MapPanel: React.FC<MapPanelProps> = ({
     };
   }, [pixiApp]);
 
-  return <S.Wrapper className={className} ref={wrapperRef} />;
+  return (
+    <>
+      <S.Wrapper className={className} ref={wrapperRef}>
+        <S.IconButton name="mic"></S.IconButton>
+      </S.Wrapper>
+    </>
+  );
 };
 
 export default MapPanel;

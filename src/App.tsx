@@ -10,6 +10,7 @@ import RemoteUserPanel from './components/RemoteUserPanel';
 import MapPanel from './components/MapPanel';
 import * as electron from 'electron';
 import LocalUserPanel from './components/LocalUserPanel';
+import Icon from './components/Icon';
 
 const local = false;
 
