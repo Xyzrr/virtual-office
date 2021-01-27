@@ -226,7 +226,7 @@ const Hello = () => {
       ) {
         colyseusRoom?.send('setMovement', {
           dir: getDir(),
-          speed: 100,
+          speed: 200,
         });
       }
     },

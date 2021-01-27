@@ -5,6 +5,7 @@ import { app } from 'electron';
 import * as Colyseus from 'colyseus.js';
 import useResizeObserver from 'use-resize-observer';
 import * as _ from 'lodash';
+import * as TWEEN from '@tweenjs/tween.js';
 
 export interface MapPanelProps {
   className?: string;
@@ -55,25 +56,23 @@ const MapPanel: React.FC<MapPanelProps> = ({
     scaleRef.current = minimized ? 0.5 : 1;
   }, [minimized]);
 
-  const centerCamera = React.useCallback(() => {
-    const player = colyseusRoom.state.players.get(colyseusRoom.sessionId);
-
-    if (player != null) {
+  const centerCameraAround = React.useCallback(
+    (x: number, y: number) => {
       pixiApp.stage.scale.x = scaleRef.current;
       pixiApp.stage.scale.y = scaleRef.current;
       pixiApp.stage.position.x =
-        -player.x * scaleRef.current + windowSize.current.width / 2;
+        -x * scaleRef.current + windowSize.current.width / 2;
       pixiApp.stage.position.y =
-        -player.y * scaleRef.current + windowSize.current.height / 2;
-    }
-  }, [colyseusRoom, pixiApp]);
+        -y * scaleRef.current + windowSize.current.height / 2;
+    },
+    [colyseusRoom, pixiApp]
+  );
 
   useResizeObserver({
     ref: wrapperRef,
     onResize(size) {
       if (size.width != null && size.height != null) {
         windowSize.current = { width: size.width, height: size.height };
-        centerCamera();
         pixiApp.renderer.resize(size.width, size.height);
       }
     },
@@ -83,6 +82,12 @@ const MapPanel: React.FC<MapPanelProps> = ({
     const playerGraphics: {
       [sessionId: string]: PIXI.Graphics;
     } = {};
+
+    const animate = (time: number) => {
+      requestAnimationFrame(animate);
+      TWEEN.update(time);
+    };
+    requestAnimationFrame(animate);
 
     colyseusRoom.state.players.onAdd = (player: any, sessionId: any) => {
       console.log('Colyseus player added', player);
@@ -99,14 +104,19 @@ const MapPanel: React.FC<MapPanelProps> = ({
       playerGraphics[sessionId] = graphic;
 
       player.onChange = () => {
-        graphic.x = player.x;
-        graphic.y = player.y;
+        new TWEEN.Tween(graphic)
+          .to({ x: player.x, y: player.y }, 100)
+          .easing(TWEEN.Easing.Linear.None)
+          .onUpdate(() => {
+            console.log('x', graphic.x, 'y', graphic.y);
+
+            if (sessionId === colyseusRoom.sessionId) {
+              centerCameraAround(graphic.x, graphic.y);
+            }
+          })
+          .start();
 
         console.log('Player changed', player);
-
-        if (sessionId === colyseusRoom.sessionId) {
-          centerCamera();
-        }
       };
     };
 
@@ -115,7 +125,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
       pixiApp?.stage.removeChild(playerGraphics[sessionId]);
       delete playerGraphics[sessionId];
     };
-  }, [colyseusRoom, pixiApp, centerCamera]);
+  }, [colyseusRoom, pixiApp, centerCameraAround]);
 
   React.useEffect(() => {
     wrapperRef.current?.appendChild(pixiApp.view);
