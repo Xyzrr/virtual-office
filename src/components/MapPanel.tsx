@@ -137,11 +137,12 @@ const MapPanel: React.FC<MapPanelProps> = ({
   }, [pixiApp]);
 
   return (
-    <>
-      <S.Wrapper className={className} ref={wrapperRef}>
-        <S.IconButton name="mic"></S.IconButton>
-      </S.Wrapper>
-    </>
+    <S.Wrapper className={className} ref={wrapperRef}>
+      <S.IconButtons>
+        <S.IconButton name="mic" />
+        <S.IconButton name="video-camera" />
+      </S.IconButtons>
+    </S.Wrapper>
   );
 };
 
