@@ -18,6 +18,9 @@ export const GlobalStyles = createGlobalStyle<{
           ${DraggableBar} {
             -webkit-app-region: drag;
           }
+          ${AppWrapper} {
+            background: black;
+          }
         `}
       ${(props) =>
         props.focused &&
@@ -32,9 +35,6 @@ export const GlobalStyles = createGlobalStyle<{
 export const AppWrapper = styled.div`
   width: 100vw;
   height: 100vh;
-  &:hover {
-    background: rgba(80, 80, 80, 0.25);
-  }
 `;
 
 export const DraggableBar = styled.div`
