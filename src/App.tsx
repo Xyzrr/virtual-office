@@ -1,6 +1,13 @@
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import { connect, Room, createLocalVideoTrack } from 'twilio-video';
+import {
+  connect,
+  Room,
+  createLocalVideoTrack,
+  RemoteParticipant,
+  RemoteTrack,
+  Participant,
+} from 'twilio-video';
 import * as PIXI from 'pixi.js';
 import * as Colyseus from 'colyseus.js';
 import * as S from './App.styles';
@@ -11,6 +18,7 @@ import MapPanel from './components/MapPanel';
 import * as electron from 'electron';
 import LocalUserPanel from './components/LocalUserPanel';
 import Icon from './components/Icon';
+import { min } from 'lodash';
 
 const local = true;
 
@@ -36,12 +44,18 @@ interface RemoteUserPanelData {
 
 export type PanelData = MapPanelData | LocalUserPanelData | RemoteUserPanelData;
 
+export interface ActiveParticipant {
+  sid: string;
+  distance: number;
+  audioSubscribed: boolean;
+  videoSubscribed: boolean;
+}
+
 const Hello = () => {
   const twilioRoomRef = React.useRef<Room | null>(null);
-  const [panels, setPanels] = React.useState<{ [key: string]: PanelData }>({
-    map: { type: 'map' },
-    'local-user': { type: 'local-user' },
-  });
+  const [activeParticipants, setActiveParticipants] = React.useState<{
+    [identity: string]: ActiveParticipant;
+  }>({});
   const [expandedPanels, setExpandedPanels] = React.useState<string[]>(['map']);
   const [windowSize, setWindowSize] = React.useState({
     width: window.innerWidth,
@@ -87,42 +101,98 @@ const Hello = () => {
           console.log('Joined Twilio room', room);
           twilioRoomRef.current = room;
 
-          room.participants.forEach((participant) => {
-            console.log(`Existing remote Twilio participant: ${participant}`);
-            const panelId = `remote-user-${participant.identity}`;
-            setPanels((panels) =>
-              produce(panels, (draft) => {
-                draft[panelId] = {
-                  type: 'remote-user',
-                  participantSID: participant.sid,
+          const handleConnectedParticipant = (
+            participant: RemoteParticipant
+          ) => {
+            setActiveParticipants((aps) =>
+              produce(aps, (draft) => {
+                draft[participant.identity] = {
+                  sid: participant.sid,
+                  distance: 0,
+                  audioSubscribed: false,
+                  videoSubscribed: false,
                 };
               })
             );
+
+            const handleSubscribedTrack = (track: RemoteTrack) => {
+              if (track.kind === 'video') {
+                setActiveParticipants((aps) =>
+                  produce(aps, (draft) => {
+                    draft[participant.identity].videoSubscribed = true;
+                  })
+                );
+              }
+              if (track.kind === 'audio') {
+                setActiveParticipants((aps) =>
+                  produce(aps, (draft) => {
+                    draft[participant.identity].audioSubscribed = true;
+                  })
+                );
+              }
+            };
+
+            const handleUnsubscribedTrack = (track: RemoteTrack) => {
+              if (track.kind === 'video') {
+                setActiveParticipants((aps) =>
+                  produce(aps, (draft) => {
+                    draft[participant.identity].videoSubscribed = false;
+                  })
+                );
+              }
+              if (track.kind === 'audio') {
+                setActiveParticipants((aps) =>
+                  produce(aps, (draft) => {
+                    draft[participant.identity].audioSubscribed = false;
+                  })
+                );
+              }
+            };
+
+            participant.tracks.forEach((publication) => {
+              if (publication.isSubscribed && publication.track != null) {
+                handleSubscribedTrack(publication.track);
+              }
+            });
+
+            participant.on('trackSubscribed', (track: RemoteTrack) => {
+              handleSubscribedTrack(track);
+            });
+
+            participant.on('trackUnsubscribed', (track: RemoteTrack) => {
+              if (track.kind === 'audio' || track.kind === 'video') {
+                const els = track.detach();
+                els.forEach((el) => el.remove());
+              }
+              handleUnsubscribedTrack(track);
+            });
+          };
+
+          const handleDisconnectedParticipant = (
+            participant: RemoteParticipant
+          ) => {
+            setActiveParticipants((aps) =>
+              produce(aps, (draft) => {
+                delete draft[participant.identity];
+              })
+            );
+          };
+
+          room.participants.forEach((participant) => {
+            console.log(`Existing remote Twilio participant: ${participant}`);
+            handleConnectedParticipant(participant);
           });
 
           room.on('participantConnected', (participant) => {
             console.log(`Remote Twilio participant connected: ${participant}`);
-            const panelId = `remote-user-${participant.identity}`;
-            setPanels((panels) =>
-              produce(panels, (draft) => {
-                draft[panelId] = {
-                  type: 'remote-user',
-                  participantSID: participant.sid,
-                };
-              })
-            );
+            handleConnectedParticipant(participant);
           });
 
           room.on('participantDisconnected', (participant) => {
             console.log(
               `Remote Twilio participant disconnected: ${participant}`
             );
-            const panelId = `remote-user-${participant.identity}`;
-            setPanels((panels) =>
-              produce(panels, (draft) => {
-                delete draft[panelId];
-              })
-            );
+            handleDisconnectedParticipant(participant);
           });
         },
         (error) => {
@@ -160,6 +230,24 @@ const Hello = () => {
   const onResize = React.useCallback(() => {
     setWindowSize({ width: window.innerWidth, height: window.innerHeight });
   }, []);
+
+  const [appFocused, setAppFocused] = React.useState(true);
+  React.useEffect(() => {
+    const onFocus = () => {
+      setAppFocused(true);
+    };
+
+    const onBlur = () => {
+      setAppFocused(false);
+    };
+
+    window.addEventListener('focus', onFocus);
+    window.addEventListener('blur', onBlur);
+    return () => {
+      window.removeEventListener('focus', onFocus);
+      window.removeEventListener('blur', onBlur);
+    };
+  });
 
   React.useEffect(() => {
     window.addEventListener('resize', onResize);
@@ -274,136 +362,148 @@ const Hello = () => {
     };
   }, [onKeyUp, onKeyDown]);
 
-  const minimizedHeight = React.useMemo(() => {
-    return (
-      Object.keys(panels).filter((k) => k !== 'local-user').length * (135 + 8) +
-      8
+  const minimized = useFakeMinimize(500);
+
+  if (colyseusRoom == null) {
+    return <S.AppWrapper>Loading Colyseus</S.AppWrapper>;
+  }
+
+  let nextSmallPanelY = 8;
+  const panelElements: React.ReactNode[] = [];
+
+  let x: number;
+  let y: number;
+  let width: number;
+  let height: number;
+
+  let key = 'map';
+  let small = minimized || !(key in expandedPanels);
+
+  if (small) {
+    width = 240;
+    x = windowSize.width - width - 8;
+    height = 135;
+    y = nextSmallPanelY;
+    nextSmallPanelY += height + 8;
+  } else {
+    x = 0;
+    y = 0;
+    width = windowSize.width;
+    height = windowSize.height;
+  }
+
+  panelElements.push(
+    <S.PanelWrapper
+      key={key}
+      x={x}
+      y={y}
+      width={width}
+      height={height}
+      small={small}
+    >
+      <MapPanel
+        twilioRoom={twilioRoomRef.current}
+        colyseusRoom={colyseusRoom}
+        minimized={minimized}
+      />
+    </S.PanelWrapper>
+  );
+
+  if (!minimized) {
+    const participant = twilioRoomRef.current?.localParticipant;
+
+    if (participant != null) {
+      key = 'local-user';
+      small = !(key in expandedPanels);
+
+      if (small) {
+        width = 240;
+        x = windowSize.width - width - 8;
+        height = 135;
+        y = nextSmallPanelY;
+        nextSmallPanelY += height + 8;
+      } else {
+        x = 0;
+        y = 0;
+        width = windowSize.width;
+        height = windowSize.height;
+      }
+
+      panelElements.push(
+        <S.PanelWrapper
+          key={key}
+          x={x}
+          y={y}
+          width={width}
+          height={height}
+          small={small}
+        >
+          <LocalUserPanel participant={participant} />
+        </S.PanelWrapper>
+      );
+    }
+  }
+
+  Object.entries(activeParticipants).forEach(([identity, ap]) => {
+    const participant = twilioRoomRef.current?.participants.get(ap.sid);
+
+    if (participant == null) {
+      return;
+    }
+
+    key = 'remote-user-' + identity;
+    small = minimized || !(key in expandedPanels);
+
+    if (small) {
+      width = 240;
+      x = windowSize.width - width - 8;
+      height = 135;
+      y = nextSmallPanelY;
+      nextSmallPanelY += height + 8;
+    } else {
+      x = 0;
+      y = 0;
+      width = windowSize.width;
+      height = windowSize.height;
+    }
+
+    let videoElement: HTMLVideoElement | undefined;
+    let audioElement: HTMLAudioElement | undefined;
+
+    participant.tracks.forEach((publication) => {
+      if (publication.isSubscribed) {
+        const { track } = publication;
+        if (track != null && track.kind === 'video') {
+          videoElement = track.attach();
+        }
+        if (track != null && track.kind === 'audio') {
+          audioElement = track.attach();
+        }
+      }
+    });
+
+    panelElements.push(
+      <S.PanelWrapper
+        key={key}
+        x={x}
+        y={y}
+        width={width}
+        height={height}
+        small={small}
+      >
+        <RemoteUserPanel
+          videoElement={videoElement}
+          audioElement={audioElement}
+        />
+      </S.PanelWrapper>
     );
-  }, [panels]);
-
-  const minimized = useFakeMinimize(minimizedHeight);
-
-  const smallPanelOrder = minimized
-    ? Object.keys(panels).filter((k) => k !== 'local-user')
-    : Object.keys(panels).filter((k) => !expandedPanels.includes(k));
-
-  const [appFocused, setAppFocused] = React.useState(true);
-  React.useEffect(() => {
-    const onFocus = () => {
-      setAppFocused(true);
-    };
-
-    const onBlur = () => {
-      setAppFocused(false);
-    };
-
-    window.addEventListener('focus', onFocus);
-    window.addEventListener('blur', onBlur);
-    return () => {
-      window.removeEventListener('focus', onFocus);
-      window.removeEventListener('blur', onBlur);
-    };
   });
 
   return (
     <S.AppWrapper>
       <S.GlobalStyles minimized={minimized} focused={appFocused} />
       <S.DraggableBar />
-      {Object.entries(panels).map(([key, panel]) => {
-        if (minimized && key === 'local-user') {
-          return null;
-        }
-
-        let x: number;
-        let y: number;
-        let width: number;
-        let height: number;
-
-        const small = minimized || !(key in expandedPanels);
-
-        if (small) {
-          const orderPosition = smallPanelOrder.indexOf(key);
-          x = windowSize.width - 240 - 8;
-          y = 8 + orderPosition * (135 + 8);
-
-          console.log('op', orderPosition, y, panel);
-          width = 240;
-          height = 135;
-        } else {
-          x = 0;
-          y = 0;
-          width = windowSize.width;
-          height = windowSize.height;
-        }
-
-        if (panel.type === 'map') {
-          if (colyseusRoom == null) {
-            return null;
-          }
-
-          return (
-            <S.PanelWrapper
-              key={key}
-              x={x}
-              y={y}
-              width={width}
-              height={height}
-              small={small}
-            >
-              <MapPanel
-                twilioRoom={twilioRoomRef.current}
-                colyseusRoom={colyseusRoom}
-                minimized={minimized}
-              />
-            </S.PanelWrapper>
-          );
-        }
-
-        if (panel.type === 'local-user') {
-          const participant = twilioRoomRef.current?.localParticipant;
-
-          if (participant == null) {
-            return null;
-          }
-
-          return (
-            <S.PanelWrapper
-              key={key}
-              x={x}
-              y={y}
-              width={width}
-              height={height}
-              small={small}
-            >
-              <LocalUserPanel participant={participant} />
-            </S.PanelWrapper>
-          );
-        }
-
-        if (panel.type === 'remote-user') {
-          const participant = twilioRoomRef.current?.participants.get(
-            panel.participantSID
-          );
-
-          if (participant == null) {
-            return null;
-          }
-
-          return (
-            <S.PanelWrapper
-              key={key}
-              x={x}
-              y={y}
-              width={width}
-              height={height}
-              small={small}
-            >
-              <RemoteUserPanel participant={participant} />
-            </S.PanelWrapper>
-          );
-        }
-        return null;
-      })}
+      {panelElements}
     </S.AppWrapper>
   );
 };

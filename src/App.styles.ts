@@ -10,6 +10,11 @@ export const GlobalStyles = createGlobalStyle<{
           ${AppWrapper}, ${PanelWrapper} {
             -webkit-app-region: drag !important;
           }
+          ${AppWrapper} {
+            &:hover {
+              background: rgba(80, 80, 80, 0.25);
+            }
+          }
           ${DraggableBar} {
             display: none;
           }
