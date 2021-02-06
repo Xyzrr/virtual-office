@@ -29,21 +29,6 @@ if (local) {
   host = 'virtual-office-server.herokuapp.com';
 }
 
-interface MapPanelData {
-  type: 'map';
-}
-
-interface LocalUserPanelData {
-  type: 'local-user';
-}
-
-interface RemoteUserPanelData {
-  type: 'remote-user';
-  participantSID: string;
-}
-
-export type PanelData = MapPanelData | LocalUserPanelData | RemoteUserPanelData;
-
 export interface ActiveParticipant {
   sid: string;
   distance: number;
