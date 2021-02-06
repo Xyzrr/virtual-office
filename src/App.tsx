@@ -7,6 +7,8 @@ import {
   RemoteParticipant,
   RemoteTrack,
   Participant,
+  RemoteVideoTrack,
+  RemoteAudioTrack,
 } from 'twilio-video';
 import * as PIXI from 'pixi.js';
 import * as Colyseus from 'colyseus.js';
@@ -344,14 +346,14 @@ const Hello = () => {
       return;
     }
 
-    if (ap.distance > 150) {
+    if (ap.distance > 200) {
       return;
     }
 
     key = 'remote-user-' + identity;
     small = minimized || !(key in expandedPanels);
 
-    const scale = Math.min(1, 50 / (ap.distance + 1));
+    const scale = Math.min(1, 100 / (ap.distance + 1));
 
     if (small) {
       width = 240 * scale;
@@ -366,21 +368,20 @@ const Hello = () => {
       height = windowSize.height;
     }
 
-    let videoElement: HTMLVideoElement | undefined;
-    let audioElement: HTMLAudioElement | undefined;
+    let videoTrack: RemoteVideoTrack | undefined;
+    let audioTrack: RemoteAudioTrack | undefined;
 
     participant.tracks.forEach((publication) => {
       if (publication.isSubscribed) {
         const { track } = publication;
         if (track != null && track.kind === 'video') {
-          videoElement = track.attach();
+          videoTrack = track;
         }
         if (track != null && track.kind === 'audio') {
-          audioElement = track.attach();
+          audioTrack = track;
         }
       }
     });
-    console.log('video', videoElement, 'audio', audioElement);
 
     panelElements.push(
       <S.PanelWrapper
@@ -391,10 +392,7 @@ const Hello = () => {
         height={height}
         small={small}
       >
-        <RemoteUserPanel
-          videoElement={videoElement}
-          audioElement={audioElement}
-        />
+        <RemoteUserPanel videoTrack={videoTrack} audioTrack={audioTrack} />
       </S.PanelWrapper>
     );
   });

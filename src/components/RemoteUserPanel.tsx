@@ -1,37 +1,43 @@
 import * as S from './RemoteUserPanel.styles';
 import React from 'react';
-import { RemoteParticipant } from 'twilio-video';
+import {
+  RemoteParticipant,
+  RemoteVideoTrack,
+  RemoteAudioTrack,
+} from 'twilio-video';
 
 export interface RemoteUserPanelProps {
   className?: string;
-  videoElement: HTMLVideoElement | undefined;
-  audioElement: HTMLAudioElement | undefined;
+  videoTrack?: RemoteVideoTrack;
+  audioTrack?: RemoteAudioTrack;
 }
 
 const RemoteUserPanel: React.FC<RemoteUserPanelProps> = ({
   className,
-  videoElement,
-  audioElement,
+  videoTrack,
+  audioTrack,
 }) => {
   const wrapperRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
-    if (videoElement != null) {
-      wrapperRef.current?.appendChild(videoElement);
+    if (videoTrack != null) {
+      const el = videoTrack.attach();
+      wrapperRef.current?.appendChild(el);
+      return () => {
+        el.remove();
+      };
     }
-    return () => {
-      videoElement?.remove();
-    };
-  }, [videoElement]);
+  }, [videoTrack]);
 
   React.useEffect(() => {
-    if (audioElement != null) {
-      wrapperRef.current?.appendChild(audioElement);
+    if (audioTrack != null) {
+      const el = audioTrack.attach();
+      wrapperRef.current?.appendChild(el);
+      return () => {
+        el.remove();
+      };
     }
-    return () => {
-      audioElement?.remove();
-    };
-  }, [audioElement]);
+  }, [audioTrack]);
 
   return <S.Wrapper className={className} ref={wrapperRef}></S.Wrapper>;
 };
