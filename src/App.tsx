@@ -19,6 +19,7 @@ import * as electron from 'electron';
 import LocalUserPanel from './components/LocalUserPanel';
 import Icon from './components/Icon';
 import { min } from 'lodash';
+import { LocalMediaContext } from './contexts/LocalMediaContext';
 
 const local = true;
 
@@ -38,6 +39,10 @@ export interface ActiveParticipant {
 
 const Hello = () => {
   const twilioRoomRef = React.useRef<Room | null>(null);
+
+  const [localAudioEnabled, setLocalAudioEnabled] = React.useState(false);
+  const [localVideoEnabled, setLocalVideoEnabled] = React.useState(true);
+
   const [activeParticipants, setActiveParticipants] = React.useState<{
     [identity: string]: ActiveParticipant;
   }>({});
@@ -79,8 +84,8 @@ const Hello = () => {
 
       connect(token, {
         name: 'cool-room',
-        audio: true,
-        video: { width: 240, height: 135 },
+        audio: localAudioEnabled,
+        video: localVideoEnabled ? { width: 240, height: 135 } : undefined,
       }).then(
         (room) => {
           console.log('Joined Twilio room', room);
@@ -485,11 +490,54 @@ const Hello = () => {
   });
 
   return (
-    <S.AppWrapper>
-      <S.GlobalStyles minimized={minimized} focused={appFocused} />
-      <S.DraggableBar />
-      {panelElements}
-    </S.AppWrapper>
+    <LocalMediaContext.Provider
+      value={{
+        localVideoEnabled,
+        localAudioEnabled,
+        enableLocalVideo() {
+          const twilioRoom = twilioRoomRef.current;
+          createLocalVideoTrack({
+            width: 240,
+            height: 135,
+          })
+            .then((localVideoTrack) => {
+              return twilioRoom?.localParticipant.publishTrack(localVideoTrack);
+            })
+            .then((publication) => {
+              console.log('Successfully unmuted your video:', publication);
+            });
+          setLocalVideoEnabled(true);
+        },
+        disableLocalVideo() {
+          const twilioRoom = twilioRoomRef.current;
+          twilioRoom?.localParticipant.videoTracks.forEach((publication) => {
+            publication.track.stop();
+            publication.unpublish();
+          });
+          setLocalVideoEnabled(false);
+        },
+        enableLocalAudio() {
+          const twilioRoom = twilioRoomRef.current;
+          twilioRoom?.localParticipant.audioTracks.forEach((publication) => {
+            publication.track.enable();
+          });
+          setLocalAudioEnabled(true);
+        },
+        disableLocalAudio() {
+          const twilioRoom = twilioRoomRef.current;
+          twilioRoom?.localParticipant.audioTracks.forEach((publication) => {
+            publication.track.disable();
+          });
+          setLocalAudioEnabled(false);
+        },
+      }}
+    >
+      <S.AppWrapper>
+        <S.GlobalStyles minimized={minimized} focused={appFocused} />
+        <S.DraggableBar />
+        {panelElements}
+      </S.AppWrapper>
+    </LocalMediaContext.Provider>
   );
 };
 

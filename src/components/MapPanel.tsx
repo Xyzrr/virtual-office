@@ -7,6 +7,7 @@ import * as _ from 'lodash';
 import * as TWEEN from '@tweenjs/tween.js';
 import Icon from './Icon';
 import { Room, createLocalVideoTrack } from 'twilio-video';
+import { LocalMediaContext } from '../contexts/LocalMediaContext';
 
 export interface MapPanelProps {
   className?: string;
@@ -21,8 +22,14 @@ const MapPanel: React.FC<MapPanelProps> = ({
   twilioRoom,
   minimized,
 }) => {
-  const [audioDisabled, setAudioDisabled] = React.useState(false);
-  const [videoDisabled, setVideoDisabled] = React.useState(false);
+  const {
+    localVideoEnabled,
+    localAudioEnabled,
+    enableLocalVideo,
+    disableLocalVideo,
+    enableLocalAudio,
+    disableLocalAudio,
+  } = React.useContext(LocalMediaContext);
 
   const wrapperRef = React.useRef<HTMLDivElement>(null);
   const windowSize = React.useRef<{ width: number; height: number }>({
@@ -152,52 +159,24 @@ const MapPanel: React.FC<MapPanelProps> = ({
     <S.Wrapper className={className} ref={wrapperRef}>
       <S.IconButtons>
         <S.IconButton
-          name={audioDisabled ? 'mic_off' : 'mic'}
-          disabled={audioDisabled}
+          name={localAudioEnabled ? 'mic' : 'mic_off'}
+          disabled={!localAudioEnabled}
           onClick={() => {
-            if (audioDisabled) {
-              twilioRoom?.localParticipant.audioTracks.forEach(
-                (publication) => {
-                  publication.track.enable();
-                }
-              );
-              setAudioDisabled(false);
+            if (localAudioEnabled) {
+              disableLocalAudio();
             } else {
-              twilioRoom?.localParticipant.audioTracks.forEach(
-                (publication) => {
-                  publication.track.disable();
-                }
-              );
-              setAudioDisabled(true);
+              enableLocalAudio();
             }
           }}
         />
         <S.IconButton
-          name={videoDisabled ? 'videocam_off' : 'videocam'}
-          disabled={videoDisabled}
+          name={localVideoEnabled ? 'videocam' : 'videocam_off'}
+          disabled={!localVideoEnabled}
           onClick={() => {
-            if (videoDisabled) {
-              createLocalVideoTrack({
-                width: 240,
-                height: 135,
-              })
-                .then((localVideoTrack) => {
-                  return twilioRoom?.localParticipant.publishTrack(
-                    localVideoTrack
-                  );
-                })
-                .then((publication) => {
-                  console.log('Successfully unmuted your video:', publication);
-                });
-              setVideoDisabled(false);
+            if (localVideoEnabled) {
+              disableLocalVideo();
             } else {
-              twilioRoom?.localParticipant.videoTracks.forEach(
-                (publication) => {
-                  publication.track.stop();
-                  publication.unpublish();
-                }
-              );
-              setVideoDisabled(true);
+              enableLocalVideo();
             }
           }}
         />
