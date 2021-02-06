@@ -13,12 +13,14 @@ export interface MapPanelProps {
   className?: string;
   colyseusRoom: Colyseus.Room;
   minimized: boolean;
+  onPlayerDistanceChanged(identity: string, distance: number): void;
 }
 
 const MapPanel: React.FC<MapPanelProps> = ({
   className,
   colyseusRoom,
   minimized,
+  onPlayerDistanceChanged,
 }) => {
   const {
     localVideoEnabled,
@@ -162,6 +164,13 @@ const MapPanel: React.FC<MapPanelProps> = ({
             .start();
 
           console.log('Remote player changed', Date.now(), player);
+          const localPlayer = localPlayerRef.current;
+          if (localPlayer != null) {
+            const dist = Math.sqrt(
+              (player.x - localPlayer.x) ** 2 + (player.y - localPlayer.y) ** 2
+            );
+            onPlayerDistanceChanged(player.identity, dist);
+          }
         };
       }
     };

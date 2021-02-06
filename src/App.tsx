@@ -285,7 +285,17 @@ const Hello = () => {
       small={small}
     >
       <MapPanel
-        twilioRoom={twilioRoomRef.current}
+        onPlayerDistanceChanged={(identity, distance) => {
+          setActiveParticipants((aps) => {
+            if (aps[identity] == null) {
+              return aps;
+            }
+            console.log('setting ap distance', identity, distance);
+            return produce(aps, (draft) => {
+              draft[identity].distance = distance;
+            });
+          });
+        }}
         colyseusRoom={colyseusRoom}
         minimized={minimized}
       />
@@ -334,13 +344,19 @@ const Hello = () => {
       return;
     }
 
+    if (ap.distance > 150) {
+      return;
+    }
+
     key = 'remote-user-' + identity;
     small = minimized || !(key in expandedPanels);
 
+    const scale = Math.min(1, 50 / (ap.distance + 1));
+
     if (small) {
-      width = 240;
+      width = 240 * scale;
       x = windowSize.width - width - 8;
-      height = 135;
+      height = 135 * scale;
       y = nextSmallPanelY;
       nextSmallPanelY += height + 8;
     } else {
