@@ -123,6 +123,13 @@ const MapPanel: React.FC<MapPanelProps> = ({
 
         centerCameraAround(localPlayer.x, localPlayer.y);
 
+        colyseusRoom.state.players.forEach((player: any) => {
+          const dist = Math.sqrt(
+            (player.x - localPlayer.x) ** 2 + (player.y - localPlayer.y) ** 2
+          );
+          onPlayerDistanceChanged(player.identity, dist);
+        });
+
         colyseusRoom.send('setPlayerPosition', {
           x: localPlayer.x,
           y: localPlayer.y,
