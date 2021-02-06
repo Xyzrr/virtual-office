@@ -34,7 +34,12 @@ const MapPanel: React.FC<MapPanelProps> = ({
     width: window.innerWidth,
     height: window.innerHeight,
   });
-  const localPlayerPosition = React.useRef({ x: 0, y: 0 });
+  const localPlayerRef = React.useRef<{
+    x: number;
+    y: number;
+    dir: number;
+    speed: number;
+  } | null>(null);
 
   const scaleRef = React.useRef(1);
 
@@ -86,10 +91,12 @@ const MapPanel: React.FC<MapPanelProps> = ({
       if (size.width != null && size.height != null) {
         windowSize.current = { width: size.width, height: size.height };
         pixiApp.renderer.resize(size.width, size.height);
-        centerCameraAround(
-          localPlayerPosition.current.x,
-          localPlayerPosition.current.y
-        );
+        if (localPlayerRef.current != null) {
+          centerCameraAround(
+            localPlayerRef.current.x,
+            localPlayerRef.current.y
+          );
+        }
       }
     },
   });
@@ -99,9 +106,29 @@ const MapPanel: React.FC<MapPanelProps> = ({
       [sessionId: string]: PIXI.Graphics;
     } = {};
 
+    let lastFrameTime = Date.now();
     const animate = (time: number) => {
-      requestAnimationFrame(animate);
+      const delta = (time - lastFrameTime) / 1000;
+      lastFrameTime = time;
+
+      const localPlayer = localPlayerRef.current;
+
+      if (localPlayer != null) {
+        localPlayer.x += localPlayer.speed * Math.cos(localPlayer.dir) * delta;
+        localPlayer.y -= localPlayer.speed * Math.sin(localPlayer.dir) * delta;
+        playerGraphics[colyseusRoom.sessionId].x = localPlayer.x;
+        playerGraphics[colyseusRoom.sessionId].y = localPlayer.y;
+
+        centerCameraAround(localPlayer.x, localPlayer.y);
+
+        colyseusRoom.send('setPlayerPosition', {
+          x: localPlayer.x,
+          y: localPlayer.y,
+        });
+      }
+
       TWEEN.update(time);
+      requestAnimationFrame(animate);
     };
     requestAnimationFrame(animate);
 
@@ -117,24 +144,26 @@ const MapPanel: React.FC<MapPanelProps> = ({
       graphic.x = player.x;
       graphic.y = player.y;
 
-      localPlayerPosition.current = { x: player.x, y: player.y };
-
       playerGraphics[sessionId] = graphic;
 
-      player.onChange = () => {
-        new TWEEN.Tween(graphic)
-          .to({ x: player.x, y: player.y }, 100)
-          .easing(TWEEN.Easing.Quadratic.Out)
-          .onUpdate(() => {
-            if (sessionId === colyseusRoom.sessionId) {
-              localPlayerPosition.current = { x: graphic.x, y: graphic.y };
-              centerCameraAround(graphic.x, graphic.y);
-            }
-          })
-          .start();
+      if (sessionId === colyseusRoom.sessionId) {
+        console.log('Got initial local player state', player);
+        localPlayerRef.current = {
+          x: player.x,
+          y: player.y,
+          dir: player.dir,
+          speed: player.speed,
+        };
+      } else {
+        player.onChange = () => {
+          new TWEEN.Tween(graphic)
+            .to({ x: player.x, y: player.y }, 80)
+            .easing(TWEEN.Easing.Linear.None)
+            .start();
 
-        console.log('Player changed', player);
-      };
+          console.log('Remote player changed', Date.now(), player);
+        };
+      }
     };
 
     colyseusRoom.state.players.onRemove = (player: any, sessionId: any) => {
@@ -152,6 +181,137 @@ const MapPanel: React.FC<MapPanelProps> = ({
       pixiApp.destroy();
     };
   }, [pixiApp]);
+
+  const heldCommands = React.useRef<{ [key: string]: boolean }>({});
+
+  const getDir = React.useCallback(() => {
+    const commands = heldCommands.current;
+    if (commands.right && commands.up) {
+      return Math.PI / 4;
+    }
+    if (commands.right && commands.down) {
+      return -Math.PI / 4;
+    }
+    if (commands.left && commands.up) {
+      return (3 * Math.PI) / 4;
+    }
+    if (commands.left && commands.down) {
+      return (-3 * Math.PI) / 4;
+    }
+    if (commands.right) {
+      return 0;
+    }
+    if (commands.up) {
+      return Math.PI / 2;
+    }
+    if (commands.left) {
+      return Math.PI;
+    }
+    if (commands.down) {
+      return (3 * Math.PI) / 2;
+    }
+    return null;
+  }, []);
+
+  const getSpeed = React.useCallback(() => {
+    const commands = heldCommands.current;
+    if (commands.right || commands.up || commands.left || commands.down) {
+      return 200;
+    }
+    return 0;
+  }, []);
+
+  const keyMap: { [key: string]: string } = {
+    ArrowRight: 'right',
+    ArrowUp: 'up',
+    ArrowLeft: 'left',
+    ArrowDown: 'down',
+    d: 'right',
+    w: 'up',
+    a: 'left',
+    s: 'down',
+  };
+
+  const onKeyDown = React.useCallback(
+    (e: KeyboardEvent) => {
+      const localPlayer = localPlayerRef.current;
+      if (localPlayer == null) {
+        return;
+      }
+
+      const command = keyMap[e.key];
+
+      if (command == null) {
+        return;
+      }
+
+      heldCommands.current[command] = true;
+
+      if (
+        command === 'right' ||
+        command === 'up' ||
+        command === 'left' ||
+        command === 'down'
+      ) {
+        const dir = getDir();
+
+        if (dir != null) {
+          colyseusRoom.send('setPlayerDirection', dir);
+          localPlayer.dir = dir;
+        }
+
+        const speed = getSpeed();
+        colyseusRoom.send('setPlayerSpeed', speed);
+        localPlayer.speed = speed;
+      }
+    },
+    [colyseusRoom]
+  );
+
+  const onKeyUp = React.useCallback(
+    (e: KeyboardEvent) => {
+      const localPlayer = localPlayerRef.current;
+      if (localPlayer == null) {
+        return;
+      }
+
+      const command = keyMap[e.key];
+
+      if (command == null) {
+        return;
+      }
+
+      delete heldCommands.current[command];
+
+      if (
+        command === 'right' ||
+        command === 'up' ||
+        command === 'left' ||
+        command === 'down'
+      ) {
+        const dir = getDir();
+
+        if (dir != null) {
+          colyseusRoom.send('setPlayerDirection', dir);
+          localPlayer.dir = dir;
+        }
+
+        const speed = getSpeed();
+        colyseusRoom.send('setPlayerSpeed', speed);
+        localPlayer.speed = speed;
+      }
+    },
+    [colyseusRoom]
+  );
+
+  React.useEffect(() => {
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keyup', onKeyUp);
+    };
+  }, [onKeyUp, onKeyDown]);
 
   return (
     <S.Wrapper className={className} ref={wrapperRef}>
