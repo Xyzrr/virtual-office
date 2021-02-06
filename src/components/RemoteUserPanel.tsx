@@ -19,12 +19,18 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = ({
     if (videoElement != null) {
       wrapperRef.current?.appendChild(videoElement);
     }
+    return () => {
+      videoElement?.remove();
+    };
   }, [videoElement]);
 
   React.useEffect(() => {
     if (audioElement != null) {
       wrapperRef.current?.appendChild(audioElement);
     }
+    return () => {
+      audioElement?.remove();
+    };
   }, [audioElement]);
 
   return <S.Wrapper className={className} ref={wrapperRef}></S.Wrapper>;

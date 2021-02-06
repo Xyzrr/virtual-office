@@ -121,8 +121,6 @@ const MapPanel: React.FC<MapPanelProps> = ({
           .to({ x: player.x, y: player.y }, 100)
           .easing(TWEEN.Easing.Quadratic.Out)
           .onUpdate(() => {
-            console.log('x', graphic.x, 'y', graphic.y);
-
             if (sessionId === colyseusRoom.sessionId) {
               localPlayerPosition.current = { x: graphic.x, y: graphic.y };
               centerCameraAround(graphic.x, graphic.y);

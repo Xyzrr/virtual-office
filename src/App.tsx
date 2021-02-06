@@ -136,19 +136,18 @@ const Hello = () => {
 
             participant.tracks.forEach((publication) => {
               if (publication.isSubscribed && publication.track != null) {
+                console.log('Existing subscribed remote track.');
                 handleSubscribedTrack(publication.track);
               }
             });
 
             participant.on('trackSubscribed', (track: RemoteTrack) => {
+              console.log('Remote track subscribed.');
               handleSubscribedTrack(track);
             });
 
             participant.on('trackUnsubscribed', (track: RemoteTrack) => {
-              if (track.kind === 'audio' || track.kind === 'video') {
-                const els = track.detach();
-                els.forEach((el) => el.remove());
-              }
+              console.log('Remote track unsubscribed.');
               handleUnsubscribedTrack(track);
             });
           };
@@ -466,6 +465,7 @@ const Hello = () => {
         }
       }
     });
+    console.log('video', videoElement, 'audio', audioElement);
 
     panelElements.push(
       <S.PanelWrapper
