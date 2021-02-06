@@ -13,13 +13,11 @@ export interface MapPanelProps {
   className?: string;
   colyseusRoom: Colyseus.Room;
   minimized: boolean;
-  twilioRoom: Room | null;
 }
 
 const MapPanel: React.FC<MapPanelProps> = ({
   className,
   colyseusRoom,
-  twilioRoom,
   minimized,
 }) => {
   const {
