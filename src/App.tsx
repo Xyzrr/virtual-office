@@ -202,7 +202,7 @@ const Hello = () => {
 
     client.joinOrCreate('main').then((room: Colyseus.Room<any>) => {
       console.log('Joined or created Colyseus room:', room);
-      room.send('setIdentity', identity);
+      room.send('setPlayerIdentity', identity);
       setColyseusRoom(room);
     });
   }, []);
@@ -285,12 +285,12 @@ const Hello = () => {
         xDirection="left"
       >
         <MapPanel
+          localPlayerIdentity={identity}
           onPlayerDistanceChanged={(identity, distance) => {
             setActiveParticipants((aps) => {
               if (aps[identity] == null) {
                 return aps;
               }
-              console.log('setting ap distance', identity, distance);
               return produce(aps, (draft) => {
                 draft[identity].distance = distance;
               });

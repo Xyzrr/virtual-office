@@ -11,6 +11,7 @@ import { LocalMediaContext } from '../contexts/LocalMediaContext';
 
 export interface MapPanelProps {
   className?: string;
+  localPlayerIdentity: string;
   colyseusRoom: Colyseus.Room;
   minimized: boolean;
   onPlayerDistanceChanged(identity: string, distance: number): void;
@@ -18,6 +19,7 @@ export interface MapPanelProps {
 
 const MapPanel: React.FC<MapPanelProps> = ({
   className,
+  localPlayerIdentity,
   colyseusRoom,
   minimized,
   onPlayerDistanceChanged,
@@ -37,7 +39,6 @@ const MapPanel: React.FC<MapPanelProps> = ({
     height: window.innerHeight,
   });
   const localPlayerRef = React.useRef<{
-    identity: string;
     x: number;
     y: number;
     dir: number;
@@ -118,6 +119,33 @@ const MapPanel: React.FC<MapPanelProps> = ({
         localPlayer.x += localPlayer.speed * Math.cos(localPlayer.dir) * delta;
         localPlayer.y -= localPlayer.speed * Math.sin(localPlayer.dir) * delta;
 
+        colyseusRoom.state.players.forEach((player: any) => {
+          if (player.identity === localPlayerIdentity) {
+            return;
+          }
+
+          const dist = Math.sqrt(
+            (player.x - localPlayer.x) ** 2 + (player.y - localPlayer.y) ** 2
+          );
+
+          console.log('dist', dist);
+
+          if (dist < 0.8) {
+            const atan = Math.atan(
+              (localPlayer.y - player.y) / (player.x - localPlayer.x)
+            );
+            const dir = player.x > localPlayer.x ? atan : atan + Math.PI;
+            const pushDir = dir + Math.PI;
+            const pushDist = 0.1 / (dist + 0.8);
+
+            localPlayer.x += Math.cos(pushDir) * pushDist;
+            localPlayer.y -= Math.sin(pushDir) * pushDist;
+            console.log('pushing', dist);
+          }
+
+          onPlayerDistanceChanged(player.identity, dist);
+        });
+
         const [mappedX, mappedY] = mapWorldCoordToPixiCoord(
           localPlayer.x,
           localPlayer.y
@@ -126,17 +154,6 @@ const MapPanel: React.FC<MapPanelProps> = ({
         playerGraphics[colyseusRoom.sessionId].y = mappedY;
 
         centerCameraAround(mappedX, mappedY);
-
-        colyseusRoom.state.players.forEach((player: any) => {
-          if (player.identity === localPlayer.identity) {
-            return;
-          }
-
-          const dist = Math.sqrt(
-            (player.x - localPlayer.x) ** 2 + (player.y - localPlayer.y) ** 2
-          );
-          onPlayerDistanceChanged(player.identity, dist);
-        });
 
         colyseusRoom.send('setPlayerPosition', {
           x: localPlayer.x,
@@ -153,7 +170,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
       console.log('Colyseus player added', player);
 
       const graphic = new PIXI.Graphics();
-      graphic.beginFill(0xffffff);
+      graphic.beginFill(player.color);
       graphic.drawCircle(0, 0, 16);
       graphic.endFill();
       pixiApp.stage.addChild(graphic);
@@ -167,7 +184,6 @@ const MapPanel: React.FC<MapPanelProps> = ({
       if (sessionId === colyseusRoom.sessionId) {
         console.log('Got initial local player state', player);
         localPlayerRef.current = {
-          identity: player.identity,
           x: player.x,
           y: player.y,
           dir: player.dir,
