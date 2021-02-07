@@ -38,7 +38,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
   const recentlyLoudTimerRef = React.useRef<number | null>(null);
 
   React.useEffect(() => {
-    if (localAudioVolume > 10) {
+    if (localAudioVolume > 15) {
       if (recentlyLoudTimerRef.current != null) {
         window.clearTimeout(recentlyLoudTimerRef.current);
         recentlyLoudTimerRef.current = null;
