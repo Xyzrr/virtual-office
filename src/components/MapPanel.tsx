@@ -27,6 +27,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
   const {
     localVideoEnabled,
     localAudioEnabled,
+    localAudioVolume,
     enableLocalVideo,
     disableLocalVideo,
     enableLocalAudio,
@@ -399,6 +400,11 @@ const MapPanel: React.FC<MapPanelProps> = ({
             }
           }}
         />
+        {localAudioEnabled && (
+          <S.MicVolumeOverlayWrapper style={{ height: localAudioVolume * 2 }}>
+            <S.MicVolumeOverlay name="mic"></S.MicVolumeOverlay>
+          </S.MicVolumeOverlayWrapper>
+        )}
         <S.IconButton
           name={localVideoEnabled ? 'videocam' : 'videocam_off'}
           disabled={!localVideoEnabled}

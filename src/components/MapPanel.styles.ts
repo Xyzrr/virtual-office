@@ -25,6 +25,23 @@ export const IconButton = styled(Icon)<{ disabled?: boolean }>`
     `}
 `;
 
+export const MicVolumeOverlayWrapper = styled.div`
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  overflow: hidden;
+  width: 40px;
+`;
+
+export const MicVolumeOverlay = styled(Icon)`
+  position: absolute;
+  padding: 8px;
+  bottom: 0;
+  left: 0;
+  color: lime;
+  pointer-events: none;
+`;
+
 export const Wrapper = styled.div<{ minimized: boolean }>`
   height: 100%;
   canvas {
