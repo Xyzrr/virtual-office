@@ -1,39 +1,42 @@
 import * as S from './LocalUserPanel.styles';
 import React from 'react';
-import { LocalParticipant } from 'twilio-video';
 
 export interface LocalUserPanelProps {
   className?: string;
-  participant: LocalParticipant;
+  videoTrack?: MediaStreamTrack;
 }
 
 const LocalUserPanel: React.FC<LocalUserPanelProps> = ({
   className,
-  participant,
+  videoTrack,
 }) => {
-  const wrapperRef = React.useRef<HTMLDivElement>(null);
+  const videoRef = React.useRef<HTMLVideoElement>(null);
 
   React.useEffect(() => {
-    participant.videoTracks.forEach((publication) => {
-      const track = publication.track;
-      wrapperRef.current?.appendChild((track as any).attach());
-    });
+    if (videoRef.current == null) {
+      return;
+    }
 
-    participant.on('trackPublished', (publication: any) => {
-      const { track } = publication;
-      console.log('Local track published:', track);
-      const el = track.attach();
-      wrapperRef.current?.appendChild(el);
-    });
+    const stream = new MediaStream();
 
-    participant.on('trackStopped', (track: any) => {
-      console.log('Local track stopped:', track);
-      const els = track.detach();
-      els.forEach((el: any) => el.remove());
-    });
-  }, [participant]);
+    if (videoTrack != null) {
+      stream.addTrack(videoTrack);
+    }
 
-  return <S.Wrapper className={className} ref={wrapperRef}></S.Wrapper>;
+    videoRef.current.srcObject = stream;
+
+    return () => {
+      if (videoTrack != null) {
+        stream.removeTrack(videoTrack);
+      }
+    };
+  }, [videoTrack]);
+
+  return (
+    <S.Wrapper className={className}>
+      <video ref={videoRef} autoPlay></video>
+    </S.Wrapper>
+  );
 };
 
 export default LocalUserPanel;

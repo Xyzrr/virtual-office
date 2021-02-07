@@ -12,7 +12,6 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = ({
   videoTrack,
   audioTrack,
 }) => {
-  const wrapperRef = React.useRef<HTMLDivElement>(null);
   const videoRef = React.useRef<HTMLVideoElement>(null);
 
   React.useEffect(() => {
@@ -42,7 +41,7 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = ({
   }, [videoTrack, audioTrack]);
 
   return (
-    <S.Wrapper className={className} ref={wrapperRef}>
+    <S.Wrapper className={className}>
       <video ref={videoRef} autoPlay></video>
     </S.Wrapper>
   );

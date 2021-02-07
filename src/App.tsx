@@ -102,6 +102,8 @@ const Hello = () => {
         );
       }
 
+      console.log('local', localTracks);
+
       if (!localAudioEnabled) {
         localAudioTrack.disable();
       }
@@ -138,7 +140,7 @@ const Hello = () => {
           tracks: localTracks,
         });
       } catch (error) {
-        console.log(`Unable to connect to room: ${error.message}`);
+        console.log(`Unable to connect to Twilio room: ${error.message}`);
         return;
       }
 
@@ -346,10 +348,8 @@ const Hello = () => {
     );
   }
 
-  if (!minimized) {
+  if (!minimized && localVideoEnabled) {
     const participant = twilioRoomRef.current?.localParticipant;
-
-    console.log('parti', participant);
 
     if (participant != null) {
       key = 'local-user';
@@ -368,6 +368,13 @@ const Hello = () => {
         height = windowSize.height;
       }
 
+      let videoTrack: MediaStreamTrack | undefined;
+
+      participant.videoTracks.forEach((publication) => {
+        const { track } = publication;
+        videoTrack = track.mediaStreamTrack;
+      });
+
       panelElements.push(
         <S.PanelWrapper
           key={key}
@@ -378,7 +385,7 @@ const Hello = () => {
           small={small}
           xDirection="left"
         >
-          <LocalUserPanel participant={participant} />
+          <LocalUserPanel videoTrack={videoTrack} />
         </S.PanelWrapper>
       );
     }
@@ -470,9 +477,9 @@ const Hello = () => {
               return twilioRoom?.localParticipant.publishTrack(localVideoTrack);
             })
             .then((publication) => {
-              console.log('Successfully unmuted your video:', publication);
+              console.log('Successfully enabled your video:', publication);
+              setLocalVideoEnabled(true);
             });
-          setLocalVideoEnabled(true);
         },
         disableLocalVideo() {
           const twilioRoom = twilioRoomRef.current;
