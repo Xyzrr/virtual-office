@@ -10,6 +10,8 @@ import {
   RemoteVideoTrack,
   RemoteAudioTrack,
   createLocalTracks,
+  createLocalAudioTrack,
+  LocalTrack,
 } from 'twilio-video';
 import * as PIXI from 'pixi.js';
 import * as Colyseus from 'colyseus.js';
@@ -45,6 +47,7 @@ const Hello = () => {
 
   const [localAudioEnabled, setLocalAudioEnabled] = React.useState(false);
   const [localVideoEnabled, setLocalVideoEnabled] = React.useState(true);
+  const [localAudioVolume, setLocalAudioVolume] = React.useState(0);
 
   const [activeParticipants, setActiveParticipants] = React.useState<{
     [identity: string]: ActiveParticipant;
@@ -85,18 +88,48 @@ const Hello = () => {
 
       console.log('Twilio access token:', token);
 
-      const localTracks = await createLocalTracks({
-        audio: true,
-        video: localVideoEnabled ? { width: 240, height: 135 } : undefined,
-      });
+      /** Initialize local tracks */
+
+      const localAudioTrack = await createLocalAudioTrack();
+      const localTracks: LocalTrack[] = [localAudioTrack];
+
+      if (localVideoEnabled) {
+        localTracks.push(
+          await createLocalVideoTrack({
+            width: 240,
+            height: 135,
+          })
+        );
+      }
 
       if (!localAudioEnabled) {
-        localTracks.forEach((track) => {
-          if (track.kind === 'audio') {
-            track.disable();
-          }
-        });
+        localAudioTrack.disable();
       }
+
+      /** Track volume */
+
+      const mediaStream = new MediaStream();
+      mediaStream.addTrack(localAudioTrack.mediaStreamTrack);
+
+      const audioContext = new AudioContext();
+      const mediaStreamSource = audioContext.createMediaStreamSource(
+        mediaStream
+      );
+      const processor = audioContext.createScriptProcessor(2048, 1, 1);
+
+      mediaStreamSource.connect(audioContext.destination);
+      mediaStreamSource.connect(processor);
+      processor.connect(audioContext.destination);
+
+      processor.onaudioprocess = (e) => {
+        const inputData = e.inputBuffer.getChannelData(0);
+
+        const total = inputData.reduce((a, b) => a + Math.abs(b));
+        const rms = Math.sqrt(total / inputData.length);
+        setLocalAudioVolume(rms * 100);
+      };
+
+      /** Connect to Twilio */
 
       let room: Room;
       try {
@@ -316,6 +349,8 @@ const Hello = () => {
   if (!minimized) {
     const participant = twilioRoomRef.current?.localParticipant;
 
+    console.log('parti', participant);
+
     if (participant != null) {
       key = 'local-user';
       small = !(key in expandedPanels);
@@ -424,6 +459,7 @@ const Hello = () => {
       value={{
         localVideoEnabled,
         localAudioEnabled,
+        localAudioVolume,
         enableLocalVideo() {
           const twilioRoom = twilioRoomRef.current;
           createLocalVideoTrack({
