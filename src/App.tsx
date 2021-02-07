@@ -9,6 +9,7 @@ import {
   Participant,
   RemoteVideoTrack,
   RemoteAudioTrack,
+  createLocalTracks,
 } from 'twilio-video';
 import * as PIXI from 'pixi.js';
 import * as Colyseus from 'colyseus.js';
@@ -84,112 +85,121 @@ const Hello = () => {
 
       console.log('Twilio access token:', token);
 
-      connect(token, {
-        name: 'cool-room',
-        audio: localAudioEnabled,
+      const localTracks = await createLocalTracks({
+        audio: true,
         video: localVideoEnabled ? { width: 240, height: 135 } : undefined,
-      }).then(
-        (room) => {
-          console.log('Joined Twilio room', room);
-          twilioRoomRef.current = room;
+      });
 
-          const handleConnectedParticipant = (
-            participant: RemoteParticipant
-          ) => {
+      if (!localAudioEnabled) {
+        localTracks.forEach((track) => {
+          if (track.kind === 'audio') {
+            track.disable();
+          }
+        });
+      }
+
+      let room: Room;
+      try {
+        room = await connect(token, {
+          name: 'cool-room',
+          tracks: localTracks,
+        });
+      } catch (error) {
+        console.log(`Unable to connect to room: ${error.message}`);
+        return;
+      }
+
+      console.log('Joined Twilio room', room);
+      twilioRoomRef.current = room;
+
+      const handleConnectedParticipant = (participant: RemoteParticipant) => {
+        setActiveParticipants((aps) =>
+          produce(aps, (draft) => {
+            draft[participant.identity] = {
+              sid: participant.sid,
+              distance: 0,
+              audioSubscribed: false,
+              videoSubscribed: false,
+            };
+          })
+        );
+
+        const handleSubscribedTrack = (track: RemoteTrack) => {
+          if (track.kind === 'video') {
             setActiveParticipants((aps) =>
               produce(aps, (draft) => {
-                draft[participant.identity] = {
-                  sid: participant.sid,
-                  distance: 0,
-                  audioSubscribed: false,
-                  videoSubscribed: false,
-                };
+                draft[participant.identity].videoSubscribed = true;
               })
             );
-
-            const handleSubscribedTrack = (track: RemoteTrack) => {
-              if (track.kind === 'video') {
-                setActiveParticipants((aps) =>
-                  produce(aps, (draft) => {
-                    draft[participant.identity].videoSubscribed = true;
-                  })
-                );
-              }
-              if (track.kind === 'audio') {
-                setActiveParticipants((aps) =>
-                  produce(aps, (draft) => {
-                    draft[participant.identity].audioSubscribed = true;
-                  })
-                );
-              }
-            };
-
-            const handleUnsubscribedTrack = (track: RemoteTrack) => {
-              if (track.kind === 'video') {
-                setActiveParticipants((aps) =>
-                  produce(aps, (draft) => {
-                    draft[participant.identity].videoSubscribed = false;
-                  })
-                );
-              }
-              if (track.kind === 'audio') {
-                setActiveParticipants((aps) =>
-                  produce(aps, (draft) => {
-                    draft[participant.identity].audioSubscribed = false;
-                  })
-                );
-              }
-            };
-
-            participant.tracks.forEach((publication) => {
-              if (publication.isSubscribed && publication.track != null) {
-                console.log('Existing subscribed remote track.');
-                handleSubscribedTrack(publication.track);
-              }
-            });
-
-            participant.on('trackSubscribed', (track: RemoteTrack) => {
-              console.log('Remote track subscribed.');
-              handleSubscribedTrack(track);
-            });
-
-            participant.on('trackUnsubscribed', (track: RemoteTrack) => {
-              console.log('Remote track unsubscribed.');
-              handleUnsubscribedTrack(track);
-            });
-          };
-
-          const handleDisconnectedParticipant = (
-            participant: RemoteParticipant
-          ) => {
+          }
+          if (track.kind === 'audio') {
             setActiveParticipants((aps) =>
               produce(aps, (draft) => {
-                delete draft[participant.identity];
+                draft[participant.identity].audioSubscribed = true;
               })
             );
-          };
+          }
+        };
 
-          room.participants.forEach((participant) => {
-            console.log(`Existing remote Twilio participant: ${participant}`);
-            handleConnectedParticipant(participant);
-          });
-
-          room.on('participantConnected', (participant) => {
-            console.log(`Remote Twilio participant connected: ${participant}`);
-            handleConnectedParticipant(participant);
-          });
-
-          room.on('participantDisconnected', (participant) => {
-            console.log(
-              `Remote Twilio participant disconnected: ${participant}`
+        const handleUnsubscribedTrack = (track: RemoteTrack) => {
+          if (track.kind === 'video') {
+            setActiveParticipants((aps) =>
+              produce(aps, (draft) => {
+                draft[participant.identity].videoSubscribed = false;
+              })
             );
-            handleDisconnectedParticipant(participant);
-          });
-        },
-        (error) => {
-          console.log(`Unable to connect to room: ${error.message}`);
-        }
-      );
+          }
+          if (track.kind === 'audio') {
+            setActiveParticipants((aps) =>
+              produce(aps, (draft) => {
+                draft[participant.identity].audioSubscribed = false;
+              })
+            );
+          }
+        };
+
+        participant.tracks.forEach((publication) => {
+          if (publication.isSubscribed && publication.track != null) {
+            console.log('Existing subscribed remote track.');
+            handleSubscribedTrack(publication.track);
+          }
+        });
+
+        participant.on('trackSubscribed', (track: RemoteTrack) => {
+          console.log('Remote track subscribed.');
+          handleSubscribedTrack(track);
+        });
+
+        participant.on('trackUnsubscribed', (track: RemoteTrack) => {
+          console.log('Remote track unsubscribed.');
+          handleUnsubscribedTrack(track);
+        });
+      };
+
+      const handleDisconnectedParticipant = (
+        participant: RemoteParticipant
+      ) => {
+        setActiveParticipants((aps) =>
+          produce(aps, (draft) => {
+            delete draft[participant.identity];
+          })
+        );
+      };
+
+      room.participants.forEach((participant) => {
+        console.log(`Existing remote Twilio participant: ${participant}`);
+        handleConnectedParticipant(participant);
+      });
+
+      room.on('participantConnected', (participant) => {
+        console.log(`Remote Twilio participant connected: ${participant}`);
+        handleConnectedParticipant(participant);
+      });
+
+      room.on('participantDisconnected', (participant) => {
+        console.log(`Remote Twilio participant disconnected: ${participant}`);
+        handleDisconnectedParticipant(participant);
+      });
     });
 
     return () => {
@@ -368,17 +378,17 @@ const Hello = () => {
       height = windowSize.height;
     }
 
-    let videoTrack: RemoteVideoTrack | undefined;
-    let audioTrack: RemoteAudioTrack | undefined;
+    let videoTrack: MediaStreamTrack | undefined;
+    let audioTrack: MediaStreamTrack | undefined;
 
     participant.tracks.forEach((publication) => {
       if (publication.isSubscribed) {
         const { track } = publication;
         if (track != null && track.kind === 'video') {
-          videoTrack = track;
+          videoTrack = track.mediaStreamTrack;
         }
         if (track != null && track.kind === 'audio') {
-          audioTrack = track;
+          audioTrack = track.mediaStreamTrack;
         }
       }
     });
@@ -439,6 +449,7 @@ const Hello = () => {
         enableLocalAudio() {
           const twilioRoom = twilioRoomRef.current;
           twilioRoom?.localParticipant.audioTracks.forEach((publication) => {
+            console.log('enabling!');
             publication.track.enable();
           });
           setLocalAudioEnabled(true);
