@@ -254,6 +254,10 @@ const Hello = () => {
       console.log('Joined or created Colyseus room:', room);
       room.send('setPlayerIdentity', identity);
       setColyseusRoom(room);
+
+      window.addEventListener('beforeunload', () => {
+        room.leave();
+      });
     });
   }, []);
 
