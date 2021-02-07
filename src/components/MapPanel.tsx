@@ -116,10 +116,15 @@ const MapPanel: React.FC<MapPanelProps> = ({
       if (localPlayer != null) {
         localPlayer.x += localPlayer.speed * Math.cos(localPlayer.dir) * delta;
         localPlayer.y -= localPlayer.speed * Math.sin(localPlayer.dir) * delta;
-        playerGraphics[colyseusRoom.sessionId].x = localPlayer.x;
-        playerGraphics[colyseusRoom.sessionId].y = localPlayer.y;
 
-        centerCameraAround(localPlayer.x, localPlayer.y);
+        const [mappedX, mappedY] = mapWorldCoordToPixiCoord(
+          localPlayer.x,
+          localPlayer.y
+        );
+        playerGraphics[colyseusRoom.sessionId].x = mappedX;
+        playerGraphics[colyseusRoom.sessionId].y = mappedY;
+
+        centerCameraAround(mappedX, mappedY);
 
         colyseusRoom.state.players.forEach((player: any) => {
           if (player.identity === localPlayer.identity) {
@@ -152,8 +157,9 @@ const MapPanel: React.FC<MapPanelProps> = ({
       graphic.endFill();
       pixiApp.stage.addChild(graphic);
 
-      graphic.x = player.x;
-      graphic.y = player.y;
+      const [mappedX, mappedY] = mapWorldCoordToPixiCoord(player.x, player.y);
+      graphic.x = mappedX;
+      graphic.y = mappedY;
 
       playerGraphics[sessionId] = graphic;
 
@@ -168,8 +174,13 @@ const MapPanel: React.FC<MapPanelProps> = ({
         };
       } else {
         player.onChange = () => {
+          const [mappedX, mappedY] = mapWorldCoordToPixiCoord(
+            player.x,
+            player.y
+          );
+
           new TWEEN.Tween(graphic)
-            .to({ x: player.x, y: player.y }, 80)
+            .to({ x: mappedX, y: mappedY }, 80)
             .easing(TWEEN.Easing.Linear.None)
             .start();
 
@@ -262,7 +273,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
   const getSpeed = React.useCallback(() => {
     const commands = heldCommands.current;
     if (commands.right || commands.up || commands.left || commands.down) {
-      return 200;
+      return 5;
     }
     return 0;
   }, []);
