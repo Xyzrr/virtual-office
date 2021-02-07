@@ -206,7 +206,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
       const graphic = new PIXI.Graphics();
 
       graphic.beginFill(0x444444);
-      graphic.drawEllipse(0, 0, 3, 1.5);
+      graphic.drawEllipse(0, 0, 2 * Math.sqrt(3), 2);
       graphic.endFill();
 
       const [mappedX, mappedY] = mapWorldCoordToPixiCoord(
