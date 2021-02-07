@@ -57,20 +57,15 @@ const MapPanel: React.FC<MapPanelProps> = ({
 
     console.log('Creating PIXI app', app);
 
-    for (let i = 0; i < 32; i++) {
-      for (let j = 0; j < 32; j++) {
-        const dot = new PIXI.Graphics();
-
-        dot.beginFill(0x444444);
-        dot.drawCircle(i * 32, j * 32, 2);
-        dot.endFill();
-
-        app.stage.addChild(dot);
-      }
-    }
-
     return app;
   }, []);
+
+  const mapWorldCoordToPixiCoord = (x: number, y: number) => {
+    const angle = Math.PI / 6;
+    const mappedX = x * 32 * Math.cos(angle) - y * 32 * Math.cos(angle);
+    const mappedY = y * 32 * Math.sin(angle) + x * 32 * Math.sin(angle);
+    return [mappedX, mappedY];
+  };
 
   const centerCameraAround = React.useCallback(
     (x: number, y: number) => {
@@ -108,6 +103,8 @@ const MapPanel: React.FC<MapPanelProps> = ({
     const playerGraphics: {
       [sessionId: string]: PIXI.Graphics;
     } = {};
+
+    const worldObjectGraphics = new WeakMap<any, PIXI.Graphics>();
 
     let lastFrameTime = Date.now();
     const animate = (time: number) => {
@@ -192,6 +189,33 @@ const MapPanel: React.FC<MapPanelProps> = ({
       console.log('Colyseus player removed', player);
       pixiApp?.stage.removeChild(playerGraphics[sessionId]);
       delete playerGraphics[sessionId];
+    };
+
+    colyseusRoom.state.worldObjects.onAdd = (worldObject: any) => {
+      const graphic = new PIXI.Graphics();
+
+      graphic.beginFill(0x444444);
+      graphic.drawCircle(0, 0, 2);
+      graphic.endFill();
+
+      const [mappedX, mappedY] = mapWorldCoordToPixiCoord(
+        worldObject.x,
+        worldObject.y
+      );
+      graphic.x = mappedX;
+      graphic.y = mappedY;
+
+      pixiApp.stage.addChild(graphic);
+
+      worldObjectGraphics.set(worldObject, graphic);
+    };
+
+    colyseusRoom.state.worldObjects.onRemove = (worldObject: any) => {
+      const graphic = worldObjectGraphics.get(worldObject);
+      if (graphic != null) {
+        pixiApp?.stage.removeChild(graphic);
+        worldObjectGraphics.delete(worldObject);
+      }
     };
   }, [colyseusRoom, pixiApp, centerCameraAround]);
 
