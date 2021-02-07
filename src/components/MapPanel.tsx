@@ -34,6 +34,25 @@ const MapPanel: React.FC<MapPanelProps> = ({
     disableLocalAudio,
   } = React.useContext(LocalMediaContext);
 
+  const [recentlyLoud, setRecentlyLoud] = React.useState(false);
+  const recentlyLoudTimerRef = React.useRef<number | null>(null);
+
+  React.useEffect(() => {
+    if (localAudioVolume > 10) {
+      if (recentlyLoudTimerRef.current != null) {
+        window.clearTimeout(recentlyLoudTimerRef.current);
+        recentlyLoudTimerRef.current = null;
+      }
+
+      setRecentlyLoud(true);
+
+      recentlyLoudTimerRef.current = window.setTimeout(() => {
+        setRecentlyLoud(false);
+        recentlyLoudTimerRef.current = null;
+      }, 500);
+    }
+  }, [localAudioVolume]);
+
   const wrapperRef = React.useRef<HTMLDivElement>(null);
   const windowSize = React.useRef<{ width: number; height: number }>({
     width: window.innerWidth,
@@ -392,7 +411,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
         <S.IconButton
           name={localAudioEnabled ? 'mic' : 'mic_off'}
           disabled={!localAudioEnabled}
-          forceDisplay={localAudioVolume > 10}
+          forceDisplay={recentlyLoud}
           onClick={() => {
             if (localAudioEnabled) {
               disableLocalAudio();
@@ -404,7 +423,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
         {localAudioEnabled && (
           <S.MicVolumeOverlayWrapper
             style={{ height: localAudioVolume * 2 }}
-            forceDisplay={localAudioVolume > 10}
+            forceDisplay={recentlyLoud}
           >
             <S.MicVolumeOverlay name="mic"></S.MicVolumeOverlay>
           </S.MicVolumeOverlayWrapper>
