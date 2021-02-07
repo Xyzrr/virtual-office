@@ -64,13 +64,24 @@ export const PanelWrapper = styled.div<{
   width: number;
   height: number;
   small?: boolean;
+  xDirection: 'left' | 'right';
 }>`
   position: absolute;
   background: rgba(255, 255, 255, 0.2);
   z-index: 0;
   top: 0;
-  left: 0;
-  transform: translate(${(props) => props.x}px, ${(props) => props.y}px);
+  ${(props) =>
+    props.xDirection === 'left'
+      ? css`
+          right: 0;
+        `
+      : css`
+          left: 0;
+        `}
+  transform: translate(
+    ${(props) => props.x * (props.xDirection === 'left' ? -1 : 1)}px,
+    ${(props) => props.y}px
+  );
   width: ${(props) => props.width}px;
   height: ${(props) => props.height}px;
   border-radius: 4px;

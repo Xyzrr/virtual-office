@@ -262,7 +262,7 @@ const Hello = () => {
 
   if (small) {
     width = 240;
-    x = windowSize.width - width - 8;
+    x = 8;
     height = 135;
     y = nextSmallPanelY;
     nextSmallPanelY += height + 8;
@@ -282,6 +282,7 @@ const Hello = () => {
         width={width}
         height={height}
         small={small}
+        xDirection="left"
       >
         <MapPanel
           onPlayerDistanceChanged={(identity, distance) => {
@@ -311,7 +312,7 @@ const Hello = () => {
 
       if (small) {
         width = 240;
-        x = windowSize.width - width - 8;
+        x = 8;
         height = 135;
         y = nextSmallPanelY;
         nextSmallPanelY += height + 8;
@@ -330,6 +331,7 @@ const Hello = () => {
           width={width}
           height={height}
           small={small}
+          xDirection="left"
         >
           <LocalUserPanel participant={participant} />
         </S.PanelWrapper>
@@ -355,7 +357,7 @@ const Hello = () => {
 
     if (small) {
       width = 240 * scale;
-      x = windowSize.width - width - 8;
+      x = 8;
       height = 135 * scale;
       y = nextSmallPanelY;
       nextSmallPanelY += height + 8;
@@ -389,6 +391,7 @@ const Hello = () => {
         width={width}
         height={height}
         small={small}
+        xDirection="left"
       >
         <RemoteUserPanel videoTrack={videoTrack} audioTrack={audioTrack} />
       </S.PanelWrapper>
