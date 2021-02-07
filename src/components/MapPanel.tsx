@@ -244,28 +244,28 @@ const MapPanel: React.FC<MapPanelProps> = ({
   const getDir = React.useCallback(() => {
     const commands = heldCommands.current;
     if (commands.right && commands.up) {
-      return Math.PI / 4;
-    }
-    if (commands.right && commands.down) {
-      return -Math.PI / 4;
-    }
-    if (commands.left && commands.up) {
-      return (3 * Math.PI) / 4;
-    }
-    if (commands.left && commands.down) {
-      return (-3 * Math.PI) / 4;
-    }
-    if (commands.right) {
-      return 0;
-    }
-    if (commands.up) {
       return Math.PI / 2;
     }
-    if (commands.left) {
-      return Math.PI;
+    if (commands.right && commands.down) {
+      return 0;
+    }
+    if (commands.left && commands.down) {
+      return -Math.PI / 2;
+    }
+    if (commands.left && commands.up) {
+      return -Math.PI;
+    }
+    if (commands.right) {
+      return Math.PI / 4;
     }
     if (commands.down) {
-      return (3 * Math.PI) / 2;
+      return -Math.PI / 4;
+    }
+    if (commands.left) {
+      return (Math.PI * 5) / 4;
+    }
+    if (commands.up) {
+      return (Math.PI * 3) / 4;
     }
     return null;
   }, []);
