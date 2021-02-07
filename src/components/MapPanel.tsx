@@ -128,8 +128,6 @@ const MapPanel: React.FC<MapPanelProps> = ({
             (player.x - localPlayer.x) ** 2 + (player.y - localPlayer.y) ** 2
           );
 
-          console.log('dist', dist);
-
           if (dist < 0.8) {
             const atan = Math.atan(
               (localPlayer.y - player.y) / (player.x - localPlayer.x)
@@ -140,7 +138,6 @@ const MapPanel: React.FC<MapPanelProps> = ({
 
             localPlayer.x += Math.cos(pushDir) * pushDist;
             localPlayer.y -= Math.sin(pushDir) * pushDist;
-            console.log('pushing', dist);
           }
 
           onPlayerDistanceChanged(player.identity, dist);
