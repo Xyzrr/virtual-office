@@ -165,7 +165,7 @@ ipcMain.handle('unminimize', () => {
   }
 });
 
-ipcMain.handle('minimize', (e, minimizedHeight: number) => {
+ipcMain.handle('minimize', (e) => {
   if (mainWindow == null) {
     return;
   }
@@ -185,14 +185,12 @@ ipcMain.handle('minimize', (e, minimizedHeight: number) => {
       x: previousMinimizedPosition[0],
       y: previousMinimizedPosition[1],
       width: minimizedWidth,
-      height: minimizedHeight,
     });
   } else {
     mainWindow.setBounds({
       x: screen.getPrimaryDisplay().size.width - minimizedWidth - 8,
       y: 24,
       width: minimizedWidth,
-      height: minimizedHeight,
     });
   }
 });

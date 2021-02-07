@@ -1,7 +1,7 @@
 import React from 'react';
 import * as electron from 'electron';
 
-export const useFakeMinimize = (minimizedHeight: number) => {
+export const useFakeMinimize = () => {
   const [minimized, setMinimized] = React.useState(false);
 
   const onKeyDown = React.useCallback(
@@ -15,12 +15,12 @@ export const useFakeMinimize = (minimizedHeight: number) => {
         }
 
         if (!e.shiftKey && !minimized) {
-          electron.ipcRenderer.invoke('minimize', minimizedHeight);
+          electron.ipcRenderer.invoke('minimize');
           setMinimized(true);
         }
       }
     },
-    [minimizedHeight, minimized]
+    [minimized]
   );
 
   React.useEffect(() => {
@@ -29,14 +29,6 @@ export const useFakeMinimize = (minimizedHeight: number) => {
       window.removeEventListener('keydown', onKeyDown);
     };
   }, [onKeyDown]);
-
-  React.useEffect(() => {
-    if (!minimized) {
-      return;
-    }
-
-    electron.ipcRenderer.invoke('updateMinimizedHeight', minimizedHeight);
-  }, [minimizedHeight, minimized]);
 
   return minimized;
 };

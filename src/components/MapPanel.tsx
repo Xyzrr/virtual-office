@@ -37,6 +37,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
     height: window.innerHeight,
   });
   const localPlayerRef = React.useRef<{
+    identity: string;
     x: number;
     y: number;
     dir: number;
@@ -124,6 +125,10 @@ const MapPanel: React.FC<MapPanelProps> = ({
         centerCameraAround(localPlayer.x, localPlayer.y);
 
         colyseusRoom.state.players.forEach((player: any) => {
+          if (player.identity === localPlayer.identity) {
+            return;
+          }
+
           const dist = Math.sqrt(
             (player.x - localPlayer.x) ** 2 + (player.y - localPlayer.y) ** 2
           );
@@ -158,6 +163,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
       if (sessionId === colyseusRoom.sessionId) {
         console.log('Got initial local player state', player);
         localPlayerRef.current = {
+          identity: player.identity,
           x: player.x,
           y: player.y,
           dir: player.dir,

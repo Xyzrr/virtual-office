@@ -247,11 +247,7 @@ const Hello = () => {
     };
   });
 
-  const minimized = useFakeMinimize(500);
-
-  if (colyseusRoom == null) {
-    return <S.AppWrapper>Loading Colyseus</S.AppWrapper>;
-  }
+  const minimized = useFakeMinimize();
 
   let nextSmallPanelY = 8;
   const panelElements: React.ReactNode[] = [];
@@ -277,32 +273,34 @@ const Hello = () => {
     height = windowSize.height;
   }
 
-  panelElements.push(
-    <S.PanelWrapper
-      key={key}
-      x={x}
-      y={y}
-      width={width}
-      height={height}
-      small={small}
-    >
-      <MapPanel
-        onPlayerDistanceChanged={(identity, distance) => {
-          setActiveParticipants((aps) => {
-            if (aps[identity] == null) {
-              return aps;
-            }
-            console.log('setting ap distance', identity, distance);
-            return produce(aps, (draft) => {
-              draft[identity].distance = distance;
+  if (colyseusRoom != null) {
+    panelElements.push(
+      <S.PanelWrapper
+        key={key}
+        x={x}
+        y={y}
+        width={width}
+        height={height}
+        small={small}
+      >
+        <MapPanel
+          onPlayerDistanceChanged={(identity, distance) => {
+            setActiveParticipants((aps) => {
+              if (aps[identity] == null) {
+                return aps;
+              }
+              console.log('setting ap distance', identity, distance);
+              return produce(aps, (draft) => {
+                draft[identity].distance = distance;
+              });
             });
-          });
-        }}
-        colyseusRoom={colyseusRoom}
-        minimized={minimized}
-      />
-    </S.PanelWrapper>
-  );
+          }}
+          colyseusRoom={colyseusRoom}
+          minimized={minimized}
+        />
+      </S.PanelWrapper>
+    );
+  }
 
   if (!minimized) {
     const participant = twilioRoomRef.current?.localParticipant;
@@ -396,6 +394,17 @@ const Hello = () => {
       </S.PanelWrapper>
     );
   });
+
+  React.useEffect(() => {
+    if (!minimized) {
+      return;
+    }
+
+    electron.ipcRenderer.invoke(
+      'updateMinimizedHeight',
+      Math.floor(nextSmallPanelY)
+    );
+  }, [nextSmallPanelY, minimized]);
 
   return (
     <LocalMediaContext.Provider
