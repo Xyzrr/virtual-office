@@ -346,14 +346,14 @@ const Hello = () => {
       return;
     }
 
-    if (ap.distance > 200) {
+    if (ap.distance > 6) {
       return;
     }
 
     key = 'remote-user-' + identity;
     small = minimized || !(key in expandedPanels);
 
-    const scale = Math.min(1, 100 / (ap.distance + 1));
+    const scale = Math.min(1, 3 / (ap.distance + 0.1));
 
     if (small) {
       width = 240 * scale;
