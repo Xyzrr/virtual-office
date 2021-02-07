@@ -54,6 +54,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
       resolution: window.devicePixelRatio,
       autoDensity: true,
     });
+    app.stage.sortableChildren = true;
 
     console.log('Creating PIXI app', app);
 
@@ -208,6 +209,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
       graphic.beginFill(0x444444);
       graphic.drawEllipse(0, 0, 2 * Math.sqrt(3), 2);
       graphic.endFill();
+      graphic.zIndex = -1;
 
       const [mappedX, mappedY] = mapWorldCoordToPixiCoord(
         worldObject.x,
