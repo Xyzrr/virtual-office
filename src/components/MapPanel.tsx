@@ -336,7 +336,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
   }, [onKeyUp, onKeyDown]);
 
   return (
-    <S.Wrapper className={className} ref={wrapperRef}>
+    <S.Wrapper className={className} ref={wrapperRef} minimized={minimized}>
       <S.IconButtons>
         <S.IconButton
           name={localAudioEnabled ? 'mic' : 'mic_off'}

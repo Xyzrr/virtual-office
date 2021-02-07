@@ -13,7 +13,7 @@ export const IconButton = styled(Icon)<{ disabled?: boolean }>`
   padding: 8px;
   color: white;
   cursor: pointer;
-  opacity: 0;
+  opacity: 0.5;
   &:hover {
     opacity: 1 !important;
   }
@@ -25,14 +25,21 @@ export const IconButton = styled(Icon)<{ disabled?: boolean }>`
     `}
 `;
 
-export const Wrapper = styled.div`
+export const Wrapper = styled.div<{ minimized: boolean }>`
   height: 100%;
   canvas {
     display: block;
   }
-  &:hover {
-    ${IconButton} {
-      opacity: 0.5;
-    }
-  }
+  ${(props) =>
+    props.minimized &&
+    css`
+      ${IconButton} {
+        opacity: 0;
+      }
+      &:hover {
+        ${IconButton} {
+          opacity: 0.5;
+        }
+      }
+    `}
 `;
