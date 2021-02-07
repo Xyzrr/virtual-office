@@ -34,6 +34,7 @@ export const MicVolumeOverlayWrapper = styled.div<{ forceDisplay?: boolean }>`
   left: 8px;
   overflow: hidden;
   width: 40px;
+  max-height: 40px;
   pointer-events: none;
   ${(props) =>
     props.forceDisplay &&

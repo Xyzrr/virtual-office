@@ -422,7 +422,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
         />
         {localAudioEnabled && (
           <S.MicVolumeOverlayWrapper
-            style={{ height: localAudioVolume * 2 }}
+            style={{ height: 6 + localAudioVolume }}
             forceDisplay={recentlyLoud}
           >
             <S.MicVolumeOverlay name="mic"></S.MicVolumeOverlay>
