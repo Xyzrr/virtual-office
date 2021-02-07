@@ -9,11 +9,14 @@ export const IconButtons = styled.div`
   display: flex;
 `;
 
-export const IconButton = styled(Icon)<{ disabled?: boolean }>`
+export const IconButton = styled(Icon)<{
+  disabled?: boolean;
+  forceDisplay?: boolean;
+}>`
   padding: 8px;
   color: white;
   cursor: pointer;
-  opacity: 0.5;
+  opacity: 0.5 ${(props) => (props.forceDisplay ? '!important' : '')};
   &:hover {
     opacity: 1 !important;
   }
@@ -25,12 +28,18 @@ export const IconButton = styled(Icon)<{ disabled?: boolean }>`
     `}
 `;
 
-export const MicVolumeOverlayWrapper = styled.div`
+export const MicVolumeOverlayWrapper = styled.div<{ forceDisplay?: boolean }>`
   position: absolute;
   bottom: 8px;
   left: 8px;
   overflow: hidden;
   width: 40px;
+  pointer-events: none;
+  ${(props) =>
+    props.forceDisplay &&
+    css`
+      opacity: 1 !important;
+    `}
 `;
 
 export const MicVolumeOverlay = styled(Icon)`
@@ -39,10 +48,11 @@ export const MicVolumeOverlay = styled(Icon)`
   bottom: 0;
   left: 0;
   color: lime;
-  pointer-events: none;
 `;
 
-export const Wrapper = styled.div<{ minimized: boolean }>`
+export const Wrapper = styled.div<{
+  minimized: boolean;
+}>`
   height: 100%;
   canvas {
     display: block;
@@ -50,12 +60,15 @@ export const Wrapper = styled.div<{ minimized: boolean }>`
   ${(props) =>
     props.minimized &&
     css`
-      ${IconButton} {
+      ${IconButton}, ${MicVolumeOverlayWrapper} {
         opacity: 0;
       }
       &:hover {
         ${IconButton} {
           opacity: 0.5;
+        }
+        ${MicVolumeOverlayWrapper} {
+          opacity: 1;
         }
       }
     `}

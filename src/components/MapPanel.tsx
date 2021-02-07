@@ -392,6 +392,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
         <S.IconButton
           name={localAudioEnabled ? 'mic' : 'mic_off'}
           disabled={!localAudioEnabled}
+          forceDisplay={localAudioVolume > 10}
           onClick={() => {
             if (localAudioEnabled) {
               disableLocalAudio();
@@ -401,7 +402,10 @@ const MapPanel: React.FC<MapPanelProps> = ({
           }}
         />
         {localAudioEnabled && (
-          <S.MicVolumeOverlayWrapper style={{ height: localAudioVolume * 2 }}>
+          <S.MicVolumeOverlayWrapper
+            style={{ height: localAudioVolume * 2 }}
+            forceDisplay={localAudioVolume > 10}
+          >
             <S.MicVolumeOverlay name="mic"></S.MicVolumeOverlay>
           </S.MicVolumeOverlayWrapper>
         )}
