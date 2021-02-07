@@ -144,6 +144,10 @@ const Hello = () => {
         return;
       }
 
+      window.addEventListener('beforeunload', () => {
+        room.disconnect();
+      });
+
       console.log('Joined Twilio room', room);
       twilioRoomRef.current = room;
 
@@ -238,6 +242,7 @@ const Hello = () => {
     });
 
     return () => {
+      console.log('Disconnecting from Twilio room:', twilioRoomRef.current);
       twilioRoomRef.current?.disconnect();
     };
   }, []);
