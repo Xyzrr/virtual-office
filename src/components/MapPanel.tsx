@@ -130,6 +130,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
 
     let lastFrameTime = Date.now();
     const animate = (time: number) => {
+      console.log(localPlayerRef.current);
       const delta = (time - lastFrameTime) / 1000;
       lastFrameTime = time;
 
@@ -149,6 +150,13 @@ const MapPanel: React.FC<MapPanelProps> = ({
           );
 
           if (dist < 0.8) {
+            console.log(
+              'Pushed by:',
+              player.identity,
+              'Self:',
+              localPlayerIdentity
+            );
+
             const atan = Math.atan(
               (localPlayer.y - player.y) / (player.x - localPlayer.x)
             );

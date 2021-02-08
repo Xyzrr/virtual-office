@@ -26,7 +26,7 @@ import Icon from './components/Icon';
 import { min } from 'lodash';
 import { LocalMediaContext } from './contexts/LocalMediaContext';
 
-const local = true;
+const local = false;
 
 let host: string;
 if (local) {
@@ -43,7 +43,23 @@ export interface ActiveParticipant {
 }
 
 const Hello = () => {
-  const twilioRoomRef = React.useRef<Room | null>(null);
+  React.useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'k' && e.metaKey) {
+        const externalWindow = window.open(
+          '',
+          '',
+          'width=600,height=400,left=200,top=200'
+        );
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, []);
+
+  const [twilioRoom, setTwilioRoom] = React.useState<Room | null>(null);
 
   const [localAudioEnabled, setLocalAudioEnabled] = React.useState(false);
   const [localVideoEnabled, setLocalVideoEnabled] = React.useState(true);
@@ -149,7 +165,7 @@ const Hello = () => {
       });
 
       console.log('Joined Twilio room', room);
-      twilioRoomRef.current = room;
+      setTwilioRoom(room);
 
       const handleConnectedParticipant = (participant: RemoteParticipant) => {
         setActiveParticipants((aps) =>
@@ -240,21 +256,28 @@ const Hello = () => {
         handleDisconnectedParticipant(participant);
       });
     });
+  }, []);
+
+  React.useEffect(() => {
+    if (twilioRoom == null) {
+      return;
+    }
 
     return () => {
-      console.log('Disconnecting from Twilio room:', twilioRoomRef.current);
-      twilioRoomRef.current?.disconnect();
+      console.log('Disconnecting from Twilio room:', twilioRoom);
+      twilioRoom.disconnect();
     };
-  }, []);
+  }, [twilioRoom]);
 
   React.useEffect(() => {
     const client = new Colyseus.Client(`ws://${host}`);
 
-    client.joinOrCreate('main').then((room: Colyseus.Room<any>) => {
-      console.log('Joined or created Colyseus room:', room);
-      room.send('setPlayerIdentity', identity);
-      setColyseusRoom(room);
-    });
+    client
+      .joinOrCreate('main', { identity })
+      .then((room: Colyseus.Room<any>) => {
+        console.log('Joined or created Colyseus room:', room);
+        setColyseusRoom(room);
+      });
   }, []);
 
   React.useEffect(() => {
@@ -354,7 +377,7 @@ const Hello = () => {
   }
 
   if (!minimized && localVideoEnabled) {
-    const participant = twilioRoomRef.current?.localParticipant;
+    const participant = twilioRoom?.localParticipant;
 
     if (participant != null) {
       key = 'local-user';
@@ -397,7 +420,7 @@ const Hello = () => {
   }
 
   Object.entries(activeParticipants).forEach(([identity, ap]) => {
-    const participant = twilioRoomRef.current?.participants.get(ap.sid);
+    const participant = twilioRoom?.participants.get(ap.sid);
 
     if (participant == null) {
       return;
@@ -473,7 +496,6 @@ const Hello = () => {
         localAudioEnabled,
         localAudioVolume,
         enableLocalVideo() {
-          const twilioRoom = twilioRoomRef.current;
           createLocalVideoTrack({
             width: 240,
             height: 135,
@@ -487,7 +509,6 @@ const Hello = () => {
             });
         },
         disableLocalVideo() {
-          const twilioRoom = twilioRoomRef.current;
           twilioRoom?.localParticipant.videoTracks.forEach((publication) => {
             publication.track.stop();
             publication.unpublish();
@@ -495,7 +516,6 @@ const Hello = () => {
           setLocalVideoEnabled(false);
         },
         enableLocalAudio() {
-          const twilioRoom = twilioRoomRef.current;
           twilioRoom?.localParticipant.audioTracks.forEach((publication) => {
             console.log('enabling!');
             publication.track.enable();
@@ -503,7 +523,6 @@ const Hello = () => {
           setLocalAudioEnabled(true);
         },
         disableLocalAudio() {
-          const twilioRoom = twilioRoomRef.current;
           twilioRoom?.localParticipant.audioTracks.forEach((publication) => {
             publication.track.disable();
           });
