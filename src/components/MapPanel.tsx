@@ -112,10 +112,12 @@ const MapPanel: React.FC<MapPanelProps> = ({
         windowSize.current = { width: size.width, height: size.height };
         pixiApp.renderer.resize(size.width, size.height);
         if (localPlayerRef.current != null) {
-          centerCameraAround(
+          const [mappedX, mappedY] = mapWorldCoordToPixiCoord(
             localPlayerRef.current.x,
             localPlayerRef.current.y
           );
+
+          centerCameraAround(mappedX, mappedY);
         }
       }
     },

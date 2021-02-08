@@ -13,7 +13,6 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = ({
   const videoRef = React.useRef<HTMLVideoElement>(null);
 
   React.useEffect(() => {
-    console.log('vid', videoRef.current);
     if (videoRef.current == null) {
       return;
     }
