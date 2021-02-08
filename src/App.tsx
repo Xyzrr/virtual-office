@@ -61,7 +61,7 @@ const Hello = () => {
 
   const [twilioRoom, setTwilioRoom] = React.useState<Room | null>(null);
 
-  const [localAudioEnabled, setLocalAudioEnabled] = React.useState(false);
+  const [localAudioEnabled, setLocalAudioEnabled] = React.useState(true);
   const [localVideoEnabled, setLocalVideoEnabled] = React.useState(true);
   const [localAudioVolume, setLocalAudioVolume] = React.useState(0);
 
@@ -135,7 +135,6 @@ const Hello = () => {
       );
       const processor = audioContext.createScriptProcessor(2048, 1, 1);
 
-      mediaStreamSource.connect(audioContext.destination);
       mediaStreamSource.connect(processor);
       processor.connect(audioContext.destination);
 
