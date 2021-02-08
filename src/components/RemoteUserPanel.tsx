@@ -5,14 +5,17 @@ export interface RemoteUserPanelProps {
   className?: string;
   videoTrack?: MediaStreamTrack;
   audioTrack?: MediaStreamTrack;
+  audioEnabled: boolean;
 }
 
 const RemoteUserPanel: React.FC<RemoteUserPanelProps> = ({
   className,
   videoTrack,
   audioTrack,
+  audioEnabled,
 }) => {
   const videoRef = React.useRef<HTMLVideoElement>(null);
+  console.log('audio enabled', audioEnabled);
 
   React.useEffect(() => {
     if (videoRef.current == null) {

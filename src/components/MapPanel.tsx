@@ -15,6 +15,7 @@ export interface MapPanelProps {
   colyseusRoom: Colyseus.Room;
   minimized: boolean;
   onPlayerDistanceChanged(identity: string, distance: number): void;
+  onPlayerAudioEnabledChanged(identity: string, audioEnabled: boolean): void;
 }
 
 const MapPanel: React.FC<MapPanelProps> = ({
@@ -23,6 +24,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
   colyseusRoom,
   minimized,
   onPlayerDistanceChanged,
+  onPlayerAudioEnabledChanged,
 }) => {
   const {
     localVideoEnabled,
@@ -208,6 +210,8 @@ const MapPanel: React.FC<MapPanelProps> = ({
 
       playerGraphics[sessionId] = graphic;
 
+      onPlayerAudioEnabledChanged(player.identity, player.audioEnabled);
+
       if (sessionId === colyseusRoom.sessionId) {
         console.log('Got initial local player state', player);
         localPlayerRef.current = {
@@ -217,7 +221,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
           speed: player.speed,
         };
       } else {
-        player.onChange = () => {
+        player.onChange = (changes: Colyseus.DataChange[]) => {
           const [mappedX, mappedY] = mapWorldCoordToPixiCoord(
             player.x,
             player.y
@@ -235,6 +239,12 @@ const MapPanel: React.FC<MapPanelProps> = ({
               (player.x - localPlayer.x) ** 2 + (player.y - localPlayer.y) ** 2
             );
             onPlayerDistanceChanged(player.identity, dist);
+          }
+
+          if (
+            changes.find((c) => (c as any).field === 'audioEnabled') != null
+          ) {
+            onPlayerAudioEnabledChanged(player.identity, player.audioEnabled);
           }
         };
       }

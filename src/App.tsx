@@ -40,6 +40,7 @@ export interface ActiveParticipant {
   distance: number;
   audioSubscribed: boolean;
   videoSubscribed: boolean;
+  audioEnabled: boolean;
 }
 
 const Hello = () => {
@@ -174,6 +175,7 @@ const Hello = () => {
               distance: 0,
               audioSubscribed: false,
               videoSubscribed: false,
+              audioEnabled: false,
             };
           })
         );
@@ -272,7 +274,7 @@ const Hello = () => {
     const client = new Colyseus.Client(`ws://${host}`);
 
     client
-      .joinOrCreate('main', { identity })
+      .joinOrCreate('main', { identity, audioEnabled: localAudioEnabled })
       .then((room: Colyseus.Room<any>) => {
         console.log('Joined or created Colyseus room:', room);
         setColyseusRoom(room);
@@ -358,6 +360,17 @@ const Hello = () => {
       >
         <MapPanel
           localPlayerIdentity={identity}
+          onPlayerAudioEnabledChanged={(identity, audioEnabled) => {
+            console.log('heard audio change');
+            setActiveParticipants((aps) => {
+              if (aps[identity] == null) {
+                return aps;
+              }
+              return produce(aps, (draft) => {
+                draft[identity].audioEnabled = audioEnabled;
+              });
+            });
+          }}
           onPlayerDistanceChanged={(identity, distance) => {
             setActiveParticipants((aps) => {
               if (aps[identity] == null) {
@@ -472,7 +485,11 @@ const Hello = () => {
         small={small}
         xDirection="left"
       >
-        <RemoteUserPanel videoTrack={videoTrack} audioTrack={audioTrack} />
+        <RemoteUserPanel
+          videoTrack={videoTrack}
+          audioTrack={audioTrack}
+          audioEnabled={ap.audioEnabled}
+        />
       </S.PanelWrapper>
     );
   });
@@ -520,12 +537,14 @@ const Hello = () => {
             publication.track.enable();
           });
           setLocalAudioEnabled(true);
+          colyseusRoom?.send('setPlayerAudioEnabled', true);
         },
         disableLocalAudio() {
           twilioRoom?.localParticipant.audioTracks.forEach((publication) => {
             publication.track.disable();
           });
           setLocalAudioEnabled(false);
+          colyseusRoom?.send('setPlayerAudioEnabled', false);
         },
       }}
     >
