@@ -52,14 +52,14 @@ export const MicVolumeOverlay = styled(Icon)`
 `;
 
 export const Wrapper = styled.div<{
-  minimized: boolean;
+  small: boolean;
 }>`
   height: 100%;
   canvas {
     display: block;
   }
   ${(props) =>
-    props.minimized &&
+    props.small &&
     css`
       ${IconButtons} {
         padding: 4px;

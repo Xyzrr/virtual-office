@@ -379,7 +379,7 @@ const Hello = () => {
             });
           }}
           colyseusRoom={colyseusRoom}
-          minimized={minimized}
+          small={small}
         />
       </S.PanelWrapper>
     );

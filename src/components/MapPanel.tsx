@@ -13,7 +13,7 @@ export interface MapPanelProps {
   className?: string;
   localPlayerIdentity: string;
   colyseusRoom: Colyseus.Room;
-  minimized: boolean;
+  small: boolean;
   onPlayerDistanceChanged(identity: string, distance: number): void;
   onPlayerAudioEnabledChanged(identity: string, audioEnabled: boolean): void;
 }
@@ -22,7 +22,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
   className,
   localPlayerIdentity,
   colyseusRoom,
-  minimized,
+  small,
   onPlayerDistanceChanged,
   onPlayerAudioEnabledChanged,
 }) => {
@@ -104,8 +104,8 @@ const MapPanel: React.FC<MapPanelProps> = ({
   );
 
   React.useEffect(() => {
-    scaleRef.current = minimized ? 0.5 : 1;
-  }, [minimized]);
+    scaleRef.current = small ? 0.5 : 1;
+  }, [small]);
 
   useResizeObserver({
     ref: wrapperRef,
@@ -426,7 +426,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
   }, [onKeyUp, onKeyDown]);
 
   return (
-    <S.Wrapper className={className} ref={wrapperRef} minimized={minimized}>
+    <S.Wrapper className={className} ref={wrapperRef} small={small}>
       <S.IconButtons>
         <S.IconButton
           name={localAudioEnabled ? 'mic' : 'mic_off'}
