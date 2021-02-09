@@ -1,5 +1,6 @@
 import * as S from './RemoteUserPanel.styles';
 import React from 'react';
+import { trackVolume } from '../util/trackVolume';
 
 export interface RemoteUserPanelProps {
   className?: string;
@@ -15,6 +16,8 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = ({
   audioEnabled,
 }) => {
   const videoRef = React.useRef<HTMLVideoElement>(null);
+  const [volume, setVolume] = React.useState(0);
+
   console.log('audio enabled', audioEnabled);
 
   React.useEffect(() => {
@@ -43,8 +46,18 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = ({
     };
   }, [videoTrack, audioTrack]);
 
+  React.useEffect(() => {
+    if (audioTrack == null) {
+      return;
+    }
+
+    trackVolume(audioTrack, (v) => {
+      setVolume(v);
+    });
+  }, [audioTrack]);
+
   return (
-    <S.Wrapper className={className}>
+    <S.Wrapper className={className} volume={volume}>
       <video ref={videoRef} autoPlay></video>
       <S.StatusIcons>
         {!audioEnabled && <S.StatusIcon name="mic_off"></S.StatusIcon>}

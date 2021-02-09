@@ -25,6 +25,7 @@ import LocalUserPanel from './components/LocalUserPanel';
 import Icon from './components/Icon';
 import { min } from 'lodash';
 import { LocalMediaContext } from './contexts/LocalMediaContext';
+import { trackVolume } from './util/trackVolume';
 
 const local = false;
 
@@ -127,25 +128,9 @@ const Hello = () => {
 
       /** Track volume */
 
-      const mediaStream = new MediaStream();
-      mediaStream.addTrack(localAudioTrack.mediaStreamTrack);
-
-      const audioContext = new AudioContext();
-      const mediaStreamSource = audioContext.createMediaStreamSource(
-        mediaStream
-      );
-      const processor = audioContext.createScriptProcessor(2048, 1, 1);
-
-      mediaStreamSource.connect(processor);
-      processor.connect(audioContext.destination);
-
-      processor.onaudioprocess = (e) => {
-        const inputData = e.inputBuffer.getChannelData(0);
-
-        const total = inputData.reduce((a, b) => a + Math.abs(b));
-        const rms = Math.sqrt(total / inputData.length);
-        setLocalAudioVolume(rms * 100);
-      };
+      trackVolume(localAudioTrack.mediaStreamTrack, (volume) => {
+        setLocalAudioVolume(volume * 100);
+      });
 
       /** Connect to Twilio */
 

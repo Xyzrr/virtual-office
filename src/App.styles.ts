@@ -85,7 +85,6 @@ export const PanelWrapper = styled.div<{
   width: ${(props) => props.width}px;
   height: ${(props) => props.height}px;
   border-radius: 4px;
-  overflow: hidden;
   box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.4),
     0px 0px 0 1px rgba(255, 255, 255, 0.08);
   ${(props) =>
