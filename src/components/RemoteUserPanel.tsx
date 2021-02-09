@@ -16,7 +16,8 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = ({
   audioEnabled,
 }) => {
   const videoRef = React.useRef<HTMLVideoElement>(null);
-  const [volume, setVolume] = React.useState(0);
+  const [recentlyLoud, setRecentlyLoud] = React.useState(false);
+  const recentlyLoudTimerRef = React.useRef<number | null>(null);
 
   console.log('audio enabled', audioEnabled);
 
@@ -52,12 +53,25 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = ({
     }
 
     trackVolume(audioTrack, (v) => {
-      setVolume(v);
+      console.log('volume tracked', v);
+      if (v > 0.15) {
+        if (recentlyLoudTimerRef.current != null) {
+          window.clearTimeout(recentlyLoudTimerRef.current);
+          recentlyLoudTimerRef.current = null;
+        }
+
+        setRecentlyLoud(true);
+
+        recentlyLoudTimerRef.current = window.setTimeout(() => {
+          setRecentlyLoud(false);
+          recentlyLoudTimerRef.current = null;
+        }, 500);
+      }
     });
   }, [audioTrack]);
 
   return (
-    <S.Wrapper className={className} volume={volume}>
+    <S.Wrapper className={className} recentlyLoud={recentlyLoud}>
       <video ref={videoRef} autoPlay></video>
       <S.StatusIcons>
         {!audioEnabled && <S.StatusIcon name="mic_off"></S.StatusIcon>}

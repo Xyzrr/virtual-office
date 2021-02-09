@@ -1,7 +1,7 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import Icon from './Icon';
 
-export const Wrapper = styled.div<{ volume: number }>`
+export const Wrapper = styled.div<{ recentlyLoud: boolean }>`
   video {
     display: block;
     width: 100%;
@@ -9,7 +9,13 @@ export const Wrapper = styled.div<{ volume: number }>`
   }
   border-radius: 4px;
   overflow: hidden;
-  box-shadow: 0 0 0 2px rgba(0, 255, 0, ${(props) => Math.min(props.volume, 1)});
+  transition: box-shadow 0.15s;
+  box-shadow: 0 0 0 2px rgba(0, 255, 0, 0);
+  ${(props) =>
+    props.recentlyLoud &&
+    css`
+      box-shadow: 0 0 0 2px rgba(0, 255, 0, 1);
+    `}
 `;
 
 export const StatusIcons = styled.div`
