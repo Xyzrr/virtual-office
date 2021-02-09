@@ -46,6 +46,9 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = ({
   return (
     <S.Wrapper className={className}>
       <video ref={videoRef} autoPlay></video>
+      <S.StatusIcons>
+        {!audioEnabled && <S.StatusIcon name="mic_off"></S.StatusIcon>}
+      </S.StatusIcons>
     </S.Wrapper>
   );
 };

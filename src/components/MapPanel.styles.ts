@@ -61,8 +61,21 @@ export const Wrapper = styled.div<{
   ${(props) =>
     props.minimized &&
     css`
+      ${IconButtons} {
+        padding: 4px;
+      }
       ${IconButton}, ${MicVolumeOverlayWrapper} {
+        padding: 4px;
         opacity: 0;
+      }
+      ${MicVolumeOverlayWrapper} {
+        bottom: 4px;
+        left: 4px;
+        width: 32px;
+        max-height: 32px;
+      }
+      ${MicVolumeOverlay} {
+        padding: 4px;
       }
       &:hover {
         ${IconButton} {

@@ -36,11 +36,11 @@ if (local) {
 }
 
 export interface ActiveParticipant {
-  sid: string;
-  distance: number;
-  audioSubscribed: boolean;
-  videoSubscribed: boolean;
-  audioEnabled: boolean;
+  sid?: string;
+  distance?: number;
+  audioSubscribed?: boolean;
+  videoSubscribed?: boolean;
+  audioEnabled?: boolean;
 }
 
 const Hello = () => {
@@ -170,13 +170,10 @@ const Hello = () => {
       const handleConnectedParticipant = (participant: RemoteParticipant) => {
         setActiveParticipants((aps) =>
           produce(aps, (draft) => {
-            draft[participant.identity] = {
-              sid: participant.sid,
-              distance: 0,
-              audioSubscribed: false,
-              videoSubscribed: false,
-              audioEnabled: false,
-            };
+            if (draft[participant.identity] == null) {
+              draft[participant.identity] = {};
+            }
+            draft[participant.identity].sid = participant.sid;
           })
         );
 
@@ -363,20 +360,20 @@ const Hello = () => {
           onPlayerAudioEnabledChanged={(identity, audioEnabled) => {
             console.log('heard audio change');
             setActiveParticipants((aps) => {
-              if (aps[identity] == null) {
-                return aps;
-              }
               return produce(aps, (draft) => {
+                if (draft[identity] == null) {
+                  draft[identity] = {};
+                }
                 draft[identity].audioEnabled = audioEnabled;
               });
             });
           }}
           onPlayerDistanceChanged={(identity, distance) => {
             setActiveParticipants((aps) => {
-              if (aps[identity] == null) {
-                return aps;
-              }
               return produce(aps, (draft) => {
+                if (draft[identity] == null) {
+                  draft[identity] = {};
+                }
                 draft[identity].distance = distance;
               });
             });
@@ -432,20 +429,26 @@ const Hello = () => {
   }
 
   Object.entries(activeParticipants).forEach(([identity, ap]) => {
-    const participant = twilioRoom?.participants.get(ap.sid);
+    const { sid, distance, audioEnabled } = ap;
+
+    if (sid == null || distance == null || audioEnabled == null) {
+      return;
+    }
+
+    const participant = twilioRoom?.participants.get(sid);
 
     if (participant == null) {
       return;
     }
 
-    if (ap.distance > 6) {
+    if (distance > 6) {
       return;
     }
 
     key = 'remote-user-' + identity;
     small = minimized || !(key in expandedPanels);
 
-    const scale = Math.min(1, 3 / (ap.distance + 0.1));
+    const scale = Math.min(1, 3 / (distance + 0.1));
 
     if (small) {
       width = 240 * scale;
@@ -488,7 +491,7 @@ const Hello = () => {
         <RemoteUserPanel
           videoTrack={videoTrack}
           audioTrack={audioTrack}
-          audioEnabled={ap.audioEnabled}
+          audioEnabled={audioEnabled}
         />
       </S.PanelWrapper>
     );
