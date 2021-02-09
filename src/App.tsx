@@ -65,7 +65,9 @@ const Hello = () => {
 
   const [localAudioEnabled, setLocalAudioEnabled] = React.useState(true);
   const [localVideoEnabled, setLocalVideoEnabled] = React.useState(true);
-  const [localAudioVolume, setLocalAudioVolume] = React.useState(0);
+  const [localAudioTrack, setLocalAudioTrack] = React.useState<
+    MediaStreamTrack | undefined
+  >();
 
   const [activeParticipants, setActiveParticipants] = React.useState<{
     [identity: string]: ActiveParticipant;
@@ -108,8 +110,9 @@ const Hello = () => {
 
       /** Initialize local tracks */
 
-      const localAudioTrack = await createLocalAudioTrack();
-      const localTracks: LocalTrack[] = [localAudioTrack];
+      const localAudioTwilioTrack = await createLocalAudioTrack();
+      setLocalAudioTrack(localAudioTwilioTrack.mediaStreamTrack);
+      const localTracks: LocalTrack[] = [localAudioTwilioTrack];
 
       if (localVideoEnabled) {
         localTracks.push(
@@ -123,14 +126,8 @@ const Hello = () => {
       console.log('local', localTracks);
 
       if (!localAudioEnabled) {
-        localAudioTrack.disable();
+        localAudioTwilioTrack.disable();
       }
-
-      /** Track volume */
-
-      trackVolume(localAudioTrack.mediaStreamTrack, (volume) => {
-        setLocalAudioVolume(volume * 100);
-      });
 
       /** Connect to Twilio */
 
@@ -498,7 +495,7 @@ const Hello = () => {
       value={{
         localVideoEnabled,
         localAudioEnabled,
-        localAudioVolume,
+        localAudioTrack,
         enableLocalVideo() {
           createLocalVideoTrack({
             width: 240,

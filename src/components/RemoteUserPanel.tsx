@@ -1,6 +1,6 @@
 import * as S from './RemoteUserPanel.styles';
 import React from 'react';
-import { trackVolume } from '../util/trackVolume';
+import { trackVolume, useVolume } from '../util/useVolume';
 
 export interface RemoteUserPanelProps {
   className?: string;
@@ -28,11 +28,9 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = ({
 
     const stream = new MediaStream();
     if (videoTrack != null) {
-      console.log('video track', videoTrack);
       stream.addTrack(videoTrack);
     }
     if (audioTrack != null) {
-      console.log('audio', audioTrack);
       stream.addTrack(audioTrack);
     }
     videoRef.current.srcObject = stream;
@@ -47,28 +45,21 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = ({
     };
   }, [videoTrack, audioTrack]);
 
-  React.useEffect(() => {
-    if (audioTrack == null) {
-      return;
-    }
-
-    trackVolume(audioTrack, (v) => {
-      console.log('volume tracked', v);
-      if (v > 0.15) {
-        if (recentlyLoudTimerRef.current != null) {
-          window.clearTimeout(recentlyLoudTimerRef.current);
-          recentlyLoudTimerRef.current = null;
-        }
-
-        setRecentlyLoud(true);
-
-        recentlyLoudTimerRef.current = window.setTimeout(() => {
-          setRecentlyLoud(false);
-          recentlyLoudTimerRef.current = null;
-        }, 500);
+  useVolume(audioTrack, (v) => {
+    if (v > 0.15) {
+      if (recentlyLoudTimerRef.current != null) {
+        window.clearTimeout(recentlyLoudTimerRef.current);
+        recentlyLoudTimerRef.current = null;
       }
-    });
-  }, [audioTrack]);
+
+      setRecentlyLoud(true);
+
+      recentlyLoudTimerRef.current = window.setTimeout(() => {
+        setRecentlyLoud(false);
+        recentlyLoudTimerRef.current = null;
+      }, 500);
+    }
+  });
 
   return (
     <S.Wrapper className={className} recentlyLoud={recentlyLoud}>

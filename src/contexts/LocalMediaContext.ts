@@ -4,6 +4,7 @@ interface LocalMediaContextValue {
   localVideoEnabled: boolean;
   localAudioEnabled: boolean;
   localAudioVolume: number;
+  localAudioTrack?: MediaStreamTrack;
   enableLocalVideo(): void;
   disableLocalVideo(): void;
   enableLocalAudio(): void;

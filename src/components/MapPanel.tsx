@@ -5,9 +5,8 @@ import * as Colyseus from 'colyseus.js';
 import useResizeObserver from 'use-resize-observer';
 import * as _ from 'lodash';
 import * as TWEEN from '@tweenjs/tween.js';
-import Icon from './Icon';
-import { Room, createLocalVideoTrack } from 'twilio-video';
 import { LocalMediaContext } from '../contexts/LocalMediaContext';
+import { useVolume } from '../util/useVolume';
 
 export interface MapPanelProps {
   className?: string;
@@ -29,18 +28,20 @@ const MapPanel: React.FC<MapPanelProps> = ({
   const {
     localVideoEnabled,
     localAudioEnabled,
-    localAudioVolume,
+    localAudioTrack,
     enableLocalVideo,
     disableLocalVideo,
     enableLocalAudio,
     disableLocalAudio,
   } = React.useContext(LocalMediaContext);
 
+  const [volume, setVolume] = React.useState(0);
   const [recentlyLoud, setRecentlyLoud] = React.useState(false);
   const recentlyLoudTimerRef = React.useRef<number | null>(null);
 
-  React.useEffect(() => {
-    if (localAudioVolume > 15) {
+  useVolume(localAudioTrack, (v) => {
+    setVolume(v);
+    if (v > 0.15) {
       if (recentlyLoudTimerRef.current != null) {
         window.clearTimeout(recentlyLoudTimerRef.current);
         recentlyLoudTimerRef.current = null;
@@ -53,7 +54,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
         recentlyLoudTimerRef.current = null;
       }, 500);
     }
-  }, [localAudioVolume]);
+  });
 
   const wrapperRef = React.useRef<HTMLDivElement>(null);
   const windowSize = React.useRef<{ width: number; height: number }>({
@@ -442,7 +443,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
         />
         {localAudioEnabled && (
           <S.MicVolumeOverlayWrapper
-            style={{ height: 6 + localAudioVolume }}
+            style={{ height: 6 + volume * 100 }}
             forceDisplay={recentlyLoud}
           >
             <S.MicVolumeOverlay name="mic"></S.MicVolumeOverlay>
