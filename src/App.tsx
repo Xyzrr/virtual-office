@@ -25,7 +25,7 @@ import LocalUserPanel from './components/LocalUserPanel';
 import Icon from './components/Icon';
 import { min } from 'lodash';
 import { LocalMediaContext } from './contexts/LocalMediaContext';
-import { trackVolume } from './util/trackVolume';
+import { trackVolume } from './util/useVolume';
 
 const local = false;
 
