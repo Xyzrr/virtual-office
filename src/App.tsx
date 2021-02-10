@@ -388,10 +388,16 @@ const Hello = () => {
       }
 
       let videoTrack: MediaStreamTrack | undefined;
+      let audioTrack: MediaStreamTrack | undefined;
 
       participant.videoTracks.forEach((publication) => {
         const { track } = publication;
         videoTrack = track.mediaStreamTrack;
+      });
+
+      participant.audioTracks.forEach((publication) => {
+        const { track } = publication;
+        audioTrack = track.mediaStreamTrack;
       });
 
       panelElements.push(
@@ -404,7 +410,7 @@ const Hello = () => {
           small={small}
           xDirection="left"
         >
-          <LocalUserPanel videoTrack={videoTrack} />
+          <LocalUserPanel videoTrack={videoTrack} audioTrack={audioTrack} />
         </S.PanelWrapper>
       );
     }

@@ -1,6 +1,6 @@
 import * as S from './RemoteUserPanel.styles';
 import React from 'react';
-import { trackVolume, useVolume } from '../util/useVolume';
+import { useVolume } from '../util/useVolume';
 
 export interface RemoteUserPanelProps {
   className?: string;

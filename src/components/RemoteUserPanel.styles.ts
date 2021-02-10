@@ -2,15 +2,15 @@ import styled, { css } from 'styled-components';
 import Icon from './Icon';
 
 export const Wrapper = styled.div<{ recentlyLoud: boolean }>`
+  border-radius: 4px;
+  overflow: hidden;
+  transition: box-shadow 0.15s;
+  box-shadow: 0 0 0 2px rgba(0, 255, 0, 0);
   video {
     display: block;
     width: 100%;
     height: 100%;
   }
-  border-radius: 4px;
-  overflow: hidden;
-  transition: box-shadow 0.15s;
-  box-shadow: 0 0 0 2px rgba(0, 255, 0, 0);
   ${(props) =>
     props.recentlyLoud &&
     css`
