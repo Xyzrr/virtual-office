@@ -34,6 +34,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
   const {
     localVideoInputEnabled,
     localAudioInputEnabled,
+    localAudioOutputEnabled,
     localAudioTrack,
     localAudioInputDeviceId,
     localAudioOutputDeviceId,
@@ -42,6 +43,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
     disableLocalVideoInput,
     enableLocalAudioInput,
     disableLocalAudioInput,
+    setLocalAudioOutputEnabled,
     setLocalAudioInputDeviceId,
     setLocalAudioOutputDeviceId,
     setLocalVideoInputDeviceId,
@@ -534,6 +536,35 @@ const MapPanel: React.FC<MapPanelProps> = ({
             >
               {mediaDevices
                 .filter((device) => device.kind === 'videoinput')
+                .map((device) => {
+                  return (
+                    <option key={device.deviceId} value={device.deviceId}>
+                      {device.label}
+                    </option>
+                  );
+                })}
+            </select>
+          </S.CaretButtonWrapper>
+        )}
+        <S.IconButton
+          name={localAudioOutputEnabled ? 'volume_up' : 'volume_off'}
+          disabled={!localAudioOutputEnabled}
+          onClick={() => {
+            setLocalAudioOutputEnabled(!localAudioOutputEnabled);
+          }}
+        />
+        {!small && (
+          <S.CaretButtonWrapper>
+            <S.CaretButton />
+            <select
+              onChange={(e) => {
+                const { value } = e.target;
+                console.log('selected', value);
+              }}
+              value={localAudioOutputDeviceId}
+            >
+              {mediaDevices
+                .filter((device) => device.kind === 'audiooutput')
                 .map((device) => {
                   return (
                     <option key={device.deviceId} value={device.deviceId}>
