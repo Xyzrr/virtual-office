@@ -449,6 +449,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
             <S.MicVolumeOverlay name="mic"></S.MicVolumeOverlay>
           </S.MicVolumeOverlayWrapper>
         )}
+        {!small && <S.CaretButton />}
         <S.IconButton
           name={localVideoEnabled ? 'videocam' : 'videocam_off'}
           disabled={!localVideoEnabled}
@@ -460,6 +461,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
             }
           }}
         />
+        {!small && <S.CaretButton />}
       </S.IconButtons>
     </S.Wrapper>
   );

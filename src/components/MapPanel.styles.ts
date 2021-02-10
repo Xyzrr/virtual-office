@@ -7,6 +7,7 @@ export const IconButtons = styled.div`
   left: 0;
   padding: 8px;
   display: flex;
+  align-items: center;
 `;
 
 export const IconButton = styled(Icon)<{
@@ -26,6 +27,20 @@ export const IconButton = styled(Icon)<{
       color: red;
       opacity: 1 !important;
     `}
+`;
+
+export const CaretButton = styled(Icon).attrs({ name: 'expand_more' })`
+  position: relative;
+  z-index: 1;
+  padding: 2px;
+  color: white;
+  font-size: 16px;
+  opacity: 0.5;
+  cursor: pointer;
+  margin-left: -10px;
+  &:hover {
+    opacity: 1;
+  }
 `;
 
 export const MicVolumeOverlayWrapper = styled.div<{ forceDisplay?: boolean }>`
