@@ -30,16 +30,30 @@ export const IconButton = styled(Icon)<{
 `;
 
 export const CaretButton = styled(Icon).attrs({ name: 'expand_more' })`
-  position: relative;
-  z-index: 1;
   padding: 2px;
   color: white;
   font-size: 16px;
   opacity: 0.5;
   cursor: pointer;
+`;
+
+export const CaretButtonWrapper = styled.div`
+  position: relative;
+  z-index: 1;
   margin-left: -10px;
+  overflow: hidden;
+  select {
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
   &:hover {
-    opacity: 1;
+    ${CaretButton} {
+      opacity: 1;
+    }
   }
 `;
 

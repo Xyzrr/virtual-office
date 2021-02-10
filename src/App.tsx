@@ -64,6 +64,17 @@ const Hello = () => {
 
   const [localAudioEnabled, setLocalAudioEnabled] = React.useState(true);
   const [localVideoEnabled, setLocalVideoEnabled] = React.useState(true);
+  const [localAudioInputDeviceId, setLocalAudioInputDeviceId] = React.useState(
+    'default'
+  );
+  const [
+    localAudioOutputDeviceId,
+    setLocalAudioOutputDeviceId,
+  ] = React.useState('default');
+  const [localVideoInputDeviceId, setLocalVideoInputDeviceId] = React.useState(
+    'default'
+  );
+
   const [localAudioTrack, setLocalAudioTrack] = React.useState<
     MediaStreamTrack | undefined
   >();
@@ -502,6 +513,9 @@ const Hello = () => {
         localVideoEnabled,
         localAudioEnabled,
         localAudioTrack,
+        localAudioInputDeviceId,
+        localAudioOutputDeviceId,
+        localVideoInputDeviceId,
         enableLocalVideo() {
           createLocalVideoTrack({
             width: 240,
@@ -537,6 +551,9 @@ const Hello = () => {
           setLocalAudioEnabled(false);
           colyseusRoom?.send('setPlayerAudioEnabled', false);
         },
+        setLocalAudioInputDeviceId,
+        setLocalAudioOutputDeviceId,
+        setLocalVideoInputDeviceId,
       }}
     >
       <S.AppWrapper>

@@ -7,6 +7,7 @@ import * as _ from 'lodash';
 import * as TWEEN from '@tweenjs/tween.js';
 import { LocalMediaContext } from '../contexts/LocalMediaContext';
 import { useVolume } from '../util/useVolume';
+import { Menu } from 'electron';
 
 export interface MapPanelProps {
   className?: string;
@@ -29,11 +30,19 @@ const MapPanel: React.FC<MapPanelProps> = ({
     localVideoEnabled,
     localAudioEnabled,
     localAudioTrack,
+    localAudioInputDeviceId,
+    localAudioOutputDeviceId,
+    localVideoInputDeviceId,
     enableLocalVideo,
     disableLocalVideo,
     enableLocalAudio,
     disableLocalAudio,
+    setLocalAudioInputDeviceId,
+    setLocalAudioOutputDeviceId,
+    setLocalVideoInputDeviceId,
   } = React.useContext(LocalMediaContext);
+
+  const [mediaDevices, setMediaDevices] = React.useState<MediaDeviceInfo[]>([]);
 
   const [volume, setVolume] = React.useState(0);
   const [recentlyLoud, setRecentlyLoud] = React.useState(false);
@@ -426,6 +435,18 @@ const MapPanel: React.FC<MapPanelProps> = ({
     };
   }, [onKeyUp, onKeyDown]);
 
+  React.useEffect(() => {
+    const updateDevices = () => {
+      navigator.mediaDevices.enumerateDevices().then((devices) => {
+        setMediaDevices(devices);
+      });
+    };
+
+    updateDevices();
+
+    navigator.mediaDevices.ondevicechange = updateDevices;
+  }, []);
+
   return (
     <S.Wrapper className={className} ref={wrapperRef} small={small}>
       <S.IconButtons>
@@ -449,7 +470,27 @@ const MapPanel: React.FC<MapPanelProps> = ({
             <S.MicVolumeOverlay name="mic"></S.MicVolumeOverlay>
           </S.MicVolumeOverlayWrapper>
         )}
-        {!small && <S.CaretButton />}
+        {!small && (
+          <S.CaretButtonWrapper>
+            <S.CaretButton />
+            <select
+              onChange={(e) => {
+                setLocalAudioInputDeviceId(e.target.value);
+              }}
+              value={localAudioInputDeviceId}
+            >
+              {mediaDevices
+                .filter((device) => device.kind === 'audioinput')
+                .map((device) => {
+                  return (
+                    <option key={device.deviceId} value={device.deviceId}>
+                      {device.label}
+                    </option>
+                  );
+                })}
+            </select>
+          </S.CaretButtonWrapper>
+        )}
         <S.IconButton
           name={localVideoEnabled ? 'videocam' : 'videocam_off'}
           disabled={!localVideoEnabled}
@@ -461,7 +502,27 @@ const MapPanel: React.FC<MapPanelProps> = ({
             }
           }}
         />
-        {!small && <S.CaretButton />}
+        {!small && (
+          <S.CaretButtonWrapper>
+            <S.CaretButton />
+            <select
+              onChange={(e) => {
+                setLocalVideoInputDeviceId(e.target.value);
+              }}
+              value={localVideoInputDeviceId}
+            >
+              {mediaDevices
+                .filter((device) => device.kind === 'videoinput')
+                .map((device) => {
+                  return (
+                    <option key={device.deviceId} value={device.deviceId}>
+                      {device.label}
+                    </option>
+                  );
+                })}
+            </select>
+          </S.CaretButtonWrapper>
+        )}
       </S.IconButtons>
     </S.Wrapper>
   );
