@@ -63,8 +63,15 @@ const Hello = () => {
 
   const [twilioRoom, setTwilioRoom] = React.useState<Room | null>(null);
 
-  const [localAudioEnabled, setLocalAudioEnabled] = React.useState(true);
-  const [localVideoEnabled, setLocalVideoEnabled] = React.useState(true);
+  const [localAudioInputEnabled, setLocalAudioInputEnabled] = React.useState(
+    true
+  );
+  const [localVideoInputEnabled, setLocalVideoInputEnabled] = React.useState(
+    true
+  );
+  const [localAudioOutputEnabled, setLocalAudioOutputEnabled] = React.useState(
+    true
+  );
   const [localAudioInputDeviceId, setLocalAudioInputDeviceId] = React.useState(
     'default'
   );
@@ -126,7 +133,7 @@ const Hello = () => {
         setLocalAudioTrack(localAudioTwilioTrack.mediaStreamTrack);
         const localTracks: LocalTrack[] = [localAudioTwilioTrack];
 
-        if (localVideoEnabled) {
+        if (localVideoInputEnabled) {
           localTracks.push(
             await createLocalVideoTrack({
               width: 240,
@@ -137,7 +144,7 @@ const Hello = () => {
 
         console.log('local', localTracks);
 
-        if (!localAudioEnabled) {
+        if (!localAudioInputEnabled) {
           localAudioTwilioTrack.disable();
         }
 
@@ -268,7 +275,7 @@ const Hello = () => {
     const client = new Colyseus.Client(`ws://${host}`);
 
     client
-      .joinOrCreate('main', { identity, audioEnabled: localAudioEnabled })
+      .joinOrCreate('main', { identity, audioEnabled: localAudioInputEnabled })
       .then((room: Colyseus.Room<any>) => {
         console.log('Joined or created Colyseus room:', room);
         setColyseusRoom(room);
@@ -382,7 +389,7 @@ const Hello = () => {
     );
   }
 
-  if (!minimized && localVideoEnabled) {
+  if (!minimized && localVideoInputEnabled) {
     const participant = twilioRoom?.localParticipant;
 
     if (participant != null) {
@@ -515,13 +522,14 @@ const Hello = () => {
   return (
     <LocalMediaContext.Provider
       value={{
-        localVideoEnabled,
-        localAudioEnabled,
+        localVideoInputEnabled,
+        localAudioInputEnabled,
+        localAudioOutputEnabled,
         localAudioTrack,
         localAudioInputDeviceId,
         localAudioOutputDeviceId,
         localVideoInputDeviceId,
-        enableLocalVideo() {
+        enableLocalVideoInput() {
           createLocalVideoTrack({
             width: 240,
             height: 135,
@@ -531,35 +539,36 @@ const Hello = () => {
             })
             .then((publication) => {
               console.log('Successfully enabled your video:', publication);
-              setLocalVideoEnabled(true);
+              setLocalVideoInputEnabled(true);
               return publication;
             })
             .catch((error) => {
               console.log('Failed to create local video track', error);
             });
         },
-        disableLocalVideo() {
+        disableLocalVideoInput() {
           twilioRoom?.localParticipant.videoTracks.forEach((publication) => {
             publication.track.stop();
             publication.unpublish();
           });
-          setLocalVideoEnabled(false);
+          setLocalVideoInputEnabled(false);
         },
-        enableLocalAudio() {
+        enableLocalAudioInput() {
           twilioRoom?.localParticipant.audioTracks.forEach((publication) => {
             console.log('enabling!');
             publication.track.enable();
           });
-          setLocalAudioEnabled(true);
+          setLocalAudioInputEnabled(true);
           colyseusRoom?.send('setPlayerAudioEnabled', true);
         },
-        disableLocalAudio() {
+        disableLocalAudioInput() {
           twilioRoom?.localParticipant.audioTracks.forEach((publication) => {
             publication.track.disable();
           });
-          setLocalAudioEnabled(false);
+          setLocalAudioInputEnabled(false);
           colyseusRoom?.send('setPlayerAudioEnabled', false);
         },
+        setLocalAudioOutputEnabled,
         setLocalAudioInputDeviceId,
         setLocalAudioOutputDeviceId,
         setLocalVideoInputDeviceId,

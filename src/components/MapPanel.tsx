@@ -32,16 +32,16 @@ const MapPanel: React.FC<MapPanelProps> = ({
   onPlayerAudioEnabledChanged,
 }) => {
   const {
-    localVideoEnabled,
-    localAudioEnabled,
+    localVideoInputEnabled,
+    localAudioInputEnabled,
     localAudioTrack,
     localAudioInputDeviceId,
     localAudioOutputDeviceId,
     localVideoInputDeviceId,
-    enableLocalVideo,
-    disableLocalVideo,
-    enableLocalAudio,
-    disableLocalAudio,
+    enableLocalVideoInput,
+    disableLocalVideoInput,
+    enableLocalAudioInput,
+    disableLocalAudioInput,
     setLocalAudioInputDeviceId,
     setLocalAudioOutputDeviceId,
     setLocalVideoInputDeviceId,
@@ -456,18 +456,18 @@ const MapPanel: React.FC<MapPanelProps> = ({
     <S.Wrapper className={className} ref={wrapperRef} small={small}>
       <S.IconButtons>
         <S.IconButton
-          name={localAudioEnabled ? 'mic' : 'mic_off'}
-          disabled={!localAudioEnabled}
+          name={localAudioInputEnabled ? 'mic' : 'mic_off'}
+          disabled={!localAudioInputEnabled}
           forceDisplay={recentlyLoud}
           onClick={() => {
-            if (localAudioEnabled) {
-              disableLocalAudio();
+            if (localAudioInputEnabled) {
+              disableLocalAudioInput();
             } else {
-              enableLocalAudio();
+              enableLocalAudioInput();
             }
           }}
         />
-        {localAudioEnabled && (
+        {localAudioInputEnabled && (
           <S.MicVolumeOverlayWrapper
             style={{ height: 6 + volume * 100 }}
             forceDisplay={recentlyLoud}
@@ -505,13 +505,13 @@ const MapPanel: React.FC<MapPanelProps> = ({
           </S.CaretButtonWrapper>
         )}
         <S.IconButton
-          name={localVideoEnabled ? 'videocam' : 'videocam_off'}
-          disabled={!localVideoEnabled}
+          name={localVideoInputEnabled ? 'videocam' : 'videocam_off'}
+          disabled={!localVideoInputEnabled}
           onClick={() => {
-            if (localVideoEnabled) {
-              disableLocalVideo();
+            if (localVideoInputEnabled) {
+              disableLocalVideoInput();
             } else {
-              enableLocalVideo();
+              enableLocalVideoInput();
             }
           }}
         />

@@ -1,16 +1,18 @@
 import React from 'react';
 
 interface LocalMediaContextValue {
-  localVideoEnabled: boolean;
-  localAudioEnabled: boolean;
+  localVideoInputEnabled: boolean;
+  localAudioInputEnabled: boolean;
+  localAudioOutputEnabled: boolean;
   localAudioTrack?: MediaStreamTrack;
   localAudioInputDeviceId: string;
   localAudioOutputDeviceId: string;
   localVideoInputDeviceId: string;
-  enableLocalVideo(): void;
-  disableLocalVideo(): void;
-  enableLocalAudio(): void;
-  disableLocalAudio(): void;
+  enableLocalVideoInput(): void;
+  disableLocalVideoInput(): void;
+  enableLocalAudioInput(): void;
+  disableLocalAudioInput(): void;
+  setLocalAudioOutputEnabled(enabled: boolean): void;
   setLocalAudioInputDeviceId(id: string): void;
   setLocalAudioOutputDeviceId(id: string): void;
   setLocalVideoInputDeviceId(id: string): void;
