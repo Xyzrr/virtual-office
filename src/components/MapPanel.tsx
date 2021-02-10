@@ -480,9 +480,10 @@ const MapPanel: React.FC<MapPanelProps> = ({
             <S.CaretButton />
             <select
               onChange={(e) => {
-                createLocalAudioTrack({ deviceId: e.target.value })
+                const { value } = e.target;
+                createLocalAudioTrack({ deviceId: value })
                   .then((tracks) => {
-                    setLocalAudioInputDeviceId(e.target.value);
+                    setLocalAudioInputDeviceId(value);
                     return tracks;
                   })
                   .catch((error) => {
@@ -519,9 +520,10 @@ const MapPanel: React.FC<MapPanelProps> = ({
             <S.CaretButton />
             <select
               onChange={(e) => {
-                createLocalVideoTrack({ deviceId: e.target.value })
+                const { value } = e.target;
+                createLocalVideoTrack({ deviceId: value })
                   .then((tracks) => {
-                    setLocalVideoInputDeviceId(e.target.value);
+                    setLocalVideoInputDeviceId(value);
                     return tracks;
                   })
                   .catch((error) => {
