@@ -7,6 +7,7 @@ export interface RemoteUserPanelProps {
   videoTrack?: MediaStreamTrack;
   audioTrack?: MediaStreamTrack;
   audioEnabled: boolean;
+  volumeMultiplier: number;
 }
 
 const RemoteUserPanel: React.FC<RemoteUserPanelProps> = ({
@@ -14,6 +15,7 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = ({
   videoTrack,
   audioTrack,
   audioEnabled,
+  volumeMultiplier,
 }) => {
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const [recentlyLoud, setRecentlyLoud] = React.useState(false);
@@ -60,6 +62,14 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = ({
       }, 500);
     }
   });
+
+  React.useEffect(() => {
+    if (videoRef.current == null) {
+      return;
+    }
+
+    videoRef.current.volume = volumeMultiplier;
+  }, [volumeMultiplier]);
 
   return (
     <S.Wrapper className={className} recentlyLoud={recentlyLoud}>

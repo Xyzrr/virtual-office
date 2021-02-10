@@ -25,7 +25,6 @@ import LocalUserPanel from './components/LocalUserPanel';
 import Icon from './components/Icon';
 import { min } from 'lodash';
 import { LocalMediaContext } from './contexts/LocalMediaContext';
-import { trackVolume } from './util/useVolume';
 
 const local = false;
 
@@ -480,6 +479,7 @@ const Hello = () => {
           videoTrack={videoTrack}
           audioTrack={audioTrack}
           audioEnabled={audioEnabled}
+          volumeMultiplier={scale}
         />
       </S.PanelWrapper>
     );
