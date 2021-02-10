@@ -1,3 +1,5 @@
+import * as S from './App.styles';
+
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import {
@@ -15,7 +17,6 @@ import {
 } from 'twilio-video';
 import * as PIXI from 'pixi.js';
 import * as Colyseus from 'colyseus.js';
-import * as S from './App.styles';
 import { useFakeMinimize } from './util/useFakeMinimize';
 import produce from 'immer';
 import RemoteUserPanel from './components/RemoteUserPanel';
@@ -104,148 +105,152 @@ const Hello = () => {
       roomName: 'cool-room',
     });
     const headers = new window.Headers();
-    fetch(`${endpoint}?${params}`, { headers }).then(async (res) => {
-      let token: string | undefined;
-      try {
-        token = await res.text();
-      } catch (e) {
-        console.log(e);
-      }
+    fetch(`${endpoint}?${params}`, { headers })
+      .then(async (res) => {
+        let token: string | undefined;
+        try {
+          token = await res.text();
+        } catch (e) {
+          console.log(e);
+        }
 
-      if (token == null) {
-        return;
-      }
+        if (token == null) {
+          return;
+        }
 
-      console.log('Twilio access token:', token);
+        console.log('Twilio access token:', token);
 
-      /** Initialize local tracks */
+        /** Initialize local tracks */
 
-      const localAudioTwilioTrack = await createLocalAudioTrack();
-      setLocalAudioTrack(localAudioTwilioTrack.mediaStreamTrack);
-      const localTracks: LocalTrack[] = [localAudioTwilioTrack];
+        const localAudioTwilioTrack = await createLocalAudioTrack();
+        setLocalAudioTrack(localAudioTwilioTrack.mediaStreamTrack);
+        const localTracks: LocalTrack[] = [localAudioTwilioTrack];
 
-      if (localVideoEnabled) {
-        localTracks.push(
-          await createLocalVideoTrack({
-            width: 240,
-            height: 135,
-          })
-        );
-      }
+        if (localVideoEnabled) {
+          localTracks.push(
+            await createLocalVideoTrack({
+              width: 240,
+              height: 135,
+            })
+          );
+        }
 
-      console.log('local', localTracks);
+        console.log('local', localTracks);
 
-      if (!localAudioEnabled) {
-        localAudioTwilioTrack.disable();
-      }
+        if (!localAudioEnabled) {
+          localAudioTwilioTrack.disable();
+        }
 
-      /** Connect to Twilio */
+        /** Connect to Twilio */
 
-      let room: Room;
-      try {
-        room = await connect(token, {
-          name: 'cool-room',
-          tracks: localTracks,
+        let room: Room;
+        try {
+          room = await connect(token, {
+            name: 'cool-room',
+            tracks: localTracks,
+          });
+        } catch (error) {
+          console.log(`Unable to connect to Twilio room: ${error.message}`);
+          return;
+        }
+
+        window.addEventListener('beforeunload', () => {
+          room.disconnect();
         });
-      } catch (error) {
-        console.log(`Unable to connect to Twilio room: ${error.message}`);
-        return;
-      }
 
-      window.addEventListener('beforeunload', () => {
-        room.disconnect();
-      });
+        console.log('Joined Twilio room', room);
+        setTwilioRoom(room);
 
-      console.log('Joined Twilio room', room);
-      setTwilioRoom(room);
+        const handleConnectedParticipant = (participant: RemoteParticipant) => {
+          setActiveParticipants((aps) =>
+            produce(aps, (draft) => {
+              if (draft[participant.identity] == null) {
+                draft[participant.identity] = {};
+              }
+              draft[participant.identity].sid = participant.sid;
+            })
+          );
 
-      const handleConnectedParticipant = (participant: RemoteParticipant) => {
-        setActiveParticipants((aps) =>
-          produce(aps, (draft) => {
-            if (draft[participant.identity] == null) {
-              draft[participant.identity] = {};
+          const handleSubscribedTrack = (track: RemoteTrack) => {
+            if (track.kind === 'video') {
+              setActiveParticipants((aps) =>
+                produce(aps, (draft) => {
+                  draft[participant.identity].videoSubscribed = true;
+                })
+              );
             }
-            draft[participant.identity].sid = participant.sid;
-          })
-        );
+            if (track.kind === 'audio') {
+              setActiveParticipants((aps) =>
+                produce(aps, (draft) => {
+                  draft[participant.identity].audioSubscribed = true;
+                })
+              );
+            }
+          };
 
-        const handleSubscribedTrack = (track: RemoteTrack) => {
-          if (track.kind === 'video') {
-            setActiveParticipants((aps) =>
-              produce(aps, (draft) => {
-                draft[participant.identity].videoSubscribed = true;
-              })
-            );
-          }
-          if (track.kind === 'audio') {
-            setActiveParticipants((aps) =>
-              produce(aps, (draft) => {
-                draft[participant.identity].audioSubscribed = true;
-              })
-            );
-          }
+          const handleUnsubscribedTrack = (track: RemoteTrack) => {
+            if (track.kind === 'video') {
+              setActiveParticipants((aps) =>
+                produce(aps, (draft) => {
+                  draft[participant.identity].videoSubscribed = false;
+                })
+              );
+            }
+            if (track.kind === 'audio') {
+              setActiveParticipants((aps) =>
+                produce(aps, (draft) => {
+                  draft[participant.identity].audioSubscribed = false;
+                })
+              );
+            }
+          };
+
+          participant.tracks.forEach((publication) => {
+            if (publication.isSubscribed && publication.track != null) {
+              console.log('Existing subscribed remote track.');
+              handleSubscribedTrack(publication.track);
+            }
+          });
+
+          participant.on('trackSubscribed', (track: RemoteTrack) => {
+            console.log('Remote track subscribed.');
+            handleSubscribedTrack(track);
+          });
+
+          participant.on('trackUnsubscribed', (track: RemoteTrack) => {
+            console.log('Remote track unsubscribed.');
+            handleUnsubscribedTrack(track);
+          });
         };
 
-        const handleUnsubscribedTrack = (track: RemoteTrack) => {
-          if (track.kind === 'video') {
-            setActiveParticipants((aps) =>
-              produce(aps, (draft) => {
-                draft[participant.identity].videoSubscribed = false;
-              })
-            );
-          }
-          if (track.kind === 'audio') {
-            setActiveParticipants((aps) =>
-              produce(aps, (draft) => {
-                draft[participant.identity].audioSubscribed = false;
-              })
-            );
-          }
+        const handleDisconnectedParticipant = (
+          participant: RemoteParticipant
+        ) => {
+          setActiveParticipants((aps) =>
+            produce(aps, (draft) => {
+              delete draft[participant.identity];
+            })
+          );
         };
 
-        participant.tracks.forEach((publication) => {
-          if (publication.isSubscribed && publication.track != null) {
-            console.log('Existing subscribed remote track.');
-            handleSubscribedTrack(publication.track);
-          }
+        room.participants.forEach((participant) => {
+          console.log(`Existing remote Twilio participant: ${participant}`);
+          handleConnectedParticipant(participant);
         });
 
-        participant.on('trackSubscribed', (track: RemoteTrack) => {
-          console.log('Remote track subscribed.');
-          handleSubscribedTrack(track);
+        room.on('participantConnected', (participant) => {
+          console.log(`Remote Twilio participant connected: ${participant}`);
+          handleConnectedParticipant(participant);
         });
 
-        participant.on('trackUnsubscribed', (track: RemoteTrack) => {
-          console.log('Remote track unsubscribed.');
-          handleUnsubscribedTrack(track);
+        room.on('participantDisconnected', (participant) => {
+          console.log(`Remote Twilio participant disconnected: ${participant}`);
+          handleDisconnectedParticipant(participant);
         });
-      };
-
-      const handleDisconnectedParticipant = (
-        participant: RemoteParticipant
-      ) => {
-        setActiveParticipants((aps) =>
-          produce(aps, (draft) => {
-            delete draft[participant.identity];
-          })
-        );
-      };
-
-      room.participants.forEach((participant) => {
-        console.log(`Existing remote Twilio participant: ${participant}`);
-        handleConnectedParticipant(participant);
+      })
+      .catch((error) => {
+        console.log('Failed to connect to', endpoint, error);
       });
-
-      room.on('participantConnected', (participant) => {
-        console.log(`Remote Twilio participant connected: ${participant}`);
-        handleConnectedParticipant(participant);
-      });
-
-      room.on('participantDisconnected', (participant) => {
-        console.log(`Remote Twilio participant disconnected: ${participant}`);
-        handleDisconnectedParticipant(participant);
-      });
-    });
   }, []);
 
   React.useEffect(() => {
@@ -443,7 +448,7 @@ const Hello = () => {
       return;
     }
 
-    key = 'remote-user-' + identity;
+    key = `remote-user-${identity}`;
     small = minimized || !(key in expandedPanels);
 
     const scale = Math.min(1, 3 / (distance + 0.1));
@@ -527,6 +532,10 @@ const Hello = () => {
             .then((publication) => {
               console.log('Successfully enabled your video:', publication);
               setLocalVideoEnabled(true);
+              return publication;
+            })
+            .catch((error) => {
+              console.log('Failed to create local video track', error);
             });
         },
         disableLocalVideo() {

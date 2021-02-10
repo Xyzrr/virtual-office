@@ -8,6 +8,11 @@ import * as TWEEN from '@tweenjs/tween.js';
 import { LocalMediaContext } from '../contexts/LocalMediaContext';
 import { useVolume } from '../util/useVolume';
 import { Menu } from 'electron';
+import {
+  createLocalTracks,
+  createLocalAudioTrack,
+  createLocalVideoTrack,
+} from 'twilio-video';
 
 export interface MapPanelProps {
   className?: string;
@@ -475,7 +480,14 @@ const MapPanel: React.FC<MapPanelProps> = ({
             <S.CaretButton />
             <select
               onChange={(e) => {
-                setLocalAudioInputDeviceId(e.target.value);
+                createLocalAudioTrack({ deviceId: e.target.value })
+                  .then((tracks) => {
+                    setLocalAudioInputDeviceId(e.target.value);
+                    return tracks;
+                  })
+                  .catch((error) => {
+                    console.log('Failed to create local audio track', error);
+                  });
               }}
               value={localAudioInputDeviceId}
             >
@@ -507,7 +519,14 @@ const MapPanel: React.FC<MapPanelProps> = ({
             <S.CaretButton />
             <select
               onChange={(e) => {
-                setLocalVideoInputDeviceId(e.target.value);
+                createLocalVideoTrack({ deviceId: e.target.value })
+                  .then((tracks) => {
+                    setLocalVideoInputDeviceId(e.target.value);
+                    return tracks;
+                  })
+                  .catch((error) => {
+                    console.log('Failed to create local video track', error);
+                  });
               }}
               value={localVideoInputDeviceId}
             >
