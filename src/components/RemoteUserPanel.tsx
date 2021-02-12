@@ -1,6 +1,7 @@
 import * as S from './RemoteUserPanel.styles';
-import React from 'react';
+import React, { useContext } from 'react';
 import { useVolume } from '../util/useVolume';
+import { LocalMediaContext } from '../contexts/LocalMediaContext';
 
 export interface RemoteUserPanelProps {
   className?: string;
@@ -21,7 +22,17 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = ({
   const [recentlyLoud, setRecentlyLoud] = React.useState(false);
   const recentlyLoudTimerRef = React.useRef<number | null>(null);
 
-  console.log('audio enabled', audioEnabled);
+  const { localAudioOutputDeviceId, localAudioOutputEnabled } = useContext(
+    LocalMediaContext
+  );
+
+  React.useEffect(() => {
+    if (videoRef.current == null) {
+      return;
+    }
+
+    (videoRef.current as any).setSinkId(localAudioOutputDeviceId);
+  }, [localAudioOutputDeviceId]);
 
   React.useEffect(() => {
     if (videoRef.current == null) {
@@ -68,8 +79,8 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = ({
       return;
     }
 
-    videoRef.current.volume = volumeMultiplier;
-  }, [volumeMultiplier]);
+    videoRef.current.volume = localAudioOutputEnabled ? volumeMultiplier : 0;
+  }, [volumeMultiplier, localAudioOutputEnabled]);
 
   return (
     <S.Wrapper className={className} recentlyLoud={recentlyLoud}>

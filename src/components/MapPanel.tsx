@@ -13,6 +13,7 @@ import {
   createLocalAudioTrack,
   createLocalVideoTrack,
 } from 'twilio-video';
+import { connect } from 'http2';
 
 export interface MapPanelProps {
   className?: string;
@@ -559,7 +560,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
             <select
               onChange={(e) => {
                 const { value } = e.target;
-                console.log('selected', value);
+                setLocalAudioOutputDeviceId(value);
               }}
               value={localAudioOutputDeviceId}
             >
