@@ -40,6 +40,7 @@ export const GlobalStyles = createGlobalStyle<{
 export const AppWrapper = styled.div`
   width: 100vw;
   height: 100vh;
+  overflow: hidden;
 
   // Hack to fix weird scrolling bug in release build
   position: absolute;
