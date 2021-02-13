@@ -153,11 +153,7 @@ ipcMain.handle('unminimize', () => {
   mainWindow.setAlwaysOnTop(false);
   mainWindow.setVisibleOnAllWorkspaces(false, { visibleOnFullScreen: true });
   mainWindow.setMinimumSize(750, 450);
-  setTimeout(() => {
-    if (mainWindow != null) {
-      mainWindow.shadow = true;
-    }
-  }, 200);
+  mainWindow.setHasShadow(true);
 
   previousMinimizedPosition = mainWindow.getPosition();
   if (previousUnminimizedBounds != null) {
@@ -179,7 +175,7 @@ ipcMain.handle('minimize', (e) => {
   mainWindow.setWindowButtonVisibility(false);
   mainWindow.setResizable(false);
   mainWindow.setAlwaysOnTop(true);
-  mainWindow.shadow = false;
+  mainWindow.setHasShadow(false);
 
   previousUnminimizedBounds = mainWindow.getBounds();
 
