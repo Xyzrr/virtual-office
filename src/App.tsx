@@ -70,7 +70,7 @@ const Hello = () => {
     true
   );
   const [localAudioOutputEnabled, setLocalAudioOutputEnabled] = React.useState(
-    true
+    false
   );
   const [localAudioInputDeviceId, setLocalAudioInputDeviceId] = React.useState(
     'default'

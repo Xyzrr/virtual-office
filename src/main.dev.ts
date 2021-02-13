@@ -86,6 +86,7 @@ const createWindow = async () => {
   });
 
   mainWindow.loadURL(`file://${__dirname}/index.html`);
+  mainWindow.setVisibleOnAllWorkspaces(false, { visibleOnFullScreen: true });
 
   // @TODO: Use 'ready-to-show' event
   //        https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event
@@ -150,6 +151,7 @@ ipcMain.handle('unminimize', () => {
   mainWindow.setWindowButtonVisibility(true);
   mainWindow.setResizable(true);
   mainWindow.setAlwaysOnTop(false);
+  mainWindow.setVisibleOnAllWorkspaces(false, { visibleOnFullScreen: true });
   mainWindow.setMinimumSize(750, 450);
   setTimeout(() => {
     if (mainWindow != null) {
@@ -172,6 +174,7 @@ ipcMain.handle('minimize', (e) => {
 
   const minimizedWidth = 240 + 16;
 
+  mainWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
   mainWindow.setMinimumSize(minimizedWidth, 135 + 16);
   mainWindow.setWindowButtonVisibility(false);
   mainWindow.setResizable(false);
