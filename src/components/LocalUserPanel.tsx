@@ -1,6 +1,9 @@
 import * as S from './LocalUserPanel.styles';
+import * as HoverMenuStyles from './HoverMenu.styles';
+
 import React from 'react';
 import { useVolume } from '../util/useVolume';
+import HoverMenu from './HoverMenu';
 
 export interface LocalUserPanelProps {
   className?: string;
@@ -56,6 +59,9 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = ({
   return (
     <S.Wrapper className={className} recentlyLoud={recentlyLoud}>
       <video ref={videoRef} autoPlay></video>
+      <HoverMenu>
+        <HoverMenuStyles.MenuItem name="fullscreen"></HoverMenuStyles.MenuItem>
+      </HoverMenu>
     </S.Wrapper>
   );
 };
