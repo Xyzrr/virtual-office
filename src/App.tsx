@@ -45,22 +45,6 @@ export interface ActiveParticipant {
 }
 
 const Hello = () => {
-  React.useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'k' && e.metaKey) {
-        const externalWindow = window.open(
-          '',
-          '',
-          'width=600,height=400,left=200,top=200'
-        );
-      }
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => {
-      window.removeEventListener('keydown', onKeyDown);
-    };
-  }, []);
-
   const [twilioRoom, setTwilioRoom] = React.useState<Room | null>(null);
 
   const [localAudioInputEnabled, setLocalAudioInputEnabled] = React.useState(
