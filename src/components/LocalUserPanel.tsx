@@ -9,12 +9,16 @@ export interface LocalUserPanelProps {
   className?: string;
   videoTrack?: MediaStreamTrack;
   audioTrack?: MediaStreamTrack;
+  expanded?: boolean;
+  onSetExpanded(value: boolean): void;
 }
 
 const LocalUserPanel: React.FC<LocalUserPanelProps> = ({
   className,
   videoTrack,
   audioTrack,
+  expanded,
+  onSetExpanded,
 }) => {
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const [recentlyLoud, setRecentlyLoud] = React.useState(false);
@@ -60,7 +64,12 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = ({
     <S.Wrapper className={className} recentlyLoud={recentlyLoud}>
       <video ref={videoRef} autoPlay></video>
       <HoverMenu>
-        <HoverMenuStyles.MenuItem name="fullscreen"></HoverMenuStyles.MenuItem>
+        <HoverMenuStyles.MenuItem
+          name={expanded ? 'fullscreen_exit' : 'fullscreen'}
+          onClick={() => {
+            onSetExpanded(!expanded);
+          }}
+        ></HoverMenuStyles.MenuItem>
       </HoverMenu>
     </S.Wrapper>
   );

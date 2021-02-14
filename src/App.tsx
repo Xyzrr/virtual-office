@@ -416,7 +416,18 @@ const Hello = () => {
           small={small}
           xDirection="left"
         >
-          <LocalUserPanel videoTrack={videoTrack} audioTrack={audioTrack} />
+          <LocalUserPanel
+            videoTrack={videoTrack}
+            audioTrack={audioTrack}
+            expanded={expandedPanels.includes('local-user')}
+            onSetExpanded={(value) => {
+              if (value) {
+                setExpandedPanels(['local-user']);
+              } else {
+                setExpandedPanels([]);
+              }
+            }}
+          />
         </S.PanelWrapper>
       );
     }
