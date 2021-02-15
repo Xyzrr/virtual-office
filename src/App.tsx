@@ -631,6 +631,7 @@ const Hello = () => {
               setLocalAudioTrack(track.mediaStreamTrack);
               twilioRoom?.localParticipant.audioTracks.forEach(
                 (publication) => {
+                  publication.track.stop();
                   publication.unpublish();
                 }
               );
@@ -654,6 +655,7 @@ const Hello = () => {
               setLocalVideoTrack(track.mediaStreamTrack);
               twilioRoom?.localParticipant.videoTracks.forEach(
                 (publication) => {
+                  publication.track.stop();
                   publication.unpublish();
                 }
               );
