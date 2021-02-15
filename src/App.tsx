@@ -277,10 +277,6 @@ const Hello = () => {
     };
   }, [colyseusRoom]);
 
-  const onResize = React.useCallback(() => {
-    setWindowSize({ width: window.innerWidth, height: window.innerHeight });
-  }, []);
-
   const [appFocused, setAppFocused] = React.useState(true);
   React.useEffect(() => {
     const onFocus = () => {
@@ -299,10 +295,27 @@ const Hello = () => {
     };
   });
 
+  const onResize = React.useCallback(() => {
+    setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+  }, []);
+
   React.useEffect(() => {
     window.addEventListener('resize', onResize);
     return () => {
       window.removeEventListener('resize', onResize);
+    };
+  });
+
+  React.useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setExpandedPanels(['map']);
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
     };
   });
 
