@@ -76,23 +76,6 @@ export const Title = styled.h2`
   font-size: 20px;
 `;
 
-export const ScreenShareOption = styled.div<{ selected?: boolean }>`
-  display: flex;
-  flex-direction: column;
-  padding: 4px;
-  margin-left: -4px;
-  margin-top: -4px;
-  margin-right: 14px;
-  margin-bottom: 14px;
-  overflow: hidden;
-  border-radius: 4px;
-  ${(props) =>
-    props.selected &&
-    css`
-      background: rgba(27, 149, 224, 0.4);
-    `}
-`;
-
 export const ScreenOptionThumbnailWrapper = styled.div`
   height: 162px;
   width: 288px;
@@ -144,4 +127,32 @@ export const WindowOptionAppIcon = styled.img`
   height: 20px;
   display: inline-block;
   vertical-align: middle;
+`;
+
+export const ScreenShareOption = styled.div<{ selected?: boolean }>`
+  display: flex;
+  flex-direction: column;
+  padding: 4px;
+  margin-left: -4px;
+  margin-top: -4px;
+  margin-right: 14px;
+  margin-bottom: 14px;
+  overflow: hidden;
+  border-radius: 4px;
+  &:hover {
+    ${ScreenOptionThumbnailWrapper}, ${WindowOptionThumbnailWrapper} {
+      border: 1px solid rgba(27, 149, 244, 0.4);
+    }
+  }
+  ${(props) =>
+    props.selected &&
+    css`
+      background: rgba(27, 149, 224, 0.4);
+      ${ScreenOptionThumbnailWrapper}, ${WindowOptionThumbnailWrapper} {
+        border: 1px solid transparent !important;
+      }
+      ${ScreenOptionThumbnail}, ${WindowOptionThumbnail} {
+        box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3);
+      }
+    `}
 `;
