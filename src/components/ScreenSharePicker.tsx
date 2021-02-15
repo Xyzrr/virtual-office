@@ -92,41 +92,43 @@ const ScreenSharePicker: React.FC<ScreenSharePickerProps> = React.memo(
           <S.WindowsSectionWrapper>
             <S.Title>Apps</S.Title>
             <S.ScreenShareOptionsWrapper>
-              {windowSources.map((source) => {
-                return (
-                  <S.ScreenShareOption
-                    key={source.id}
-                    selected={source.id === selectedSourceId}
-                    onClick={() => {
-                      console.log(
-                        'Selected window',
-                        source.id,
-                        source.display_id
-                      );
-                      setSelectedSourceId(source.id);
-                    }}
-                    onDoubleClick={() => {
-                      onStart?.(source.id);
-                    }}
-                  >
-                    <S.WindowOptionLabel>
-                      {source.appIcon != null && (
-                        <S.WindowOptionAppIcon
-                          src={source.appIcon.toDataURL()}
-                        ></S.WindowOptionAppIcon>
+              {windowSources
+                .filter((source) => source.name !== 'screen-share-picker')
+                .map((source) => {
+                  return (
+                    <S.ScreenShareOption
+                      key={source.id}
+                      selected={source.id === selectedSourceId}
+                      onClick={() => {
+                        console.log(
+                          'Selected window',
+                          source.id,
+                          source.display_id
+                        );
+                        setSelectedSourceId(source.id);
+                      }}
+                      onDoubleClick={() => {
+                        onStart?.(source.id);
+                      }}
+                    >
+                      <S.WindowOptionLabel>
+                        {source.appIcon != null && (
+                          <S.WindowOptionAppIcon
+                            src={source.appIcon.toDataURL()}
+                          ></S.WindowOptionAppIcon>
+                        )}
+                        <S.WindowOptionName>{source.name}</S.WindowOptionName>
+                      </S.WindowOptionLabel>
+                      {source.thumbnail != null && (
+                        <S.WindowOptionThumbnailWrapper>
+                          <S.WindowOptionThumbnail
+                            src={source.thumbnail.toDataURL()}
+                          ></S.WindowOptionThumbnail>
+                        </S.WindowOptionThumbnailWrapper>
                       )}
-                      <S.WindowOptionName>{source.name}</S.WindowOptionName>
-                    </S.WindowOptionLabel>
-                    {source.thumbnail != null && (
-                      <S.WindowOptionThumbnailWrapper>
-                        <S.WindowOptionThumbnail
-                          src={source.thumbnail.toDataURL()}
-                        ></S.WindowOptionThumbnail>
-                      </S.WindowOptionThumbnailWrapper>
-                    )}
-                  </S.ScreenShareOption>
-                );
-              })}
+                    </S.ScreenShareOption>
+                  );
+                })}
             </S.ScreenShareOptionsWrapper>
           </S.WindowsSectionWrapper>
           <S.BottomBar>
