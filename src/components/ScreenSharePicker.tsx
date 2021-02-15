@@ -9,10 +9,11 @@ import { StyleSheetManager } from 'styled-components';
 export interface ScreenSharePickerProps {
   className?: string;
   open: boolean;
+  onClose?(): void;
 }
 
 const ScreenSharePicker: React.FC<ScreenSharePickerProps> = React.memo(
-  ({ className, open }) => {
+  ({ className, open, onClose }) => {
     const [screenSources, setScreenSources] = React.useState<
       DesktopCapturerSource[]
     >([]);
@@ -46,7 +47,7 @@ const ScreenSharePicker: React.FC<ScreenSharePickerProps> = React.memo(
     }, [open]);
 
     return (
-      <NewWindow name="screen-share-picker" open={open}>
+      <NewWindow name="screen-share-picker" open={open} onClose={onClose}>
         <S.Wrapper className={className}>
           <S.TopBar>Screen Share</S.TopBar>
 

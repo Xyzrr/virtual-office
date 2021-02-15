@@ -29,9 +29,15 @@ export interface NewWindowProps {
   className?: string;
   name: string;
   open: boolean;
+  onClose?(): void;
 }
 
-const NewWindow: React.FC<NewWindowProps> = ({ name, open, children }) => {
+const NewWindow: React.FC<NewWindowProps> = ({
+  name,
+  open,
+  children,
+  onClose,
+}) => {
   const containerEl = React.useMemo(() => document.createElement('div'), [
     open,
   ]);
@@ -43,6 +49,10 @@ const NewWindow: React.FC<NewWindowProps> = ({ name, open, children }) => {
       if (newWindow != null) {
         newWindow.document.body.appendChild(containerEl);
         copyStyles(window.document, newWindow.document);
+
+        newWindow.addEventListener('beforeunload', () => {
+          onClose?.();
+        });
       }
     }
   }, [open]);

@@ -574,7 +574,12 @@ const MapPanel: React.FC<MapPanelProps> = ({
           }}
         />
       </S.IconButtons>
-      <ScreenSharePicker open={localScreenShareEnabled}></ScreenSharePicker>
+      <ScreenSharePicker
+        open={localScreenShareEnabled}
+        onClose={() => {
+          setLocalScreenShareEnabled(false);
+        }}
+      ></ScreenSharePicker>
     </S.Wrapper>
   );
 };
