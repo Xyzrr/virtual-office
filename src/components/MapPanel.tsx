@@ -15,6 +15,8 @@ import {
   LocalVideoTrack,
 } from 'twilio-video';
 import { connect } from 'http2';
+import NewWindow from './NewWindow';
+import ScreenSharePicker from './ScreenSharePicker';
 
 export interface MapPanelProps {
   className?: string;
@@ -569,17 +571,10 @@ const MapPanel: React.FC<MapPanelProps> = ({
           disabled={!localScreenShareEnabled}
           onClick={async () => {
             setLocalScreenShareEnabled(!localScreenShareEnabled);
-
-            const sources = await desktopCapturer.getSources({
-              types: ['window', 'screen'],
-            });
-
-            for (const source of sources) {
-              console.log('source', source);
-            }
           }}
         />
       </S.IconButtons>
+      <ScreenSharePicker open={localScreenShareEnabled}></ScreenSharePicker>
     </S.Wrapper>
   );
 };

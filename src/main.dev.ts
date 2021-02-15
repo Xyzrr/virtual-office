@@ -69,6 +69,8 @@ const createWindow = async () => {
     return path.join(RESOURCES_PATH, ...paths);
   };
 
+  let screenSharePicker: BrowserWindow | undefined;
+
   mainWindow = new BrowserWindow({
     title: 'Virtual Office',
     show: false,
@@ -82,6 +84,7 @@ const createWindow = async () => {
     titleBarStyle: 'hiddenInset',
     webPreferences: {
       nodeIntegration: true,
+      nativeWindowOpen: true,
     },
   });
 
@@ -110,10 +113,32 @@ const createWindow = async () => {
   menuBuilder.buildMenu();
 
   // Open urls in the user's browser
-  mainWindow.webContents.on('new-window', (event, url) => {
-    event.preventDefault();
-    shell.openExternal(url);
-  });
+  mainWindow.webContents.on(
+    'new-window',
+    (event, url, frameName, disposition, options, additionalFeatures) => {
+      if (frameName === 'screen-share-picker') {
+        event.preventDefault();
+
+        screenSharePicker = new BrowserWindow({
+          ...options,
+          width: 600,
+          height: 400,
+          minWidth: undefined,
+          minHeight: undefined,
+          resizable: false,
+          transparent: false,
+          parent: mainWindow!,
+          titleBarStyle: 'default',
+        });
+
+        event.newGuest = screenSharePicker;
+        return;
+      }
+
+      event.preventDefault();
+      shell.openExternal(url);
+    }
+  );
 
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
