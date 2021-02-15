@@ -60,6 +60,10 @@ const NewWindow: React.FC<NewWindowProps> = ({
     }
   }, [open]);
 
+  if (!open) {
+    return null;
+  }
+
   return (
     <StyleSheetManager target={containerEl}>
       <>{ReactDOM.createPortal(children, containerEl)}</>
