@@ -34,7 +34,7 @@ export const BottomBar = styled.div`
   padding: 12px;
 `;
 
-export const ShareButton = styled.button`
+export const ShareButton = styled.button<{ disabled?: boolean }>`
   outline: none;
   border: none;
   border-radius: 4px;
@@ -42,6 +42,13 @@ export const ShareButton = styled.button`
   color: white;
   padding: 6px 10px;
   font-size: 16px;
+
+  ${(props) =>
+    props.disabled &&
+    css`
+      background: #777;
+      opacity: 0.6;
+    `}
 `;
 
 export const ScreensSectionWrapper = styled.div`
