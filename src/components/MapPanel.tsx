@@ -7,7 +7,7 @@ import * as _ from 'lodash';
 import * as TWEEN from '@tweenjs/tween.js';
 import { LocalMediaContext } from '../contexts/LocalMediaContext';
 import { useVolume } from '../util/useVolume';
-import { Menu } from 'electron';
+import { desktopCapturer } from 'electron';
 import {
   createLocalTracks,
   createLocalAudioTrack,
@@ -570,9 +570,13 @@ const MapPanel: React.FC<MapPanelProps> = ({
           onClick={async () => {
             setLocalScreenShareEnabled(!localScreenShareEnabled);
 
-            const stream = await (navigator.mediaDevices as any).getDisplayMedia();
-            const screenTrack = new LocalVideoTrack(stream.getTracks()[0]);
-            console.log('screen track', screenTrack);
+            const sources = await desktopCapturer.getSources({
+              types: ['window', 'screen'],
+            });
+
+            for (const source of sources) {
+              console.log('source', source);
+            }
           }}
         />
       </S.IconButtons>
