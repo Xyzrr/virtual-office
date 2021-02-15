@@ -128,7 +128,6 @@ const createWindow = async () => {
           resizable: false,
           transparent: false,
           parent: mainWindow!,
-          titleBarStyle: 'default',
         });
 
         event.newGuest = screenSharePicker;

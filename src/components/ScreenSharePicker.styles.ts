@@ -6,6 +6,15 @@ export const Wrapper = styled.div`
   width: 100vw;
   height: 100vh;
   overflow: auto;
+  -webkit-app-region: drag;
+`;
+
+export const TopBar = styled.div`
+  width: 100%;
+  height: 38px;
+  background: #222;
+  position: sticky;
+  top: 0;
 `;
 
 export const ScreensSectionWrapper = styled.div`
