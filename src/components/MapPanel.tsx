@@ -152,7 +152,6 @@ const MapPanel: React.FC<MapPanelProps> = ({
 
     let lastFrameTime = Date.now();
     const animate = (time: number) => {
-      console.log(localPlayerRef.current);
       const delta = (time - lastFrameTime) / 1000;
       lastFrameTime = time;
 

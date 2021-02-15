@@ -113,8 +113,8 @@ const Hello = () => {
 
         /** Initialize local tracks */
 
-        // const localAudioTwilioTrack = await createLocalAudioTrack();
-        // setLocalAudioTrack(localAudioTwilioTrack.mediaStreamTrack);
+        const localAudioTwilioTrack = await createLocalAudioTrack();
+        setLocalAudioTrack(localAudioTwilioTrack.mediaStreamTrack);
         const localTracks: LocalTrack[] = [];
 
         if (localVideoInputEnabled) {
@@ -129,7 +129,7 @@ const Hello = () => {
         console.log('local', localTracks);
 
         if (!localAudioInputEnabled) {
-          // localAudioTwilioTrack.disable();
+          localAudioTwilioTrack.disable();
         }
 
         /** Connect to Twilio */

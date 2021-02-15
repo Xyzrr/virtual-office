@@ -26,6 +26,7 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = ({
   onSetExpanded,
 }) => {
   const videoRef = React.useRef<HTMLVideoElement>(null);
+  const audioRef = React.useRef<HTMLAudioElement>(null);
   const [recentlyLoud, setRecentlyLoud] = React.useState(false);
   const recentlyLoudTimerRef = React.useRef<number | null>(null);
 
@@ -34,36 +35,36 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = ({
   );
 
   React.useEffect(() => {
-    if (videoRef.current == null) {
-      return;
-    }
-
-    (videoRef.current as any).setSinkId(localAudioOutputDeviceId);
-  }, [localAudioOutputDeviceId]);
-
-  React.useEffect(() => {
-    if (videoRef.current == null) {
+    const videoEl = videoRef.current;
+    if (videoEl == null || videoTrack == null) {
       return;
     }
 
     const stream = new MediaStream();
-    if (videoTrack != null) {
-      stream.addTrack(videoTrack);
-    }
-    if (audioTrack != null) {
-      stream.addTrack(audioTrack);
-    }
-    videoRef.current.srcObject = stream;
+    stream.addTrack(videoTrack);
+    videoEl.srcObject = stream;
 
     return () => {
-      if (videoTrack != null) {
-        stream.removeTrack(videoTrack);
-      }
-      if (audioTrack != null) {
-        stream.removeTrack(audioTrack);
-      }
+      stream.removeTrack(videoTrack);
+      videoEl.srcObject = null;
     };
-  }, [videoTrack, audioTrack]);
+  }, [videoTrack]);
+
+  React.useEffect(() => {
+    const audioEl = audioRef.current;
+    if (audioEl == null || audioTrack == null) {
+      return;
+    }
+
+    const stream = new MediaStream();
+    stream.addTrack(audioTrack);
+    audioEl.srcObject = stream;
+
+    return () => {
+      stream.removeTrack(audioTrack);
+      audioEl.srcObject = null;
+    };
+  }, [audioTrack]);
 
   useVolume(audioTrack, (v) => {
     if (v > 0.15) {
@@ -82,16 +83,34 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = ({
   });
 
   React.useEffect(() => {
-    if (videoRef.current == null) {
+    const audioEl = audioRef.current;
+    if (audioEl == null) {
       return;
     }
 
-    videoRef.current.volume = localAudioOutputEnabled ? volumeMultiplier : 0;
+    (audioEl as any)
+      .setSinkId(localAudioOutputDeviceId)
+      .then(() => {
+        console.log('Set sink ID to', localAudioOutputDeviceId);
+      })
+      .catch((e: any) => {
+        console.log('Failed to set sink ID:', e);
+      });
+  }, [localAudioOutputDeviceId]);
+
+  React.useEffect(() => {
+    const audioEl = audioRef.current;
+    if (audioEl == null) {
+      return;
+    }
+
+    audioEl.volume = localAudioOutputEnabled ? volumeMultiplier : 0;
   }, [volumeMultiplier, localAudioOutputEnabled]);
 
   return (
     <S.Wrapper className={className} recentlyLoud={recentlyLoud}>
       <video ref={videoRef} autoPlay></video>
+      <audio ref={audioRef} autoPlay></audio>
       <S.StatusIcons>
         {!audioEnabled && <S.StatusIcon name="mic_off"></S.StatusIcon>}
       </S.StatusIcons>
