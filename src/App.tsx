@@ -120,8 +120,8 @@ const Hello = () => {
         if (localVideoInputEnabled) {
           localTracks.push(
             await createLocalVideoTrack({
-              width: 240,
-              height: 135,
+              width: 1920,
+              height: 1080,
             })
           );
         }
@@ -139,11 +139,26 @@ const Hello = () => {
           room = await connect(token, {
             name: 'cool-room',
             tracks: localTracks,
+            preferredVideoCodecs: [{ codec: 'VP8', simulcast: true }],
+            bandwidthProfile: {
+              video: {
+                mode: 'collaboration',
+                renderDimensions: {
+                  high: { height: 1080, width: 1920 },
+                  standard: { height: 720, width: 1280 },
+                  low: { height: 135, width: 240 },
+                },
+              },
+            },
           });
         } catch (error) {
           console.log(`Unable to connect to Twilio room: ${error.message}`);
           return;
         }
+
+        room.localParticipant.videoTracks.forEach((publication) => {
+          publication.setPriority('low');
+        });
 
         window.addEventListener('beforeunload', () => {
           room.disconnect();
@@ -530,8 +545,16 @@ const Hello = () => {
             console.log('setting expanded', value, key);
 
             if (value) {
+              participant.videoTracks.forEach((publication) => {
+                publication.track?.setPriority('high');
+              });
+
               setExpandedPanels([key]);
             } else {
+              participant.videoTracks.forEach((publication) => {
+                publication.track?.setPriority('low');
+              });
+
               setExpandedPanels(['map']);
             }
           }}
@@ -563,11 +586,14 @@ const Hello = () => {
         localVideoInputDeviceId,
         enableLocalVideoInput() {
           createLocalVideoTrack({
-            width: 240,
-            height: 135,
+            width: 1920,
+            height: 1080,
           })
             .then((localVideoTrack) => {
-              return twilioRoom?.localParticipant.publishTrack(localVideoTrack);
+              return twilioRoom?.localParticipant.publishTrack(
+                localVideoTrack,
+                { priority: 'low' }
+              );
             })
             .then((publication) => {
               console.log('Successfully enabled your video:', publication);
