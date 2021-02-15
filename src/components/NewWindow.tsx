@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { StyleSheetManager } from 'styled-components';
 
 function copyStyles(sourceDoc: Document, targetDoc: Document) {
   Array.from(sourceDoc.styleSheets).forEach((styleSheet: any) => {
@@ -30,12 +31,7 @@ export interface NewWindowProps {
   open: boolean;
 }
 
-const NewWindow: React.FC<NewWindowProps> = ({
-  className,
-  name,
-  open,
-  children,
-}) => {
+const NewWindow: React.FC<NewWindowProps> = ({ name, open, children }) => {
   const containerEl = React.useMemo(() => document.createElement('div'), [
     open,
   ]);
@@ -52,9 +48,9 @@ const NewWindow: React.FC<NewWindowProps> = ({
   }, [open]);
 
   return (
-    <div className={className}>
-      {ReactDOM.createPortal(children, containerEl)}
-    </div>
+    <StyleSheetManager target={containerEl}>
+      <>{ReactDOM.createPortal(children, containerEl)}</>
+    </StyleSheetManager>
   );
 };
 

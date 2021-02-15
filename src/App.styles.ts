@@ -4,6 +4,9 @@ export const GlobalStyles = createGlobalStyle<{
   minimized?: boolean;
   focused?: boolean;
 }>`
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  }
   ${(props) =>
     props.minimized
       ? css`
