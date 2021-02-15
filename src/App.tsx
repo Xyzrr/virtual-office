@@ -57,6 +57,9 @@ const Hello = () => {
   const [localAudioOutputEnabled, setLocalAudioOutputEnabled] = React.useState(
     false
   );
+  const [localScreenShareEnabled, setLocalScreenShareEnabled] = React.useState(
+    false
+  );
   const [localAudioInputDeviceId, setLocalAudioInputDeviceId] = React.useState(
     'default'
   );
@@ -128,6 +131,7 @@ const Hello = () => {
         const localAudioTwilioTrack = await createLocalAudioTrack();
         setLocalAudioTrack(localAudioTwilioTrack.mediaStreamTrack);
         const localTracks: LocalTrack[] = [localAudioTwilioTrack];
+        // const localTracks: LocalTrack[] = [];
 
         if (localVideoInputEnabled) {
           const localVideoTwilioTrack = await createLocalVideoTrack(
@@ -577,6 +581,8 @@ const Hello = () => {
         localAudioInputDeviceId,
         localAudioOutputDeviceId,
         localVideoInputDeviceId,
+        localScreenShareEnabled,
+        setLocalScreenShareEnabled,
         enableLocalVideoInput() {
           createLocalVideoTrack(createLocalVideoTrackOptions)
             .then((track) => {

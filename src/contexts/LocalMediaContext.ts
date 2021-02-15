@@ -4,6 +4,7 @@ interface LocalMediaContextValue {
   localVideoInputEnabled: boolean;
   localAudioInputEnabled: boolean;
   localAudioOutputEnabled: boolean;
+  localScreenShareEnabled: boolean;
   localAudioTrack?: MediaStreamTrack;
   localVideoTrack?: MediaStreamTrack;
   localAudioInputDeviceId: string;
@@ -14,6 +15,7 @@ interface LocalMediaContextValue {
   enableLocalAudioInput(): void;
   disableLocalAudioInput(): void;
   setLocalAudioOutputEnabled(enabled: boolean): void;
+  setLocalScreenShareEnabled(enabled: boolean): void;
   setLocalAudioInputDeviceId(id: string): void;
   setLocalAudioOutputDeviceId(id: string): void;
   setLocalVideoInputDeviceId(id: string): void;

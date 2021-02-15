@@ -12,6 +12,7 @@ import {
   createLocalTracks,
   createLocalAudioTrack,
   createLocalVideoTrack,
+  LocalVideoTrack,
 } from 'twilio-video';
 import { connect } from 'http2';
 
@@ -36,6 +37,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
     localVideoInputEnabled,
     localAudioInputEnabled,
     localAudioOutputEnabled,
+    localScreenShareEnabled,
     localAudioTrack,
     localAudioInputDeviceId,
     localAudioOutputDeviceId,
@@ -45,6 +47,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
     enableLocalAudioInput,
     disableLocalAudioInput,
     setLocalAudioOutputEnabled,
+    setLocalScreenShareEnabled,
     setLocalAudioInputDeviceId,
     setLocalAudioOutputDeviceId,
     setLocalVideoInputDeviceId,
@@ -561,6 +564,17 @@ const MapPanel: React.FC<MapPanelProps> = ({
             </select>
           </S.CaretButtonWrapper>
         )}
+        <S.IconButton
+          name={localScreenShareEnabled ? 'screen_share' : 'stop_screen_share'}
+          disabled={!localScreenShareEnabled}
+          onClick={async () => {
+            setLocalScreenShareEnabled(!localScreenShareEnabled);
+
+            const stream = await (navigator.mediaDevices as any).getDisplayMedia();
+            const screenTrack = new LocalVideoTrack(stream.getTracks()[0]);
+            console.log('screen track', screenTrack);
+          }}
+        />
       </S.IconButtons>
     </S.Wrapper>
   );
