@@ -23,12 +23,19 @@ export const BottomBar = styled.div`
   position: sticky;
   bottom: 0;
   display: flex;
-  // flex-direction: row-reverse;
+  flex-direction: row-reverse;
   align-items: center;
   padding: 12px;
 `;
 
-export const ShareButton = styled.button``;
+export const ShareButton = styled.button`
+  outline: none;
+  border: none;
+  border-radius: 4px;
+  background: #1b95e0;
+  color: white;
+  padding: 4px 8px;
+`;
 
 export const ScreensSectionWrapper = styled.div`
   padding: 18px;
