@@ -579,6 +579,10 @@ const MapPanel: React.FC<MapPanelProps> = ({
         onClose={() => {
           setLocalScreenShareEnabled(false);
         }}
+        onStart={(id) => {
+          console.log('Started sharing screen', id);
+          setLocalScreenShareEnabled(false);
+        }}
       ></ScreenSharePicker>
     </S.Wrapper>
   );

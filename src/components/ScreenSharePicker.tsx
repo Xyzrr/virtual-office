@@ -10,10 +10,11 @@ export interface ScreenSharePickerProps {
   className?: string;
   open: boolean;
   onClose?(): void;
+  onStart?(id: string): void;
 }
 
 const ScreenSharePicker: React.FC<ScreenSharePickerProps> = React.memo(
-  ({ className, open, onClose }) => {
+  ({ className, open, onClose, onStart }) => {
     const [screenSources, setScreenSources] = React.useState<
       DesktopCapturerSource[]
     >([]);
@@ -70,6 +71,9 @@ const ScreenSharePicker: React.FC<ScreenSharePickerProps> = React.memo(
                       );
                       setSelectedSourceId(source.id);
                     }}
+                    onDoubleClick={() => {
+                      onStart?.(source.id);
+                    }}
                   >
                     {source.thumbnail != null && (
                       <S.ScreenOptionThumbnailWrapper>
@@ -100,6 +104,9 @@ const ScreenSharePicker: React.FC<ScreenSharePickerProps> = React.memo(
                       );
                       setSelectedSourceId(source.id);
                     }}
+                    onDoubleClick={() => {
+                      onStart?.(source.id);
+                    }}
                   >
                     <S.WindowOptionLabel>
                       {source.appIcon != null && (
@@ -122,7 +129,14 @@ const ScreenSharePicker: React.FC<ScreenSharePickerProps> = React.memo(
             </S.ScreenShareOptionsWrapper>
           </S.WindowsSectionWrapper>
           <S.BottomBar>
-            <S.ShareButton disabled={selectedSourceId == null}>
+            <S.ShareButton
+              disabled={selectedSourceId == null}
+              onClick={() => {
+                if (selectedSourceId != null) {
+                  onStart?.(selectedSourceId);
+                }
+              }}
+            >
               Share
             </S.ShareButton>
           </S.BottomBar>
