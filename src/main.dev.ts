@@ -121,7 +121,7 @@ const createWindow = async () => {
 
         screenSharePicker = new BrowserWindow({
           ...options,
-          width: 800,
+          width: 840,
           height: 600,
           minWidth: undefined,
           minHeight: undefined,
