@@ -120,8 +120,10 @@ const Hello = () => {
         if (localVideoInputEnabled) {
           localTracks.push(
             await createLocalVideoTrack({
-              width: 1920,
-              height: 1080,
+              width: 16,
+              height: 9,
+              // width: 1920,
+              // height: 1080,
             })
           );
         }
@@ -430,16 +432,13 @@ const Hello = () => {
         }
 
         let videoTrack: MediaStreamTrack | undefined;
-        let audioTrack: MediaStreamTrack | undefined;
+
+        console.log('volume tracks', participant.tracks);
 
         participant.videoTracks.forEach((publication) => {
           const { track } = publication;
           videoTrack = track.mediaStreamTrack;
-        });
-
-        participant.audioTracks.forEach((publication) => {
-          const { track } = publication;
-          audioTrack = track.mediaStreamTrack;
+          console.log('volume video track', videoTrack);
         });
 
         panelElements.push(
@@ -454,7 +453,6 @@ const Hello = () => {
           >
             <LocalUserPanel
               videoTrack={videoTrack}
-              audioTrack={audioTrack}
               expanded={expandedPanels.includes(key)}
               onSetExpanded={(value) => {
                 console.log('setting expanded', value, key);

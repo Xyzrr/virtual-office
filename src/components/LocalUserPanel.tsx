@@ -1,14 +1,14 @@
 import * as S from './LocalUserPanel.styles';
 import * as HoverMenuStyles from './HoverMenu.styles';
 
-import React from 'react';
+import React, { useContext } from 'react';
 import { useVolume } from '../util/useVolume';
 import HoverMenu from './HoverMenu';
+import { LocalMediaContext } from '../contexts/LocalMediaContext';
 
 export interface LocalUserPanelProps {
   className?: string;
   videoTrack?: MediaStreamTrack;
-  audioTrack?: MediaStreamTrack;
   expanded?: boolean;
   onSetExpanded(value: boolean): void;
 }
@@ -16,13 +16,14 @@ export interface LocalUserPanelProps {
 const LocalUserPanel: React.FC<LocalUserPanelProps> = ({
   className,
   videoTrack,
-  audioTrack,
   expanded,
   onSetExpanded,
 }) => {
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const [recentlyLoud, setRecentlyLoud] = React.useState(false);
   const recentlyLoudTimerRef = React.useRef<number | null>(null);
+
+  const { localAudioTrack } = React.useContext(LocalMediaContext);
 
   React.useEffect(() => {
     if (videoRef.current == null) {
@@ -44,7 +45,7 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = ({
     };
   }, [videoTrack]);
 
-  useVolume(audioTrack, (v) => {
+  useVolume(localAudioTrack, (v) => {
     if (v > 0.15) {
       if (recentlyLoudTimerRef.current != null) {
         window.clearTimeout(recentlyLoudTimerRef.current);
