@@ -11,11 +11,24 @@ export const Wrapper = styled.div`
 
 export const TopBar = styled.div`
   width: 100%;
-  height: 38px;
+  height: 36px;
   background: #222;
   position: sticky;
   top: 0;
 `;
+
+export const BottomBar = styled.div`
+  width: 100%;
+  background: #222;
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  // flex-direction: row-reverse;
+  align-items: center;
+  padding: 12px;
+`;
+
+export const ShareButton = styled.button``;
 
 export const ScreensSectionWrapper = styled.div`
   padding: 18px;

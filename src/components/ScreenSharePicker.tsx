@@ -104,6 +104,9 @@ const ScreenSharePicker: React.FC<ScreenSharePickerProps> = React.memo(
               })}
             </S.ScreenShareOptionsWrapper>
           </S.WindowsSectionWrapper>
+          <S.BottomBar>
+            <S.ShareButton>Share</S.ShareButton>
+          </S.BottomBar>
         </S.Wrapper>
       </NewWindow>
     );
