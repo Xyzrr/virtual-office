@@ -20,6 +20,9 @@ const ScreenSharePicker: React.FC<ScreenSharePickerProps> = React.memo(
     const [windowSources, setWindowSources] = React.useState<
       DesktopCapturerSource[]
     >([]);
+    const [selectedSourceId, setSelectedSourceId] = React.useState<
+      string | null
+    >(null);
 
     React.useEffect(() => {
       if (!open) {
@@ -58,8 +61,14 @@ const ScreenSharePicker: React.FC<ScreenSharePickerProps> = React.memo(
                 return (
                   <S.ScreenShareOption
                     key={source.id}
+                    selected={source.id === selectedSourceId}
                     onClick={() => {
-                      console.log('Selected screen', source.display_id);
+                      console.log(
+                        'Selected screen',
+                        source.id,
+                        source.display_id
+                      );
+                      setSelectedSourceId(source.id);
                     }}
                   >
                     {source.thumbnail != null && (
@@ -82,8 +91,14 @@ const ScreenSharePicker: React.FC<ScreenSharePickerProps> = React.memo(
                 return (
                   <S.ScreenShareOption
                     key={source.id}
+                    selected={source.id === selectedSourceId}
                     onClick={() => {
-                      console.log('Selected screen', source.display_id);
+                      console.log(
+                        'Selected window',
+                        source.id,
+                        source.display_id
+                      );
+                      setSelectedSourceId(source.id);
                     }}
                   >
                     <S.WindowOptionLabel>

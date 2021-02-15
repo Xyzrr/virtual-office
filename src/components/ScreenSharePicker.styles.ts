@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 export const Wrapper = styled.div`
   flex-wrap: wrap;
@@ -69,12 +69,21 @@ export const Title = styled.h2`
   font-size: 20px;
 `;
 
-export const ScreenShareOption = styled.div`
+export const ScreenShareOption = styled.div<{ selected?: boolean }>`
   display: flex;
   flex-direction: column;
-  margin-right: 18px;
-  margin-bottom: 18px;
+  padding: 4px;
+  margin-left: -4px;
+  margin-top: -4px;
+  margin-right: 14px;
+  margin-bottom: 14px;
   overflow: hidden;
+  border-radius: 4px;
+  ${(props) =>
+    props.selected &&
+    css`
+      background: rgba(27, 149, 224, 0.4);
+    `}
 `;
 
 export const ScreenOptionThumbnailWrapper = styled.div`
