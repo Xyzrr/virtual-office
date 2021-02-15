@@ -115,7 +115,7 @@ const Hello = () => {
 
         const localAudioTwilioTrack = await createLocalAudioTrack();
         setLocalAudioTrack(localAudioTwilioTrack.mediaStreamTrack);
-        const localTracks: LocalTrack[] = [];
+        const localTracks: LocalTrack[] = [localAudioTwilioTrack];
 
         if (localVideoInputEnabled) {
           localTracks.push(
@@ -433,12 +433,11 @@ const Hello = () => {
 
         let videoTrack: MediaStreamTrack | undefined;
 
-        console.log('volume tracks', participant.tracks);
+        console.log('all tracks', participant.tracks);
 
         participant.videoTracks.forEach((publication) => {
           const { track } = publication;
           videoTrack = track.mediaStreamTrack;
-          console.log('volume video track', videoTrack);
         });
 
         panelElements.push(
@@ -625,7 +624,25 @@ const Hello = () => {
           colyseusRoom?.send('setPlayerAudioEnabled', false);
         },
         setLocalAudioOutputEnabled,
-        setLocalAudioInputDeviceId,
+        setLocalAudioInputDeviceId(value: string) {
+          createLocalAudioTrack({ deviceId: value })
+            .then((track) => {
+              setLocalAudioInputDeviceId(value);
+              setLocalAudioTrack(track.mediaStreamTrack);
+              twilioRoom?.localParticipant.audioTracks.forEach(
+                (publication) => {
+                  publication.unpublish();
+                }
+              );
+              twilioRoom?.localParticipant.publishTrack(track).then(() => {
+                console.log('Published new audio track from device ID', value);
+              });
+              return track;
+            })
+            .catch((error) => {
+              console.log('Failed to create local audio track', error);
+            });
+        },
         setLocalAudioOutputDeviceId,
         setLocalVideoInputDeviceId,
       }}

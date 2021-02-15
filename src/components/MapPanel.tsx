@@ -483,14 +483,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
             <select
               onChange={(e) => {
                 const { value } = e.target;
-                createLocalAudioTrack({ deviceId: value })
-                  .then((tracks) => {
-                    setLocalAudioInputDeviceId(value);
-                    return tracks;
-                  })
-                  .catch((error) => {
-                    console.log('Failed to create local audio track', error);
-                  });
+                setLocalAudioInputDeviceId(value);
               }}
               value={localAudioInputDeviceId}
             >
