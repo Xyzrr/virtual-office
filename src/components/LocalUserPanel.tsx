@@ -8,14 +8,12 @@ import { LocalMediaContext } from '../contexts/LocalMediaContext';
 
 export interface LocalUserPanelProps {
   className?: string;
-  videoTrack?: MediaStreamTrack;
   expanded?: boolean;
   onSetExpanded(value: boolean): void;
 }
 
 const LocalUserPanel: React.FC<LocalUserPanelProps> = ({
   className,
-  videoTrack,
   expanded,
   onSetExpanded,
 }) => {
@@ -23,7 +21,9 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = ({
   const [recentlyLoud, setRecentlyLoud] = React.useState(false);
   const recentlyLoudTimerRef = React.useRef<number | null>(null);
 
-  const { localAudioTrack } = React.useContext(LocalMediaContext);
+  const { localAudioTrack, localVideoTrack } = React.useContext(
+    LocalMediaContext
+  );
 
   React.useEffect(() => {
     if (videoRef.current == null) {
@@ -32,18 +32,18 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = ({
 
     const stream = new MediaStream();
 
-    if (videoTrack != null) {
-      stream.addTrack(videoTrack);
+    if (localVideoTrack != null) {
+      stream.addTrack(localVideoTrack);
     }
 
     videoRef.current.srcObject = stream;
 
     return () => {
-      if (videoTrack != null) {
-        stream.removeTrack(videoTrack);
+      if (localVideoTrack != null) {
+        stream.removeTrack(localVideoTrack);
       }
     };
-  }, [videoTrack]);
+  }, [localVideoTrack]);
 
   useVolume(localAudioTrack, (v) => {
     if (v > 0.15) {

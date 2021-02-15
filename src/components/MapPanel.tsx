@@ -516,14 +516,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
             <select
               onChange={(e) => {
                 const { value } = e.target;
-                createLocalVideoTrack({ deviceId: value })
-                  .then((tracks) => {
-                    setLocalVideoInputDeviceId(value);
-                    return tracks;
-                  })
-                  .catch((error) => {
-                    console.log('Failed to create local video track', error);
-                  });
+                setLocalVideoInputDeviceId(value);
               }}
               value={localVideoInputDeviceId}
             >

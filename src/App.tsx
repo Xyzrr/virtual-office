@@ -14,6 +14,7 @@ import {
   createLocalTracks,
   createLocalAudioTrack,
   LocalTrack,
+  CreateLocalTrackOptions,
 } from 'twilio-video';
 import * as PIXI from 'pixi.js';
 import * as Colyseus from 'colyseus.js';
@@ -70,6 +71,9 @@ const Hello = () => {
   const [localAudioTrack, setLocalAudioTrack] = React.useState<
     MediaStreamTrack | undefined
   >();
+  const [localVideoTrack, setLocalVideoTrack] = React.useState<
+    MediaStreamTrack | undefined
+  >();
 
   const [activeParticipants, setActiveParticipants] = React.useState<{
     [identity: string]: ActiveParticipant;
@@ -82,6 +86,14 @@ const Hello = () => {
   const [colyseusRoom, setColyseusRoom] = React.useState<Colyseus.Room | null>(
     null
   );
+
+  const createLocalVideoTrackOptions: CreateLocalTrackOptions = {
+    width: 16,
+    height: 9,
+    // width: 1920,
+    // height: 1080,
+    deviceId: localVideoInputDeviceId,
+  };
 
   const identity = React.useMemo(() => {
     const result = `cool-person-${Math.floor(Math.random() * 10000)}`;
@@ -118,14 +130,11 @@ const Hello = () => {
         const localTracks: LocalTrack[] = [localAudioTwilioTrack];
 
         if (localVideoInputEnabled) {
-          localTracks.push(
-            await createLocalVideoTrack({
-              width: 16,
-              height: 9,
-              // width: 1920,
-              // height: 1080,
-            })
+          const localVideoTwilioTrack = await createLocalVideoTrack(
+            createLocalVideoTrackOptions
           );
+          setLocalVideoTrack(localVideoTwilioTrack.mediaStreamTrack);
+          localTracks.push(localVideoTwilioTrack);
         }
 
         console.log('local', localTracks);
@@ -405,66 +414,52 @@ const Hello = () => {
   })();
 
   (() => {
-    if (!minimized && localVideoInputEnabled) {
-      const participant = twilioRoom?.localParticipant;
+    if (!minimized && localVideoTrack != null) {
+      let x: number;
+      let y: number;
+      let width: number;
+      let height: number;
+      let key = 'local-user';
+      let small = !expandedPanels.includes(key);
 
-      if (participant != null) {
-        let x: number;
-        let y: number;
-        let width: number;
-        let height: number;
-        let key = 'local-user';
-        let small = !expandedPanels.includes(key);
-
-        if (small) {
-          width = 240;
-          x = 8;
-          height = 135;
-          y = nextSmallPanelY;
-          nextSmallPanelY += height + 8;
-          console.log('small', key, expandedPanels);
-        } else {
-          console.log('not small');
-          x = 0;
-          y = 0;
-          width = windowSize.width;
-          height = windowSize.height;
-        }
-
-        let videoTrack: MediaStreamTrack | undefined;
-
-        console.log('all tracks', participant.tracks);
-
-        participant.videoTracks.forEach((publication) => {
-          const { track } = publication;
-          videoTrack = track.mediaStreamTrack;
-        });
-
-        panelElements.push(
-          <S.PanelWrapper
-            key={key}
-            x={x}
-            y={y}
-            width={width}
-            height={height}
-            small={small}
-            xDirection="left"
-          >
-            <LocalUserPanel
-              videoTrack={videoTrack}
-              expanded={expandedPanels.includes(key)}
-              onSetExpanded={(value) => {
-                console.log('setting expanded', value, key);
-                if (value) {
-                  setExpandedPanels([key]);
-                } else {
-                  setExpandedPanels(['map']);
-                }
-              }}
-            />
-          </S.PanelWrapper>
-        );
+      if (small) {
+        width = 240;
+        x = 8;
+        height = 135;
+        y = nextSmallPanelY;
+        nextSmallPanelY += height + 8;
+        console.log('small', key, expandedPanels);
+      } else {
+        console.log('not small');
+        x = 0;
+        y = 0;
+        width = windowSize.width;
+        height = windowSize.height;
       }
+
+      panelElements.push(
+        <S.PanelWrapper
+          key={key}
+          x={x}
+          y={y}
+          width={width}
+          height={height}
+          small={small}
+          xDirection="left"
+        >
+          <LocalUserPanel
+            expanded={expandedPanels.includes(key)}
+            onSetExpanded={(value) => {
+              console.log('setting expanded', value, key);
+              if (value) {
+                setExpandedPanels([key]);
+              } else {
+                setExpandedPanels(['map']);
+              }
+            }}
+          />
+        </S.PanelWrapper>
+      );
     }
   })();
 
@@ -578,19 +573,17 @@ const Hello = () => {
         localAudioInputEnabled,
         localAudioOutputEnabled,
         localAudioTrack,
+        localVideoTrack,
         localAudioInputDeviceId,
         localAudioOutputDeviceId,
         localVideoInputDeviceId,
         enableLocalVideoInput() {
-          createLocalVideoTrack({
-            width: 1920,
-            height: 1080,
-          })
-            .then((localVideoTrack) => {
-              return twilioRoom?.localParticipant.publishTrack(
-                localVideoTrack,
-                { priority: 'low' }
-              );
+          createLocalVideoTrack(createLocalVideoTrackOptions)
+            .then((track) => {
+              setLocalVideoTrack(track.mediaStreamTrack);
+              return twilioRoom?.localParticipant.publishTrack(track, {
+                priority: 'low',
+              });
             })
             .then((publication) => {
               console.log('Successfully enabled your video:', publication);
@@ -605,6 +598,7 @@ const Hello = () => {
           twilioRoom?.localParticipant.videoTracks.forEach((publication) => {
             publication.track.stop();
             publication.unpublish();
+            setLocalVideoTrack(undefined);
           });
           setLocalVideoInputEnabled(false);
         },
@@ -644,7 +638,33 @@ const Hello = () => {
             });
         },
         setLocalAudioOutputDeviceId,
-        setLocalVideoInputDeviceId,
+        setLocalVideoInputDeviceId(value: string) {
+          createLocalVideoTrack({
+            ...createLocalVideoTrackOptions,
+            deviceId: value,
+          })
+            .then((track) => {
+              setLocalVideoInputDeviceId(value);
+              setLocalVideoTrack(track.mediaStreamTrack);
+              twilioRoom?.localParticipant.videoTracks.forEach(
+                (publication) => {
+                  publication.unpublish();
+                }
+              );
+              twilioRoom?.localParticipant
+                .publishTrack(track, { priority: 'low' })
+                .then(() => {
+                  console.log(
+                    'Published new video track from device ID',
+                    value
+                  );
+                });
+              return track;
+            })
+            .catch((error) => {
+              console.log('Failed to create local video track', error);
+            });
+        },
       }}
     >
       <S.AppWrapper>
