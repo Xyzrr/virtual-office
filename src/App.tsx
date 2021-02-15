@@ -311,103 +311,28 @@ const Hello = () => {
   let nextSmallPanelY = 8;
   const panelElements: React.ReactNode[] = [];
 
-  let x: number;
-  let y: number;
-  let width: number;
-  let height: number;
+  (() => {
+    let x: number;
+    let y: number;
+    let width: number;
+    let height: number;
+    let key = 'map';
+    let small = minimized || !expandedPanels.includes(key);
 
-  let key = 'map';
-  let small = minimized || !expandedPanels.includes(key);
+    if (small) {
+      width = 240;
+      x = 8;
+      height = 135;
+      y = nextSmallPanelY;
+      nextSmallPanelY += height + 8;
+    } else {
+      x = 0;
+      y = 0;
+      width = windowSize.width;
+      height = windowSize.height;
+    }
 
-  if (small) {
-    width = 240;
-    x = 8;
-    height = 135;
-    y = nextSmallPanelY;
-    nextSmallPanelY += height + 8;
-  } else {
-    x = 0;
-    y = 0;
-    width = windowSize.width;
-    height = windowSize.height;
-  }
-
-  if (colyseusRoom != null) {
-    panelElements.push(
-      <S.PanelWrapper
-        key={key}
-        x={x}
-        y={y}
-        width={width}
-        height={height}
-        small={small}
-        xDirection="left"
-      >
-        <MapPanel
-          localPlayerIdentity={identity}
-          onPlayerAudioEnabledChanged={(identity, audioEnabled) => {
-            console.log('heard audio change');
-            setActiveParticipants((aps) => {
-              return produce(aps, (draft) => {
-                if (draft[identity] == null) {
-                  draft[identity] = {};
-                }
-                draft[identity].audioEnabled = audioEnabled;
-              });
-            });
-          }}
-          onPlayerDistanceChanged={(identity, distance) => {
-            setActiveParticipants((aps) => {
-              return produce(aps, (draft) => {
-                if (draft[identity] == null) {
-                  draft[identity] = {};
-                }
-                draft[identity].distance = distance;
-              });
-            });
-          }}
-          colyseusRoom={colyseusRoom}
-          small={small}
-        />
-      </S.PanelWrapper>
-    );
-  }
-
-  if (!minimized && localVideoInputEnabled) {
-    const participant = twilioRoom?.localParticipant;
-
-    if (participant != null) {
-      key = 'local-user';
-      small = !expandedPanels.includes(key);
-
-      if (small) {
-        width = 240;
-        x = 8;
-        height = 135;
-        y = nextSmallPanelY;
-        nextSmallPanelY += height + 8;
-        console.log('small');
-      } else {
-        console.log('not small');
-        x = 0;
-        y = 0;
-        width = windowSize.width;
-        height = windowSize.height;
-      }
-
-      let videoTrack: MediaStreamTrack | undefined;
-      let audioTrack: MediaStreamTrack | undefined;
-
-      participant.videoTracks.forEach((publication) => {
-        const { track } = publication;
-        videoTrack = track.mediaStreamTrack;
-      });
-
-      participant.audioTracks.forEach((publication) => {
-        const { track } = publication;
-        audioTrack = track.mediaStreamTrack;
-      });
-
+    if (colyseusRoom != null) {
       panelElements.push(
         <S.PanelWrapper
           key={key}
@@ -418,22 +343,105 @@ const Hello = () => {
           small={small}
           xDirection="left"
         >
-          <LocalUserPanel
-            videoTrack={videoTrack}
-            audioTrack={audioTrack}
-            expanded={expandedPanels.includes('local-user')}
-            onSetExpanded={(value) => {
-              if (value) {
-                setExpandedPanels(['local-user']);
-              } else {
-                setExpandedPanels(['map']);
-              }
+          <MapPanel
+            localPlayerIdentity={identity}
+            onPlayerAudioEnabledChanged={(identity, audioEnabled) => {
+              console.log('heard audio change');
+              setActiveParticipants((aps) => {
+                return produce(aps, (draft) => {
+                  if (draft[identity] == null) {
+                    draft[identity] = {};
+                  }
+                  draft[identity].audioEnabled = audioEnabled;
+                });
+              });
             }}
+            onPlayerDistanceChanged={(identity, distance) => {
+              setActiveParticipants((aps) => {
+                return produce(aps, (draft) => {
+                  if (draft[identity] == null) {
+                    draft[identity] = {};
+                  }
+                  draft[identity].distance = distance;
+                });
+              });
+            }}
+            colyseusRoom={colyseusRoom}
+            small={small}
           />
         </S.PanelWrapper>
       );
     }
-  }
+  })();
+
+  (() => {
+    if (!minimized && localVideoInputEnabled) {
+      const participant = twilioRoom?.localParticipant;
+
+      if (participant != null) {
+        let x: number;
+        let y: number;
+        let width: number;
+        let height: number;
+        let key = 'local-user';
+        let small = !expandedPanels.includes(key);
+
+        if (small) {
+          width = 240;
+          x = 8;
+          height = 135;
+          y = nextSmallPanelY;
+          nextSmallPanelY += height + 8;
+          console.log('small', key, expandedPanels);
+        } else {
+          console.log('not small');
+          x = 0;
+          y = 0;
+          width = windowSize.width;
+          height = windowSize.height;
+        }
+
+        let videoTrack: MediaStreamTrack | undefined;
+        let audioTrack: MediaStreamTrack | undefined;
+
+        participant.videoTracks.forEach((publication) => {
+          const { track } = publication;
+          videoTrack = track.mediaStreamTrack;
+        });
+
+        participant.audioTracks.forEach((publication) => {
+          const { track } = publication;
+          audioTrack = track.mediaStreamTrack;
+        });
+
+        panelElements.push(
+          <S.PanelWrapper
+            key={key}
+            x={x}
+            y={y}
+            width={width}
+            height={height}
+            small={small}
+            xDirection="left"
+          >
+            <LocalUserPanel
+              videoTrack={videoTrack}
+              audioTrack={audioTrack}
+              expanded={expandedPanels.includes(key)}
+              onSetExpanded={(value) => {
+                console.log('setting expanded', value, key);
+                if (value) {
+                  setExpandedPanels([key]);
+                } else {
+                  setExpandedPanels(['map']);
+                }
+              }}
+            />
+          </S.PanelWrapper>
+        );
+      }
+    }
+  })();
 
   Object.entries(activeParticipants).forEach(([identity, ap]) => {
     const { sid, distance, audioEnabled } = ap;
@@ -452,8 +460,12 @@ const Hello = () => {
       return;
     }
 
-    key = `remote-user-${identity}`;
-    small = minimized || !expandedPanels.includes(key);
+    let x: number;
+    let y: number;
+    let width: number;
+    let height: number;
+    let key = `remote-user-${identity}`;
+    let small = minimized || !expandedPanels.includes(key);
 
     const scale = Math.min(1, 3 / (distance + 0.1));
 
@@ -500,6 +512,16 @@ const Hello = () => {
           audioTrack={audioTrack}
           audioEnabled={audioEnabled}
           volumeMultiplier={scale}
+          expanded={expandedPanels.includes(key)}
+          onSetExpanded={(value) => {
+            console.log('setting expanded', value, key);
+
+            if (value) {
+              setExpandedPanels([key]);
+            } else {
+              setExpandedPanels(['map']);
+            }
+          }}
         />
       </S.PanelWrapper>
     );
