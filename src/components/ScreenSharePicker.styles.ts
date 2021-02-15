@@ -141,7 +141,7 @@ export const ScreenShareOption = styled.div<{ selected?: boolean }>`
   border-radius: 4px;
   &:hover {
     ${ScreenOptionThumbnailWrapper}, ${WindowOptionThumbnailWrapper} {
-      border: 1px solid rgba(27, 149, 244, 0.4);
+      border: 1px solid rgba(27, 149, 244, 0.6);
     }
   }
   ${(props) =>
