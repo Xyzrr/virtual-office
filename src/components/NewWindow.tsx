@@ -41,19 +41,22 @@ const NewWindow: React.FC<NewWindowProps> = ({
   const containerEl = React.useMemo(() => document.createElement('div'), [
     open,
   ]);
+  const newWindow = React.useRef<Window | null>(null);
 
   React.useEffect(() => {
     if (open) {
-      const newWindow = window.open('', name);
+      newWindow.current = window.open('', name);
 
-      if (newWindow != null) {
-        newWindow.document.body.appendChild(containerEl);
-        copyStyles(window.document, newWindow.document);
+      if (newWindow.current != null) {
+        newWindow.current.document.body.appendChild(containerEl);
+        copyStyles(window.document, newWindow.current.document);
 
-        newWindow.addEventListener('beforeunload', () => {
+        newWindow.current.addEventListener('beforeunload', () => {
           onClose?.();
         });
       }
+    } else {
+      newWindow.current?.close();
     }
   }, [open]);
 
