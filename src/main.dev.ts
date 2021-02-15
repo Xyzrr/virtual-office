@@ -72,9 +72,9 @@ const createWindow = async () => {
   mainWindow = new BrowserWindow({
     title: 'Virtual Office',
     show: false,
-    width: 1200,
+    width: 1280,
     height: 720,
-    minWidth: 750,
+    minWidth: 800,
     minHeight: 450,
     icon: getAssetPath('icon.png'),
     // frame: false,
@@ -152,14 +152,14 @@ ipcMain.handle('unminimize', () => {
   mainWindow.setResizable(true);
   mainWindow.setAlwaysOnTop(false);
   mainWindow.setVisibleOnAllWorkspaces(false, { visibleOnFullScreen: true });
-  mainWindow.setMinimumSize(750, 450);
+  mainWindow.setMinimumSize(800, 450);
   mainWindow.setHasShadow(true);
 
   previousMinimizedPosition = mainWindow.getPosition();
   if (previousUnminimizedBounds != null) {
     mainWindow.setBounds(previousUnminimizedBounds);
   } else {
-    mainWindow.setBounds({ width: 1200, height: 720 });
+    mainWindow.setBounds({ width: 1280, height: 720 });
   }
 });
 

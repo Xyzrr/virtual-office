@@ -8,6 +8,8 @@ export const Wrapper = styled.div<{ recentlyLoud: boolean }>`
   video {
     display: block;
     transform: scale(-1, 1);
+    width: 100%;
+    height: 100%;
   }
   ${(props) =>
     props.recentlyLoud &&

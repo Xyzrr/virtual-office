@@ -317,7 +317,7 @@ const Hello = () => {
   let height: number;
 
   let key = 'map';
-  let small = minimized || !(key in expandedPanels);
+  let small = minimized || !expandedPanels.includes(key);
 
   if (small) {
     width = 240;
@@ -378,7 +378,7 @@ const Hello = () => {
 
     if (participant != null) {
       key = 'local-user';
-      small = !(key in expandedPanels);
+      small = !expandedPanels.includes(key);
 
       if (small) {
         width = 240;
@@ -386,7 +386,9 @@ const Hello = () => {
         height = 135;
         y = nextSmallPanelY;
         nextSmallPanelY += height + 8;
+        console.log('small');
       } else {
+        console.log('not small');
         x = 0;
         y = 0;
         width = windowSize.width;
@@ -424,7 +426,7 @@ const Hello = () => {
               if (value) {
                 setExpandedPanels(['local-user']);
               } else {
-                setExpandedPanels([]);
+                setExpandedPanels(['map']);
               }
             }}
           />
@@ -451,7 +453,7 @@ const Hello = () => {
     }
 
     key = `remote-user-${identity}`;
-    small = minimized || !(key in expandedPanels);
+    small = minimized || !expandedPanels.includes(key);
 
     const scale = Math.min(1, 3 / (distance + 0.1));
 
