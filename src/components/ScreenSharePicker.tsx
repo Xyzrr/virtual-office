@@ -5,6 +5,7 @@ import { desktopCapturer } from 'electron';
 import { DesktopCapturerSource } from 'electron/main';
 import NewWindow from './NewWindow';
 import { StyleSheetManager } from 'styled-components';
+import Button from './Button';
 
 export interface ScreenSharePickerProps {
   className?: string;
@@ -130,6 +131,8 @@ const ScreenSharePicker: React.FC<ScreenSharePickerProps> = React.memo(
           </S.WindowsSectionWrapper>
           <S.BottomBar>
             <S.ShareButton
+              color="primary"
+              variant="contained"
               disabled={selectedSourceId == null}
               onClick={() => {
                 if (selectedSourceId != null) {
@@ -139,6 +142,7 @@ const ScreenSharePicker: React.FC<ScreenSharePickerProps> = React.memo(
             >
               Share
             </S.ShareButton>
+            <S.CancelButton onClick={onClose}>Cancel</S.CancelButton>
           </S.BottomBar>
         </S.Wrapper>
       </NewWindow>

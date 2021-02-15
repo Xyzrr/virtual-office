@@ -17,6 +17,7 @@ import log from 'electron-log';
 import MenuBuilder from './menu';
 import { electron } from 'process';
 import { Rectangle } from 'electron/main';
+import { centerOnParent } from './util/electron-helpers';
 
 export default class AppUpdater {
   constructor() {
@@ -134,6 +135,7 @@ const createWindow = async () => {
 
         screenSharePicker.setMaximizable(false);
         screenSharePicker.setMinimizable(false);
+        centerOnParent(screenSharePicker);
         return;
       }
 

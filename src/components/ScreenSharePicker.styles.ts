@@ -1,4 +1,5 @@
 import styled, { css } from 'styled-components';
+import Button from './Button';
 
 export const Wrapper = styled.div`
   flex-wrap: wrap;
@@ -34,22 +35,11 @@ export const BottomBar = styled.div`
   padding: 12px;
 `;
 
-export const ShareButton = styled.button<{ disabled?: boolean }>`
-  outline: none;
-  border: none;
-  border-radius: 4px;
-  background: #1b95e0;
-  color: white;
-  padding: 6px 10px;
-  font-size: 16px;
-
-  ${(props) =>
-    props.disabled &&
-    css`
-      background: #777;
-      opacity: 0.6;
-    `}
+export const ShareButton = styled(Button)`
+  margin-left: 12px;
 `;
+
+export const CancelButton = styled(Button)``;
 
 export const ScreensSectionWrapper = styled.div`
   padding: 18px;
