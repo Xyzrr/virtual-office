@@ -28,6 +28,7 @@ import LocalUserPanel from './components/LocalUserPanel';
 import Icon from './components/Icon';
 import { min } from 'lodash';
 import { LocalMediaContext } from './contexts/LocalMediaContext';
+import RemoteScreenPanel from './components/RemoteScreenPanel';
 
 const local = false;
 
@@ -499,85 +500,168 @@ const Hello = () => {
       return;
     }
 
-    let x: number;
-    let y: number;
-    let width: number;
-    let height: number;
-    let key = `remote-user-${identity}`;
-    let small = minimized || !expandedPanels.includes(key);
+    (() => {
+      let x: number;
+      let y: number;
+      let width: number;
+      let height: number;
+      let key = `remote-user-${identity}`;
+      let small = minimized || !expandedPanels.includes(key);
 
-    const scale = Math.min(1, 3 / (distance + 0.1));
+      const scale = Math.min(1, 3 / (distance + 0.1));
 
-    if (small) {
-      width = 240 * scale;
-      x = 8;
-      height = 135 * scale;
-      y = nextSmallPanelY;
-      nextSmallPanelY += height + 8;
-    } else {
-      x = 0;
-      y = 0;
-      width = windowSize.width;
-      height = windowSize.height;
+      if (small) {
+        width = 240 * scale;
+        x = 8;
+        height = 135 * scale;
+        y = nextSmallPanelY;
+        nextSmallPanelY += height + 8;
+      } else {
+        x = 0;
+        y = 0;
+        width = windowSize.width;
+        height = windowSize.height;
+      }
+
+      let videoTrack: MediaStreamTrack | undefined;
+      let audioTrack: MediaStreamTrack | undefined;
+
+      participant.tracks.forEach((publication) => {
+        if (publication.isSubscribed) {
+          const { track } = publication;
+          if (track != null && track.kind === 'video') {
+            if (track.name === 'camera') {
+              videoTrack = track.mediaStreamTrack;
+            }
+          }
+          if (track != null && track.kind === 'audio') {
+            audioTrack = track.mediaStreamTrack;
+          }
+        }
+      });
+
+      panelElements.push(
+        <S.PanelWrapper
+          key={key}
+          x={x}
+          y={y}
+          width={width}
+          height={height}
+          small={small}
+          xDirection="left"
+        >
+          <RemoteUserPanel
+            videoTrack={videoTrack}
+            audioTrack={audioTrack}
+            audioEnabled={audioEnabled}
+            volumeMultiplier={scale}
+            expanded={expandedPanels.includes(key)}
+            onSetExpanded={(value) => {
+              console.log('setting expanded', value, key);
+
+              if (value) {
+                participant.videoTracks.forEach((publication) => {
+                  if (publication.track?.name == 'camera') {
+                    publication.track?.setPriority('high');
+                  }
+                });
+
+                setExpandedPanels([key]);
+              } else {
+                participant.videoTracks.forEach((publication) => {
+                  if (publication.track?.name === 'camera') {
+                    publication.track?.setPriority('low');
+                  }
+                });
+
+                setExpandedPanels(['map']);
+              }
+            }}
+          />
+        </S.PanelWrapper>
+      );
+    })();
+
+    if (!ap.screenSubscribed) {
+      return;
     }
 
-    let videoTrack: MediaStreamTrack | undefined;
-    let audioTrack: MediaStreamTrack | undefined;
+    (() => {
+      let x: number;
+      let y: number;
+      let width: number;
+      let height: number;
+      let key = `remote-screen-${identity}`;
+      let small = minimized || !expandedPanels.includes(key);
 
-    participant.tracks.forEach((publication) => {
-      if (publication.isSubscribed) {
-        const { track } = publication;
-        if (track != null && track.kind === 'video') {
-          if (track.name === 'camera') {
+      const scale = Math.min(1, 3 / (distance + 0.1));
+
+      if (small) {
+        width = 240 * scale;
+        x = 8;
+        height = 135 * scale;
+        y = nextSmallPanelY;
+        nextSmallPanelY += height + 8;
+      } else {
+        x = 0;
+        y = 0;
+        width = windowSize.width;
+        height = windowSize.height;
+      }
+
+      let videoTrack: MediaStreamTrack | undefined;
+
+      participant.tracks.forEach((publication) => {
+        if (publication.isSubscribed) {
+          const { track } = publication;
+          if (
+            track != null &&
+            track.kind === 'video' &&
+            track.name === 'screen'
+          ) {
             videoTrack = track.mediaStreamTrack;
           }
         }
-        if (track != null && track.kind === 'audio') {
-          audioTrack = track.mediaStreamTrack;
-        }
-      }
-    });
+      });
 
-    panelElements.push(
-      <S.PanelWrapper
-        key={key}
-        x={x}
-        y={y}
-        width={width}
-        height={height}
-        small={small}
-        xDirection="left"
-      >
-        <RemoteUserPanel
-          videoTrack={videoTrack}
-          audioTrack={audioTrack}
-          audioEnabled={audioEnabled}
-          volumeMultiplier={scale}
-          expanded={expandedPanels.includes(key)}
-          onSetExpanded={(value) => {
-            console.log('setting expanded', value, key);
+      panelElements.push(
+        <S.PanelWrapper
+          key={key}
+          x={x}
+          y={y}
+          width={width}
+          height={height}
+          small={small}
+          xDirection="left"
+        >
+          <RemoteScreenPanel
+            videoTrack={videoTrack}
+            expanded={expandedPanels.includes(key)}
+            onSetExpanded={(value) => {
+              console.log('setting expanded', value, key);
 
-            if (value) {
-              participant.videoTracks.forEach((publication) => {
-                if (publication.track?.name == 'camera') {
-                  publication.track?.setPriority('high');
-                }
-              });
+              if (value) {
+                participant.videoTracks.forEach((publication) => {
+                  if (publication.track?.name == 'screen') {
+                    publication.track?.setPriority('high');
+                  }
+                });
 
-              setExpandedPanels([key]);
-            } else {
-              participant.videoTracks.forEach((publication) => {
-                if (publication.track?.name === 'camera') {
-                  publication.track?.setPriority('low');
-                }
-              });
+                setExpandedPanels([key]);
+              } else {
+                participant.videoTracks.forEach((publication) => {
+                  if (publication.track?.name === 'screen') {
+                    publication.track?.setPriority('low');
+                  }
+                });
 
-              setExpandedPanels(['map']);
-            }
-          }}
-        />
-      </S.PanelWrapper>
-    );
+                setExpandedPanels(['map']);
+              }
+            }}
+          />
+        </S.PanelWrapper>
+      );
+    })();
   });
 
   React.useEffect(() => {
@@ -624,10 +708,12 @@ const Hello = () => {
         },
         disableLocalVideoInput() {
           twilioRoom?.localParticipant.videoTracks.forEach((publication) => {
-            publication.track.stop();
-            publication.unpublish();
-            setLocalVideoTrack(undefined);
+            if (publication.trackName === 'camera') {
+              publication.track.stop();
+              publication.unpublish();
+            }
           });
+          setLocalVideoTrack(undefined);
           setLocalVideoInputEnabled(false);
         },
         enableLocalAudioInput() {
