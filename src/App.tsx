@@ -448,9 +448,7 @@ const Hello = () => {
         height = 135;
         y = nextSmallPanelY;
         nextSmallPanelY += height + 8;
-        console.log('small', key, expandedPanels);
       } else {
-        console.log('not small');
         x = 0;
         y = 0;
         width = windowSize.width;
@@ -797,8 +795,10 @@ const Hello = () => {
               },
             } as any);
 
-            const screenTrack = new LocalVideoTrack(stream.getTracks()[0]);
-            screenTrack.name = 'screen';
+            const screenTrack = new LocalVideoTrack(stream.getTracks()[0], {
+              logLevel: 'debug',
+              name: 'screen',
+            });
             twilioRoom?.localParticipant.publishTrack(screenTrack);
           } catch (e) {
             console.log('Could not capture screen', e);
