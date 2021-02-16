@@ -7,6 +7,7 @@ interface LocalMediaContextValue {
   localScreenShareEnabled: boolean;
   localAudioTrack?: MediaStreamTrack;
   localVideoTrack?: MediaStreamTrack;
+  localScreenVideoTrack?: MediaStreamTrack;
   localAudioInputDeviceId: string;
   localAudioOutputDeviceId: string;
   localVideoInputDeviceId: string;
@@ -19,6 +20,7 @@ interface LocalMediaContextValue {
   setLocalAudioInputDeviceId(id: string): void;
   setLocalAudioOutputDeviceId(id: string): void;
   setLocalVideoInputDeviceId(id: string): void;
+  screenShare(id: string): void;
 }
 
 export const LocalMediaContext = React.createContext<LocalMediaContextValue>(

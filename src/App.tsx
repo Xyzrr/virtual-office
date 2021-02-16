@@ -15,6 +15,7 @@ import {
   createLocalAudioTrack,
   LocalTrack,
   CreateLocalTrackOptions,
+  LocalVideoTrack,
 } from 'twilio-video';
 import * as PIXI from 'pixi.js';
 import * as Colyseus from 'colyseus.js';
@@ -42,6 +43,7 @@ export interface ActiveParticipant {
   distance?: number;
   audioSubscribed?: boolean;
   videoSubscribed?: boolean;
+  screenSubscribed?: boolean;
   audioEnabled?: boolean;
 }
 
@@ -77,6 +79,9 @@ const Hello = () => {
   const [localVideoTrack, setLocalVideoTrack] = React.useState<
     MediaStreamTrack | undefined
   >();
+  const [localScreenVideoTrack, setLocalScreenVideoTrack] = React.useState<
+    MediaStreamTrack | undefined
+  >();
 
   const [activeParticipants, setActiveParticipants] = React.useState<{
     [identity: string]: ActiveParticipant;
@@ -93,6 +98,7 @@ const Hello = () => {
   const createLocalVideoTrackOptions: CreateLocalTrackOptions = {
     width: 16,
     height: 9,
+    name: 'camera',
     // width: 1920,
     // height: 1080,
     deviceId: localVideoInputDeviceId,
@@ -194,11 +200,20 @@ const Hello = () => {
 
           const handleSubscribedTrack = (track: RemoteTrack) => {
             if (track.kind === 'video') {
-              setActiveParticipants((aps) =>
-                produce(aps, (draft) => {
-                  draft[participant.identity].videoSubscribed = true;
-                })
-              );
+              if (track.name === 'camera') {
+                setActiveParticipants((aps) =>
+                  produce(aps, (draft) => {
+                    draft[participant.identity].videoSubscribed = true;
+                  })
+                );
+              }
+              if (track.name === 'screen') {
+                setActiveParticipants((aps) =>
+                  produce(aps, (draft) => {
+                    draft[participant.identity].screenSubscribed = true;
+                  })
+                );
+              }
             }
             if (track.kind === 'audio') {
               setActiveParticipants((aps) =>
@@ -513,7 +528,9 @@ const Hello = () => {
       if (publication.isSubscribed) {
         const { track } = publication;
         if (track != null && track.kind === 'video') {
-          videoTrack = track.mediaStreamTrack;
+          if (track.name === 'camera') {
+            videoTrack = track.mediaStreamTrack;
+          }
         }
         if (track != null && track.kind === 'audio') {
           audioTrack = track.mediaStreamTrack;
@@ -542,13 +559,17 @@ const Hello = () => {
 
             if (value) {
               participant.videoTracks.forEach((publication) => {
-                publication.track?.setPriority('high');
+                if (publication.track?.name == 'camera') {
+                  publication.track?.setPriority('high');
+                }
               });
 
               setExpandedPanels([key]);
             } else {
               participant.videoTracks.forEach((publication) => {
-                publication.track?.setPriority('low');
+                if (publication.track?.name === 'camera') {
+                  publication.track?.setPriority('low');
+                }
               });
 
               setExpandedPanels(['map']);
@@ -578,6 +599,7 @@ const Hello = () => {
         localAudioOutputEnabled,
         localAudioTrack,
         localVideoTrack,
+        localScreenVideoTrack,
         localAudioInputDeviceId,
         localAudioOutputDeviceId,
         localVideoInputDeviceId,
@@ -672,6 +694,29 @@ const Hello = () => {
             .catch((error) => {
               console.log('Failed to create local video track', error);
             });
+        },
+        async screenShare(id: string) {
+          try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+              audio: false,
+              video: {
+                mandatory: {
+                  chromeMediaSource: 'desktop',
+                  chromeMediaSourceId: id,
+                  minWidth: 1280,
+                  maxWidth: 1280,
+                  minHeight: 720,
+                  maxHeight: 720,
+                },
+              },
+            } as any);
+
+            const screenTrack = new LocalVideoTrack(stream.getTracks()[0]);
+            screenTrack.name = 'screen';
+            twilioRoom?.localParticipant.publishTrack(screenTrack);
+          } catch (e) {
+            console.log('Could not capture screen', e);
+          }
         },
       }}
     >
