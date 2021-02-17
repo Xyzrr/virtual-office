@@ -3,7 +3,7 @@ import React from 'react';
 
 export type ButtonProps = Omit<React.ComponentProps<'button'>, 'ref'> & {
   variant?: 'contained' | 'outlined';
-  color?: 'primary' | 'secondary';
+  color?: 'primary' | 'danger';
   disabled?: boolean;
 };
 

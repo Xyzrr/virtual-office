@@ -22,8 +22,8 @@ export const Wrapper = styled.button<{
     const color =
       props.color === 'primary'
         ? new Color('#1b95e0')
-        : props.color === 'secondary'
-        ? new Color('#aaa')
+        : props.color === 'danger'
+        ? new Color('rgb(234, 71, 81')
         : new Color('#ccc');
 
     if (props.variant === 'contained') {

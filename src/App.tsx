@@ -29,6 +29,7 @@ import Icon from './components/Icon';
 import { min } from 'lodash';
 import { LocalMediaContext } from './contexts/LocalMediaContext';
 import RemoteScreenPanel from './components/RemoteScreenPanel';
+import ScreenShareToolbar from './components/ScreenShareToolbar';
 
 const local = false;
 
@@ -673,6 +674,16 @@ const Hello = () => {
     );
   }, [nextSmallPanelY, minimized]);
 
+  const stopScreenShare = React.useCallback(() => {
+    twilioRoom?.localParticipant.videoTracks.forEach((publication) => {
+      if (publication.trackName === 'screen') {
+        publication.track.stop();
+        publication.unpublish();
+      }
+    });
+    setLocalScreenShareEnabled(false);
+  }, [twilioRoom]);
+
   return (
     <LocalMediaContext.Provider
       value={{
@@ -806,15 +817,7 @@ const Hello = () => {
             console.log('Could not capture screen', e);
           }
         },
-        stopScreenShare() {
-          twilioRoom?.localParticipant.videoTracks.forEach((publication) => {
-            if (publication.trackName === 'screen') {
-              publication.track.stop();
-              publication.unpublish();
-            }
-          });
-          setLocalScreenShareEnabled(false);
-        },
+        stopScreenShare,
       }}
     >
       <S.AppWrapper>
@@ -822,6 +825,10 @@ const Hello = () => {
         <S.DraggableBar />
         {panelElements}
       </S.AppWrapper>
+      <ScreenShareToolbar
+        open={localScreenShareEnabled}
+        onStop={stopScreenShare}
+      ></ScreenShareToolbar>
     </LocalMediaContext.Provider>
   );
 };

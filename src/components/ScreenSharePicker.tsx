@@ -4,8 +4,6 @@ import React from 'react';
 import { desktopCapturer } from 'electron';
 import { DesktopCapturerSource } from 'electron/main';
 import NewWindow from './NewWindow';
-import { StyleSheetManager } from 'styled-components';
-import Button from './Button';
 
 export interface ScreenSharePickerProps {
   className?: string;
