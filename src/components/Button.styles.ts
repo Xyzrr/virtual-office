@@ -23,7 +23,7 @@ export const Wrapper = styled.button<{
       props.color === 'primary'
         ? new Color('#1b95e0')
         : props.color === 'danger'
-        ? new Color('rgb(234, 71, 81')
+        ? new Color('rgb(234, 71, 81)')
         : new Color('#ccc');
 
     if (props.variant === 'contained') {

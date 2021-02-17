@@ -71,6 +71,7 @@ const createWindow = async () => {
   };
 
   let screenSharePicker: BrowserWindow | undefined;
+  let screenShareToolbar: BrowserWindow | undefined;
 
   mainWindow = new BrowserWindow({
     title: 'Virtual Office',
@@ -129,6 +130,7 @@ const createWindow = async () => {
           resizable: false,
           transparent: false,
           parent: mainWindow!,
+          backgroundColor: '#222',
         });
 
         event.newGuest = screenSharePicker;
@@ -137,6 +139,33 @@ const createWindow = async () => {
         screenSharePicker.setMinimizable(false);
 
         centerOnParent(screenSharePicker);
+
+        return;
+      }
+
+      if (frameName === 'screen-share-toolbar') {
+        event.preventDefault();
+
+        const screenBounds = screen.getPrimaryDisplay().bounds;
+
+        screenShareToolbar = new BrowserWindow({
+          ...options,
+          width: 252,
+          height: 52,
+          x: screenBounds.width / 2 - 252 / 2,
+          y: screenBounds.height - 52 - 8,
+          minWidth: undefined,
+          minHeight: undefined,
+          resizable: false,
+          transparent: false,
+          backgroundColor: '#222',
+        });
+
+        event.newGuest = screenShareToolbar;
+
+        screenShareToolbar.setWindowButtonVisibility(false);
+        screenShareToolbar.setAlwaysOnTop(true);
+
         return;
       }
 

@@ -13,7 +13,7 @@ const ScreenShareToolbar: React.FC<ScreenShareToolbarProps> = React.memo(
     return (
       <NewWindow name="screen-share-toolbar" open={open}>
         <S.Wrapper className={className}>
-          <S.StopButton onClick={onStop}></S.StopButton>
+          <S.StopButton onClick={onStop}>Stop screenshare</S.StopButton>
         </S.Wrapper>
       </NewWindow>
     );
