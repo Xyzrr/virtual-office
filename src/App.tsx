@@ -686,7 +686,6 @@ const Hello = () => {
         localAudioOutputDeviceId,
         localVideoInputDeviceId,
         localScreenShareEnabled,
-        setLocalScreenShareEnabled,
         enableLocalVideoInput() {
           createLocalVideoTrack(createLocalVideoTrackOptions)
             .then((track) => {
@@ -805,6 +804,15 @@ const Hello = () => {
           } catch (e) {
             console.log('Could not capture screen', e);
           }
+        },
+        stopScreenShare() {
+          twilioRoom?.localParticipant.videoTracks.forEach((publication) => {
+            if (publication.trackName === 'screen') {
+              publication.track.stop();
+              publication.unpublish();
+            }
+          });
+          setLocalScreenShareEnabled(false);
         },
       }}
     >

@@ -49,11 +49,11 @@ const MapPanel: React.FC<MapPanelProps> = ({
     enableLocalAudioInput,
     disableLocalAudioInput,
     setLocalAudioOutputEnabled,
-    setLocalScreenShareEnabled,
     setLocalAudioInputDeviceId,
     setLocalAudioOutputDeviceId,
     setLocalVideoInputDeviceId,
     screenShare,
+    stopScreenShare,
   } = React.useContext(LocalMediaContext);
 
   const [mediaDevices, setMediaDevices] = React.useState<MediaDeviceInfo[]>([]);
@@ -575,6 +575,10 @@ const MapPanel: React.FC<MapPanelProps> = ({
           name={localScreenShareEnabled ? 'stop_screen_share' : 'screen_share'}
           active={localScreenShareEnabled}
           onClick={() => {
+            if (localScreenShareEnabled) {
+              stopScreenShare();
+              return;
+            }
             setScreenSharePickerOpen((o) => !o);
           }}
         />
