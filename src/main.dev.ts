@@ -90,8 +90,6 @@ const createWindow = async () => {
     },
   });
 
-  mainWindow.setContentProtection(true);
-
   mainWindow.loadURL(`file://${__dirname}/index.html`);
   mainWindow.setVisibleOnAllWorkspaces(false, { visibleOnFullScreen: true });
 
@@ -216,6 +214,7 @@ ipcMain.handle('unminimize', () => {
   mainWindow.setVisibleOnAllWorkspaces(false, { visibleOnFullScreen: true });
   mainWindow.setMinimumSize(800, 450);
   mainWindow.setHasShadow(true);
+  mainWindow.setContentProtection(false);
 
   previousMinimizedPosition = mainWindow.getPosition();
   if (previousUnminimizedBounds != null) {
@@ -238,6 +237,7 @@ ipcMain.handle('minimize', (e) => {
   mainWindow.setResizable(false);
   mainWindow.setAlwaysOnTop(true);
   mainWindow.setHasShadow(false);
+  mainWindow.setContentProtection(true);
 
   previousUnminimizedBounds = mainWindow.getBounds();
 
