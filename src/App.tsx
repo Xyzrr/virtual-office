@@ -228,11 +228,20 @@ const Hello = () => {
 
           const handleUnsubscribedTrack = (track: RemoteTrack) => {
             if (track.kind === 'video') {
-              setActiveParticipants((aps) =>
-                produce(aps, (draft) => {
-                  draft[participant.identity].videoSubscribed = false;
-                })
-              );
+              if (track.name === 'camera') {
+                setActiveParticipants((aps) =>
+                  produce(aps, (draft) => {
+                    draft[participant.identity].videoSubscribed = false;
+                  })
+                );
+              }
+              if (track.name === 'screen') {
+                setActiveParticipants((aps) =>
+                  produce(aps, (draft) => {
+                    draft[participant.identity].screenSubscribed = false;
+                  })
+                );
+              }
             }
             if (track.kind === 'audio') {
               setActiveParticipants((aps) =>

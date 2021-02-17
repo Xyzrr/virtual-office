@@ -90,6 +90,8 @@ const createWindow = async () => {
     },
   });
 
+  mainWindow.setContentProtection(true);
+
   mainWindow.loadURL(`file://${__dirname}/index.html`);
   mainWindow.setVisibleOnAllWorkspaces(false, { visibleOnFullScreen: true });
 
@@ -165,6 +167,7 @@ const createWindow = async () => {
 
         screenShareToolbar.setWindowButtonVisibility(false);
         screenShareToolbar.setAlwaysOnTop(true);
+        screenShareToolbar.setContentProtection(true);
 
         return;
       }
