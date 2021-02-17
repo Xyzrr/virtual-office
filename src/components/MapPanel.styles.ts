@@ -86,13 +86,13 @@ export const ScreenShareButton = styled(Icon)<{ active?: boolean }>`
   cursor: pointer;
   opacity: 0.5;
   &:hover {
-    opacity: 1;
+    opacity: 1 !important;
   }
   ${(props) =>
     props.active &&
     css`
       color: lime;
-      opacity: 1;
+      opacity: 1 !important;
     `}
 `;
 

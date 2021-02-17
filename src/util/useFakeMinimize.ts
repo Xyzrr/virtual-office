@@ -4,19 +4,27 @@ import * as electron from 'electron';
 export const useFakeMinimize = () => {
   const [minimized, setMinimized] = React.useState(false);
 
+  const minimize = React.useCallback(() => {
+    electron.ipcRenderer.invoke('minimize');
+    setMinimized(true);
+  }, []);
+
+  const unminimize = React.useCallback(() => {
+    electron.ipcRenderer.invoke('unminimize');
+    setMinimized(false);
+  }, []);
+
   const onKeyDown = React.useCallback(
     (e: KeyboardEvent) => {
       if (e.key === 'm' && e.metaKey) {
         e.preventDefault();
 
-        if (e.shiftKey && minimized) {
-          electron.ipcRenderer.invoke('unminimize');
-          setMinimized(false);
+        if (!e.shiftKey && !minimized) {
+          minimize();
         }
 
-        if (!e.shiftKey && !minimized) {
-          electron.ipcRenderer.invoke('minimize');
-          setMinimized(true);
+        if (e.shiftKey && minimized) {
+          unminimize();
         }
       }
     },
@@ -30,5 +38,14 @@ export const useFakeMinimize = () => {
     };
   }, [onKeyDown]);
 
-  return minimized;
+  return [
+    minimized,
+    (min: boolean) => {
+      if (min) {
+        minimize();
+      } else {
+        unminimize();
+      }
+    },
+  ] as const;
 };

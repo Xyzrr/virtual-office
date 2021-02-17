@@ -365,7 +365,7 @@ const Hello = () => {
     };
   });
 
-  const minimized = useFakeMinimize();
+  const [minimized, setMinimized] = useFakeMinimize();
 
   let nextSmallPanelY = 8;
   const panelElements: React.ReactNode[] = [];
@@ -801,6 +801,7 @@ const Hello = () => {
             await twilioRoom?.localParticipant.publishTrack(screenTrack);
 
             setLocalScreenShareEnabled(true);
+            setMinimized(true);
           } catch (e) {
             console.log('Could not capture screen', e);
           }
