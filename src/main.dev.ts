@@ -135,6 +135,7 @@ const createWindow = async () => {
 
         screenSharePicker.setMaximizable(false);
         screenSharePicker.setMinimizable(false);
+
         centerOnParent(screenSharePicker);
         return;
       }

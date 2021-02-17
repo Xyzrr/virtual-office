@@ -58,7 +58,7 @@ const Hello = () => {
     true
   );
   const [localAudioOutputEnabled, setLocalAudioOutputEnabled] = React.useState(
-    false
+    true
   );
   const [localScreenShareEnabled, setLocalScreenShareEnabled] = React.useState(
     false
@@ -97,11 +97,11 @@ const Hello = () => {
   );
 
   const createLocalVideoTrackOptions: CreateLocalTrackOptions = {
-    width: 16,
-    height: 9,
+    // width: 16,
+    // height: 9,
     name: 'camera',
-    // width: 1920,
-    // height: 1080,
+    width: 1920,
+    height: 1080,
     deviceId: localVideoInputDeviceId,
   };
 
@@ -799,7 +799,9 @@ const Hello = () => {
               logLevel: 'debug',
               name: 'screen',
             });
-            twilioRoom?.localParticipant.publishTrack(screenTrack);
+            await twilioRoom?.localParticipant.publishTrack(screenTrack);
+
+            setLocalScreenShareEnabled(true);
           } catch (e) {
             console.log('Could not capture screen', e);
           }

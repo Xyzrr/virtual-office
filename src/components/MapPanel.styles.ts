@@ -80,6 +80,22 @@ export const MicVolumeOverlay = styled(Icon)`
   color: lime;
 `;
 
+export const ScreenShareButton = styled(Icon)<{ active?: boolean }>`
+  padding: 8px;
+  color: white;
+  cursor: pointer;
+  opacity: 0.5;
+  &:hover {
+    opacity: 1;
+  }
+  ${(props) =>
+    props.active &&
+    css`
+      color: lime;
+      opacity: 1;
+    `}
+`;
+
 export const Wrapper = styled.div<{
   small: boolean;
 }>`
@@ -95,7 +111,7 @@ export const Wrapper = styled.div<{
       ${IconButtons} {
         padding: 4px;
       }
-      ${IconButton}, ${MicVolumeOverlayWrapper} {
+      ${IconButton}, ${MicVolumeOverlayWrapper}, ${ScreenShareButton} {
         padding: 4px;
         opacity: 0;
       }
@@ -109,7 +125,7 @@ export const Wrapper = styled.div<{
         padding: 4px;
       }
       &:hover {
-        ${IconButton} {
+        ${IconButton}, ${ScreenShareButton} {
           opacity: 0.5;
         }
         ${MicVolumeOverlayWrapper} {

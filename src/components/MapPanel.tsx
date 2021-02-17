@@ -62,6 +62,10 @@ const MapPanel: React.FC<MapPanelProps> = ({
   const [recentlyLoud, setRecentlyLoud] = React.useState(false);
   const recentlyLoudTimerRef = React.useRef<number | null>(null);
 
+  const [screenSharePickerOpen, setScreenSharePickerOpen] = React.useState(
+    false
+  );
+
   useVolume(localAudioTrack, (v) => {
     setVolume(v);
     if (v > 0.15) {
@@ -567,22 +571,22 @@ const MapPanel: React.FC<MapPanelProps> = ({
             </select>
           </S.CaretButtonWrapper>
         )}
-        <S.IconButton
-          name={localScreenShareEnabled ? 'screen_share' : 'stop_screen_share'}
-          disabled={!localScreenShareEnabled}
-          onClick={async () => {
-            setLocalScreenShareEnabled(!localScreenShareEnabled);
+        <S.ScreenShareButton
+          name={localScreenShareEnabled ? 'stop_screen_share' : 'screen_share'}
+          active={localScreenShareEnabled}
+          onClick={() => {
+            setScreenSharePickerOpen((o) => !o);
           }}
         />
       </S.IconButtons>
       <ScreenSharePicker
-        open={localScreenShareEnabled}
+        open={screenSharePickerOpen}
         onClose={() => {
-          setLocalScreenShareEnabled(false);
+          setScreenSharePickerOpen(false);
         }}
-        onStart={async (id) => {
+        onStart={(id) => {
           console.log('Started sharing screen', id);
-          setLocalScreenShareEnabled(false);
+          setScreenSharePickerOpen(false);
           screenShare(id);
         }}
       ></ScreenSharePicker>

@@ -5,7 +5,7 @@ export const centerOnParent = (child: BrowserWindow) => {
   const parentBounds = child.getParentWindow().getBounds();
 
   child.setPosition(
-    parentBounds.x + parentBounds.width / 2 - bounds.width / 2,
-    parentBounds.y + parentBounds.height / 2 - bounds.height / 2
+    Math.round(parentBounds.x + parentBounds.width / 2 - bounds.width / 2),
+    Math.round(parentBounds.y + parentBounds.height / 2 - bounds.height / 2)
   );
 };
