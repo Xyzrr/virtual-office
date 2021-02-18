@@ -30,8 +30,8 @@
     ]
   },
   "build": {
-    "productName": "ElectronReact",
-    "appId": "org.erb.ElectronReact",
+    "productName": "Harbor",
+    "appId": "org.erb.Harbor",
     "files": [
       "dist/",
       "node_modules/",

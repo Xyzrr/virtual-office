@@ -42,9 +42,6 @@ const NewWindow: React.FC<NewWindowProps> = ({
   const containerEl = React.useMemo(() => document.createElement('div'), [
     open,
   ]);
-  const containerEl2 = React.useMemo(() => document.createElement('div'), [
-    open,
-  ]);
   const newWindow = React.useRef<Window | null>(null);
 
   React.useEffect(() => {
