@@ -3,12 +3,12 @@ import ReactDOM from 'react-dom';
 import { StyleSheetManager } from 'styled-components';
 
 function copyStyles(sourceDoc: Document, targetDoc: Document) {
-  Array.from(sourceDoc.styleSheets).forEach((styleSheet: any) => {
+  Array.from(sourceDoc.styleSheets).forEach((styleSheet) => {
     if (styleSheet.cssRules) {
       // for <style> elements
       const newStyleEl = sourceDoc.createElement('style');
 
-      Array.from(styleSheet.cssRules).forEach((cssRule: any) => {
+      Array.from(styleSheet.cssRules).forEach((cssRule) => {
         // write the text of each rule into the body of the style element
         newStyleEl.appendChild(sourceDoc.createTextNode(cssRule.cssText));
       });
