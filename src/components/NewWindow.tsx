@@ -65,7 +65,7 @@ const NewWindow: React.FC<NewWindowProps> = ({
   }
 
   return (
-    <StyleSheetManager target={containerEl}>
+    <StyleSheetManager target={newWindow.current?.document.body}>
       <>{ReactDOM.createPortal(children, containerEl)}</>
     </StyleSheetManager>
   );
