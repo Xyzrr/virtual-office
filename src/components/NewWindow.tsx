@@ -38,6 +38,7 @@ const NewWindow: React.FC<NewWindowProps> = ({
   children,
   onClose,
 }) => {
+  //TODO: figure out whether I actually need to create a child element or if I can just use body
   const containerEl = React.useMemo(() => document.createElement('div'), [
     open,
   ]);

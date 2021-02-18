@@ -7,6 +7,17 @@
       href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined"
       rel="stylesheet"
     />
+    <script>
+      (() => {
+        if (process?.env?.NODE_ENV !== 'development') {
+          const link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = './dist/style.css';
+          // HACK: Writing the script path should be done with webpack
+          document.getElementsByTagName('head')[0].appendChild(link);
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
