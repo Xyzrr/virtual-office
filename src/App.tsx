@@ -1,5 +1,6 @@
 import * as S from './App.styles';
 
+import { v4 as uuid } from 'uuid';
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import {
@@ -101,14 +102,14 @@ const Hello = () => {
   const createLocalVideoTrackOptions: CreateLocalTrackOptions = {
     // width: 16,
     // height: 9,
-    name: `camera-${Math.floor(Math.random() * 100000000)}`,
+    name: `camera-${uuid()}`,
     width: 1920,
     height: 1080,
     deviceId: localVideoInputDeviceId,
   };
 
   const identity = React.useMemo(() => {
-    const result = `cool-person-${Math.floor(Math.random() * 100000000)}`;
+    const result = `cool-person-${uuid()}`;
     console.log('IDENTITY', result);
     return result;
   }, []);
@@ -834,7 +835,7 @@ const Hello = () => {
 
             const screenTrack = new LocalVideoTrack(stream.getTracks()[0], {
               logLevel: 'debug',
-              name: `screen-${Math.floor(Math.random() * 100000000)}`,
+              name: `screen-${uuid()}`,
             });
             await twilioRoom?.localParticipant.publishTrack(screenTrack);
 
