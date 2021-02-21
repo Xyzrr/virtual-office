@@ -61,6 +61,7 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = ({
     audioEl.srcObject = stream;
 
     return () => {
+      audioEl.pause();
       stream.removeTrack(audioTrack);
       audioEl.srcObject = null;
     };

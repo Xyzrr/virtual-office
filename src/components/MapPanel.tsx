@@ -56,6 +56,8 @@ const MapPanel: React.FC<MapPanelProps> = ({
     stopScreenShare,
   } = React.useContext(LocalMediaContext);
 
+  console.log('MICROPHONE ID', localAudioInputDeviceId);
+
   const [mediaDevices, setMediaDevices] = React.useState<MediaDeviceInfo[]>([]);
 
   const [volume, setVolume] = React.useState(0);
@@ -493,6 +495,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
             <select
               onChange={(e) => {
                 const { value } = e.target;
+                console.log('Microphone CHANGED');
                 setLocalAudioInputDeviceId(value);
               }}
               value={localAudioInputDeviceId}

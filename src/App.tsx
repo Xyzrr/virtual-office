@@ -562,7 +562,7 @@ const Hello = () => {
             videoTrack={videoTrack}
             audioTrack={audioTrack}
             audioEnabled={audioEnabled}
-            volumeMultiplier={scale}
+            volumeMultiplier={scale ** 2}
             expanded={expandedPanels.includes(key)}
             onSetExpanded={(value) => {
               console.log('setting expanded', value, key);
