@@ -101,14 +101,14 @@ const Hello = () => {
   const createLocalVideoTrackOptions: CreateLocalTrackOptions = {
     // width: 16,
     // height: 9,
-    name: 'camera',
+    name: `camera-${Math.floor(Math.random() * 100000000)}`,
     width: 1920,
     height: 1080,
     deviceId: localVideoInputDeviceId,
   };
 
   const identity = React.useMemo(() => {
-    const result = `cool-person-${Math.floor(Math.random() * 10000)}`;
+    const result = `cool-person-${Math.floor(Math.random() * 100000000)}`;
     console.log('IDENTITY', result);
     return result;
   }, []);
@@ -203,14 +203,14 @@ const Hello = () => {
 
           const handleSubscribedTrack = (track: RemoteTrack) => {
             if (track.kind === 'video') {
-              if (track.name === 'camera') {
+              if (track.name.startsWith('camera')) {
                 setActiveParticipants((aps) =>
                   produce(aps, (draft) => {
                     draft[participant.identity].videoSubscribed = true;
                   })
                 );
               }
-              if (track.name === 'screen') {
+              if (track.name.startsWith('screen')) {
                 setActiveParticipants((aps) =>
                   produce(aps, (draft) => {
                     draft[participant.identity].screenSubscribed = true;
@@ -229,14 +229,14 @@ const Hello = () => {
 
           const handleUnsubscribedTrack = (track: RemoteTrack) => {
             if (track.kind === 'video') {
-              if (track.name === 'camera') {
+              if (track.name.startsWith('camera')) {
                 setActiveParticipants((aps) =>
                   produce(aps, (draft) => {
                     draft[participant.identity].videoSubscribed = false;
                   })
                 );
               }
-              if (track.name === 'screen') {
+              if (track.name.startsWith('screen')) {
                 setActiveParticipants((aps) =>
                   produce(aps, (draft) => {
                     draft[participant.identity].screenSubscribed = false;
@@ -539,7 +539,7 @@ const Hello = () => {
         if (publication.isSubscribed) {
           const { track } = publication;
           if (track != null && track.kind === 'video') {
-            if (track.name === 'camera') {
+            if (track.name.startsWith('camera')) {
               videoTrack = track.mediaStreamTrack;
             }
           }
@@ -570,7 +570,7 @@ const Hello = () => {
 
               if (value) {
                 participant.videoTracks.forEach((publication) => {
-                  if (publication.track?.name == 'camera') {
+                  if (publication.trackName.startsWith('camera')) {
                     publication.track?.setPriority('high');
                   }
                 });
@@ -578,7 +578,7 @@ const Hello = () => {
                 setExpandedPanels([key]);
               } else {
                 participant.videoTracks.forEach((publication) => {
-                  if (publication.track?.name === 'camera') {
+                  if (publication.trackName.startsWith('camera')) {
                     publication.track?.setPriority('low');
                   }
                 });
@@ -620,16 +620,12 @@ const Hello = () => {
 
       let videoTrack: MediaStreamTrack | undefined;
 
-      participant.tracks.forEach((publication) => {
-        if (publication.isSubscribed) {
-          const { track } = publication;
-          if (
-            track != null &&
-            track.kind === 'video' &&
-            track.name === 'screen'
-          ) {
-            videoTrack = track.mediaStreamTrack;
-          }
+      participant.videoTracks.forEach((publication) => {
+        if (
+          publication.isSubscribed &&
+          publication.trackName.startsWith('screen')
+        ) {
+          videoTrack = publication.track?.mediaStreamTrack;
         }
       });
 
@@ -651,7 +647,7 @@ const Hello = () => {
 
               if (value) {
                 participant.videoTracks.forEach((publication) => {
-                  if (publication.track?.name == 'screen') {
+                  if (publication.trackName.startsWith('screen')) {
                     publication.track?.setPriority('high');
                   }
                 });
@@ -659,7 +655,7 @@ const Hello = () => {
                 setExpandedPanels([key]);
               } else {
                 participant.videoTracks.forEach((publication) => {
-                  if (publication.track?.name === 'screen') {
+                  if (publication.trackName.startsWith('screen')) {
                     publication.track?.setPriority('low');
                   }
                 });
@@ -686,7 +682,7 @@ const Hello = () => {
 
   const stopScreenShare = React.useCallback(() => {
     twilioRoom?.localParticipant.videoTracks.forEach((publication) => {
-      if (publication.trackName === 'screen') {
+      if (publication.trackName.startsWith('screen')) {
         publication.track.stop();
         publication.unpublish();
       }
@@ -726,7 +722,7 @@ const Hello = () => {
         },
         disableLocalVideoInput() {
           twilioRoom?.localParticipant.videoTracks.forEach((publication) => {
-            if (publication.trackName === 'camera') {
+            if (publication.trackName.startsWith('camera')) {
               publication.track.stop();
               publication.unpublish();
             }
@@ -802,8 +798,10 @@ const Hello = () => {
 
           setLocalVideoTrack(track.mediaStreamTrack);
           twilioRoom?.localParticipant.videoTracks.forEach((publication) => {
-            publication.track.stop();
-            publication.unpublish();
+            if (publication.trackName.startsWith('camera')) {
+              publication.track.stop();
+              publication.unpublish();
+            }
           });
 
           try {
@@ -812,6 +810,7 @@ const Hello = () => {
             });
           } catch (error) {
             console.log('Failed to publish local video track', error);
+            return;
           }
 
           console.log('Published new video track from device ID', value);
@@ -835,7 +834,7 @@ const Hello = () => {
 
             const screenTrack = new LocalVideoTrack(stream.getTracks()[0], {
               logLevel: 'debug',
-              name: 'screen',
+              name: `screen-${Math.floor(Math.random() * 100000000)}`,
             });
             await twilioRoom?.localParticipant.publishTrack(screenTrack);
 
