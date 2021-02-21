@@ -16,6 +16,7 @@ import {
   LocalTrack,
   CreateLocalTrackOptions,
   LocalVideoTrack,
+  LocalAudioTrack,
 } from 'twilio-video';
 import * as PIXI from 'pixi.js';
 import * as Colyseus from 'colyseus.js';
@@ -749,25 +750,35 @@ const Hello = () => {
           colyseusRoom?.send('setPlayerAudioEnabled', false);
         },
         setLocalAudioOutputEnabled,
-        setLocalAudioInputDeviceId(value: string) {
-          createLocalAudioTrack({ deviceId: value })
-            .then((track) => {
-              setLocalAudioInputDeviceId(value);
-              setLocalAudioTrack(track.mediaStreamTrack);
-              twilioRoom?.localParticipant.audioTracks.forEach(
-                (publication) => {
-                  publication.track.stop();
-                  publication.unpublish();
-                }
-              );
-              twilioRoom?.localParticipant.publishTrack(track).then(() => {
-                console.log('Published new audio track from device ID', value);
-              });
-              return track;
-            })
-            .catch((error) => {
-              console.log('Failed to create local audio track', error);
-            });
+        async setLocalAudioInputDeviceId(value: string) {
+          let track: LocalAudioTrack;
+          try {
+            track = await createLocalAudioTrack({ deviceId: value });
+          } catch (error) {
+            console.log('Failed to create local audio track', error);
+            return;
+          }
+
+          if (!localAudioInputEnabled) {
+            track.disable();
+          }
+
+          setLocalAudioInputDeviceId(value);
+          setLocalAudioTrack(track.mediaStreamTrack);
+          twilioRoom?.localParticipant.audioTracks.forEach((publication) => {
+            publication.track.stop();
+            publication.unpublish();
+          });
+
+          try {
+            await twilioRoom?.localParticipant.publishTrack(track);
+          } catch (error) {
+            console.log('Failed to publish local audio track', error);
+            return;
+          }
+
+          console.log('Published new audio track from device ID', value);
+          return track;
         },
         setLocalAudioOutputDeviceId,
         setLocalVideoInputDeviceId(value: string) {
