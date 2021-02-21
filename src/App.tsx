@@ -751,6 +751,8 @@ const Hello = () => {
         },
         setLocalAudioOutputEnabled,
         async setLocalAudioInputDeviceId(value: string) {
+          setLocalAudioInputDeviceId(value);
+
           let track: LocalAudioTrack;
           try {
             track = await createLocalAudioTrack({ deviceId: value });
@@ -763,7 +765,6 @@ const Hello = () => {
             track.disable();
           }
 
-          setLocalAudioInputDeviceId(value);
           setLocalAudioTrack(track.mediaStreamTrack);
           twilioRoom?.localParticipant.audioTracks.forEach((publication) => {
             publication.track.stop();
@@ -781,33 +782,40 @@ const Hello = () => {
           return track;
         },
         setLocalAudioOutputDeviceId,
-        setLocalVideoInputDeviceId(value: string) {
-          createLocalVideoTrack({
-            ...createLocalVideoTrackOptions,
-            deviceId: value,
-          })
-            .then((track) => {
-              setLocalVideoInputDeviceId(value);
-              setLocalVideoTrack(track.mediaStreamTrack);
-              twilioRoom?.localParticipant.videoTracks.forEach(
-                (publication) => {
-                  publication.track.stop();
-                  publication.unpublish();
-                }
-              );
-              twilioRoom?.localParticipant
-                .publishTrack(track, { priority: 'low' })
-                .then(() => {
-                  console.log(
-                    'Published new video track from device ID',
-                    value
-                  );
-                });
-              return track;
-            })
-            .catch((error) => {
-              console.log('Failed to create local video track', error);
+        async setLocalVideoInputDeviceId(value: string) {
+          setLocalVideoInputDeviceId(value);
+
+          if (!localVideoInputEnabled) {
+            return;
+          }
+
+          let track: LocalVideoTrack;
+          try {
+            track = await createLocalVideoTrack({
+              ...createLocalVideoTrackOptions,
+              deviceId: value,
             });
+          } catch (error) {
+            console.log('Failed to create local video track', error);
+            return;
+          }
+
+          setLocalVideoTrack(track.mediaStreamTrack);
+          twilioRoom?.localParticipant.videoTracks.forEach((publication) => {
+            publication.track.stop();
+            publication.unpublish();
+          });
+
+          try {
+            await twilioRoom?.localParticipant.publishTrack(track, {
+              priority: 'low',
+            });
+          } catch (error) {
+            console.log('Failed to publish local video track', error);
+          }
+
+          console.log('Published new video track from device ID', value);
+          return track;
         },
         async screenShare(id: string) {
           try {
