@@ -37,7 +37,7 @@ export const IconButton = styled.div<{
   height: 56px;
   width: 56px;
   color: white;
-  margin-right: 24px;
+  margin-right: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -99,7 +99,7 @@ export const CaretButtonWrapper = styled.div`
 export const Wrapper = styled.div<{ minimized?: boolean; hidden?: boolean }>`
   display: flex;
   position: absolute;
-  bottom: 24px;
+  bottom: 16px;
   width: 100%;
   justify-content: center;
   z-index: 2;
