@@ -12,7 +12,7 @@ export interface RemoteUserPanelProps {
   audioTrack?: MediaStreamTrack;
   audioEnabled: boolean;
   volumeMultiplier: number;
-  expanded?: boolean;
+  small?: boolean;
   onSetExpanded(value: boolean): void;
 }
 
@@ -22,7 +22,7 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = ({
   audioTrack,
   audioEnabled,
   volumeMultiplier,
-  expanded,
+  small,
   onSetExpanded,
 }) => {
   const videoRef = React.useRef<HTMLVideoElement>(null);
@@ -117,9 +117,9 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = ({
       </S.StatusIcons>
       <HoverMenu>
         <HoverMenuStyles.MenuItem
-          name={expanded ? 'fullscreen_exit' : 'fullscreen'}
+          name={small ? 'fullscreen' : 'fullscreen_exit'}
           onClick={() => {
-            onSetExpanded(!expanded);
+            onSetExpanded(!!small);
           }}
         ></HoverMenuStyles.MenuItem>
       </HoverMenu>

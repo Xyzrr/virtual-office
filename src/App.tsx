@@ -478,9 +478,12 @@ const Hello = () => {
           xDirection="left"
         >
           <LocalUserPanel
-            expanded={expandedPanels.includes(key)}
+            small={small}
             onSetExpanded={(value) => {
-              console.log('setting expanded', value, key);
+              if (minimized) {
+                setMinimized(false);
+              }
+
               if (value) {
                 setExpandedPanels([key]);
               } else {
@@ -565,9 +568,11 @@ const Hello = () => {
             audioTrack={audioTrack}
             audioEnabled={audioEnabled}
             volumeMultiplier={scale ** 2}
-            expanded={expandedPanels.includes(key)}
+            small={small}
             onSetExpanded={(value) => {
-              console.log('setting expanded', value, key);
+              if (minimized) {
+                setMinimized(false);
+              }
 
               if (value) {
                 participant.videoTracks.forEach((publication) => {

@@ -8,13 +8,13 @@ import { LocalMediaContext } from '../contexts/LocalMediaContext';
 
 export interface LocalUserPanelProps {
   className?: string;
-  expanded?: boolean;
+  small?: boolean;
   onSetExpanded(value: boolean): void;
 }
 
 const LocalUserPanel: React.FC<LocalUserPanelProps> = ({
   className,
-  expanded,
+  small,
   onSetExpanded,
 }) => {
   const videoRef = React.useRef<HTMLVideoElement>(null);
@@ -66,9 +66,9 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = ({
       <video ref={videoRef} autoPlay></video>
       <HoverMenu>
         <HoverMenuStyles.MenuItem
-          name={expanded ? 'fullscreen_exit' : 'fullscreen'}
+          name={small ? 'fullscreen' : 'fullscreen_exit'}
           onClick={() => {
-            onSetExpanded(!expanded);
+            onSetExpanded(!!small);
           }}
         ></HoverMenuStyles.MenuItem>
       </HoverMenu>
