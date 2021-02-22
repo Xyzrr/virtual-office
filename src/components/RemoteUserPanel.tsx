@@ -6,6 +6,7 @@ import { useVolume } from '../util/useVolume';
 import { LocalMediaContext } from '../contexts/LocalMediaContext';
 import HoverMenu from './HoverMenu';
 import NetworkQualityIndicator from './NetworkQualityIndicator';
+import { useMouseIsIdle } from '../util/useMouseIsIdle';
 
 export interface RemoteUserPanelProps {
   className?: string;
@@ -30,6 +31,7 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = ({
   small,
   onSetExpanded,
 }) => {
+  const wrapperRef = React.useRef<HTMLDivElement>(null);
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const audioRef = React.useRef<HTMLAudioElement>(null);
   const [recentlyLoud, setRecentlyLoud] = React.useState(false);
@@ -113,8 +115,14 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = ({
     audioEl.volume = localAudioOutputEnabled ? volumeMultiplier : 0;
   }, [volumeMultiplier, localAudioOutputEnabled]);
 
+  const mouseIsIdle = useMouseIsIdle({ containerRef: wrapperRef });
+
   return (
-    <S.Wrapper className={className} recentlyLoud={recentlyLoud}>
+    <S.Wrapper
+      className={className}
+      ref={wrapperRef}
+      recentlyLoud={recentlyLoud}
+    >
       <video ref={videoRef} autoPlay></video>
       <audio ref={audioRef} autoPlay></audio>
       {reconnecting && (
@@ -126,7 +134,7 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = ({
       <S.StatusIcons>
         {!audioEnabled && <S.StatusIcon name="mic_off"></S.StatusIcon>}
       </S.StatusIcons>
-      <HoverMenu>
+      <HoverMenu hidden={mouseIsIdle}>
         <HoverMenuStyles.MenuItem
           name={small ? 'fullscreen' : 'fullscreen_exit'}
           onClick={() => {

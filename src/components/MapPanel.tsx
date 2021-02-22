@@ -9,6 +9,7 @@ import * as _ from 'lodash';
 import * as TWEEN from '@tweenjs/tween.js';
 
 import HoverMenu from './HoverMenu';
+import { useMouseIsIdle } from '../util/useMouseIsIdle';
 
 export interface MapPanelProps {
   className?: string;
@@ -398,10 +399,12 @@ const MapPanel: React.FC<MapPanelProps> = ({
     };
   }, [onKeyUp, onKeyDown]);
 
+  const mouseIsIdle = useMouseIsIdle({ containerRef: wrapperRef });
+
   return (
     <S.Wrapper className={className} ref={wrapperRef} small={small}>
       {small && (
-        <HoverMenu>
+        <HoverMenu hidden={mouseIsIdle}>
           <HoverMenuStyles.MenuItem
             name={small ? 'fullscreen' : 'fullscreen_exit'}
             onClick={() => {

@@ -5,6 +5,7 @@ import React, { useContext } from 'react';
 import { useVolume } from '../util/useVolume';
 import HoverMenu from './HoverMenu';
 import { LocalMediaContext } from '../contexts/LocalMediaContext';
+import { useMouseIsIdle } from '../util/useMouseIsIdle';
 
 export interface LocalUserPanelProps {
   className?: string;
@@ -17,6 +18,7 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = ({
   small,
   onSetExpanded,
 }) => {
+  const wrapperRef = React.useRef<HTMLDivElement>(null);
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const [recentlyLoud, setRecentlyLoud] = React.useState(false);
   const recentlyLoudTimerRef = React.useRef<number | null>(null);
@@ -61,10 +63,16 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = ({
     }
   });
 
+  const mouseIsIdle = useMouseIsIdle({ containerRef: wrapperRef });
+
   return (
-    <S.Wrapper className={className} recentlyLoud={recentlyLoud}>
+    <S.Wrapper
+      className={className}
+      ref={wrapperRef}
+      recentlyLoud={recentlyLoud}
+    >
       <video ref={videoRef} autoPlay></video>
-      <HoverMenu>
+      <HoverMenu hidden={mouseIsIdle}>
         <HoverMenuStyles.MenuItem
           name={small ? 'fullscreen' : 'fullscreen_exit'}
           onClick={() => {

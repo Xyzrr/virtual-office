@@ -76,13 +76,12 @@ const MainToolbar: React.FC<MainToolbarProps> = ({ className, minimized }) => {
   }, []);
 
   const mouseIsIdle = useMouseIsIdle();
-  console.log('IDLE', mouseIsIdle);
 
   return (
     <S.Wrapper className={className} minimized={minimized} hidden={mouseIsIdle}>
       <S.IconButton color={localAudioInputEnabled ? undefined : 'danger'}>
         <S.IconButtonBackground
-          mask={!minimized && circleButtonWithOptions}
+          mask={minimized ? undefined : circleButtonWithOptions}
           onClick={() => {
             if (localAudioInputEnabled) {
               disableLocalAudioInput();
@@ -124,7 +123,7 @@ const MainToolbar: React.FC<MainToolbarProps> = ({ className, minimized }) => {
 
       <S.IconButton color={localVideoInputEnabled ? undefined : 'danger'}>
         <S.IconButtonBackground
-          mask={!minimized && circleButtonWithOptions}
+          mask={minimized ? undefined : circleButtonWithOptions}
           onClick={() => {
             if (localVideoInputEnabled) {
               disableLocalVideoInput();
@@ -161,7 +160,7 @@ const MainToolbar: React.FC<MainToolbarProps> = ({ className, minimized }) => {
       </S.IconButton>
       <S.IconButton color={localAudioOutputEnabled ? undefined : 'danger'}>
         <S.IconButtonBackground
-          mask={!minimized && circleButtonWithOptions}
+          mask={minimized ? undefined : circleButtonWithOptions}
           onClick={() => {
             setLocalAudioOutputEnabled(!localAudioOutputEnabled);
           }}

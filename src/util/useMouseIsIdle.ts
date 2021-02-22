@@ -1,13 +1,19 @@
 import React from 'react';
 
-export const useMouseIsIdle = (opts?: { minDuration?: number }) => {
-  const { minDuration = 2000 } = opts || {};
+export const useMouseIsIdle = (opts?: {
+  minDuration?: number;
+  containerRef?: React.RefObject<HTMLElement>;
+}) => {
+  const { minDuration = 2000, containerRef } = opts || {};
 
   const lastMouseMoveTimerRef = React.useRef<number | null>(null);
-  const [mouseIsIdle, setMouseIsIdle] = React.useState(false);
+  const [mouseIsIdle, setMouseIsIdle] = React.useState(true);
 
   React.useEffect(() => {
-    const onMouseMove = (e: MouseEvent) => {
+    const container = containerRef ? containerRef.current : document;
+
+    const onMouseMove = () => {
+      console.log('MOVE');
       setMouseIsIdle(false);
       if (lastMouseMoveTimerRef.current != null) {
         window.clearTimeout(lastMouseMoveTimerRef.current);
@@ -17,16 +23,23 @@ export const useMouseIsIdle = (opts?: { minDuration?: number }) => {
       }, minDuration);
     };
 
-    const onKeyDown = (e: KeyboardEvent) => {
+    const onMouseLeave = () => {
+      console.log('LEAVE!');
       setMouseIsIdle(true);
     };
 
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('keydown', onKeyDown);
+    const onKeyDown = () => {
+      setMouseIsIdle(true);
+    };
+
+    container?.addEventListener('mousemove', onMouseMove);
+    container?.addEventListener('mouseleave', onMouseLeave);
+    container?.addEventListener('keydown', onKeyDown);
 
     return () => {
-      window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('keydown', onKeyDown);
+      container?.removeEventListener('mousemove', onMouseMove);
+      container?.removeEventListener('mouseleave', onMouseLeave);
+      container?.removeEventListener('keydown', onKeyDown);
     };
   }, []);
 

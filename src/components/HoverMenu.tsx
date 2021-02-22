@@ -3,12 +3,17 @@ import React from 'react';
 
 export interface HoverMenuProps {
   className?: string;
+  hidden?: boolean;
 }
 
-const HoverMenu: React.FC<HoverMenuProps> = ({ className, children }) => {
+const HoverMenu: React.FC<HoverMenuProps> = ({
+  className,
+  children,
+  hidden,
+}) => {
   return (
-    <S.Wrapper className={className}>
-      <S.Menu>{children}</S.Menu>
+    <S.Wrapper className={className} hidden={hidden}>
+      {children}
     </S.Wrapper>
   );
 };
