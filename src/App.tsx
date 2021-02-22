@@ -49,6 +49,7 @@ export interface ActiveParticipant {
   videoSubscribed?: boolean;
   screenSubscribed?: boolean;
   audioEnabled?: boolean;
+  reconnecting?: boolean;
 }
 
 const Hello = () => {
@@ -100,11 +101,11 @@ const Hello = () => {
   );
 
   const createLocalVideoTrackOptions: CreateLocalTrackOptions = {
-    width: 16,
-    height: 9,
+    // width: 16,
+    // height: 9,
     name: `camera-${uuid()}`,
-    // width: 1920,
-    // height: 1080,
+    width: 1920,
+    height: 1080,
     deviceId: localVideoInputDeviceId,
   };
 
@@ -270,6 +271,22 @@ const Hello = () => {
             console.log('Remote track unsubscribed.');
             handleUnsubscribedTrack(track);
           });
+
+          participant.on('reconnecting', () => {
+            setActiveParticipants((aps) =>
+              produce(aps, (draft) => {
+                draft[participant.identity].reconnecting = true;
+              })
+            );
+          });
+
+          participant.on('reconnected', () => {
+            setActiveParticipants((aps) =>
+              produce(aps, (draft) => {
+                draft[participant.identity].reconnecting = false;
+              })
+            );
+          });
         };
 
         const handleDisconnectedParticipant = (
@@ -281,6 +298,10 @@ const Hello = () => {
             })
           );
         };
+
+        room.on('reconnecting', (error) => {
+          console.log('Reconnecting:', error);
+        });
 
         room.participants.forEach((participant) => {
           console.log(`Existing remote Twilio participant: ${participant}`);
@@ -577,6 +598,7 @@ const Hello = () => {
             audioTrack={audioTrack}
             audioEnabled={audioEnabled}
             volumeMultiplier={scale ** 2}
+            reconnecting={ap.reconnecting}
             small={small}
             onSetExpanded={(value) => {
               if (minimized) {

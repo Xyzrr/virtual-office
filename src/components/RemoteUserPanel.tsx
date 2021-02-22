@@ -12,6 +12,7 @@ export interface RemoteUserPanelProps {
   audioTrack?: MediaStreamTrack;
   audioEnabled: boolean;
   volumeMultiplier: number;
+  reconnecting?: boolean;
   small?: boolean;
   onSetExpanded(value: boolean): void;
 }
@@ -22,6 +23,7 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = ({
   audioTrack,
   audioEnabled,
   volumeMultiplier,
+  reconnecting,
   small,
   onSetExpanded,
 }) => {
@@ -112,6 +114,9 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = ({
     <S.Wrapper className={className} recentlyLoud={recentlyLoud}>
       <video ref={videoRef} autoPlay></video>
       <audio ref={audioRef} autoPlay></audio>
+      {reconnecting && (
+        <S.ReconnectingIndicator>Reconnecting...</S.ReconnectingIndicator>
+      )}
       <S.StatusIcons>
         {!audioEnabled && <S.StatusIcon name="mic_off"></S.StatusIcon>}
       </S.StatusIcons>
