@@ -13,6 +13,7 @@ export interface RemoteUserPanelProps {
   audioEnabled: boolean;
   volumeMultiplier: number;
   reconnecting?: boolean;
+  networkQuality?: number;
   small?: boolean;
   onSetExpanded(value: boolean): void;
 }
@@ -24,6 +25,7 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = ({
   audioEnabled,
   volumeMultiplier,
   reconnecting,
+  networkQuality,
   small,
   onSetExpanded,
 }) => {
@@ -116,6 +118,19 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = ({
       <audio ref={audioRef} autoPlay></audio>
       {reconnecting && (
         <S.ReconnectingIndicator>Reconnecting...</S.ReconnectingIndicator>
+      )}
+      {networkQuality && (
+        <S.NetworkQualityIndicator
+          name={
+            networkQuality < 2
+              ? 'signal_wifi_1_bar'
+              : networkQuality < 4
+              ? 'signal_wifi_2_bar'
+              : networkQuality < 5
+              ? 'signal_wifi_3_bar'
+              : 'signal_wifi_4_bar'
+          }
+        ></S.NetworkQualityIndicator>
       )}
       <S.StatusIcons>
         {!audioEnabled && <S.StatusIcon name="mic_off"></S.StatusIcon>}

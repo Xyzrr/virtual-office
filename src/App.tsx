@@ -50,6 +50,7 @@ export interface ActiveParticipant {
   screenSubscribed?: boolean;
   audioEnabled?: boolean;
   reconnecting?: boolean;
+  networkQuality?: number;
 }
 
 const Hello = () => {
@@ -166,6 +167,7 @@ const Hello = () => {
             name: 'cool-room',
             tracks: localTracks,
             preferredVideoCodecs: [{ codec: 'VP8', simulcast: true }],
+            networkQuality: { local: 1, remote: 1 },
             bandwidthProfile: {
               video: {
                 mode: 'collaboration',
@@ -284,6 +286,14 @@ const Hello = () => {
             setActiveParticipants((aps) =>
               produce(aps, (draft) => {
                 draft[participant.identity].reconnecting = false;
+              })
+            );
+          });
+
+          participant.on('networkQualityLevelChanged', (level) => {
+            setActiveParticipants((aps) =>
+              produce(aps, (draft) => {
+                draft[participant.identity].networkQuality = level;
               })
             );
           });
@@ -599,6 +609,7 @@ const Hello = () => {
             audioEnabled={audioEnabled}
             volumeMultiplier={scale ** 2}
             reconnecting={ap.reconnecting}
+            networkQuality={ap.networkQuality}
             small={small}
             onSetExpanded={(value) => {
               if (minimized) {

@@ -47,3 +47,10 @@ export const ReconnectingIndicator = styled.div`
   color: rgba(255, 255, 255, 0.7);
   font-size: 14px;
 `;
+
+export const NetworkQualityIndicator = styled(Icon)`
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  color: white;
+`;
