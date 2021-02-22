@@ -20,6 +20,7 @@ import { connect } from 'http2';
 import NewWindow from './NewWindow';
 import ScreenSharePicker from './ScreenSharePicker';
 import HoverMenu from './HoverMenu';
+import HiddenSelect from './HiddenSelect';
 
 export interface MapPanelProps {
   className?: string;
@@ -507,11 +508,12 @@ const MapPanel: React.FC<MapPanelProps> = ({
         {!small && (
           <S.CaretButtonWrapper>
             <S.CaretButton />
-            <select
+            <HiddenSelect
               onChange={(e) => {
                 const { value } = e.target;
                 console.log('Microphone CHANGED');
                 setLocalAudioInputDeviceId(value);
+                console.log('active el', document.activeElement);
               }}
               value={localAudioInputDeviceId}
             >
@@ -524,7 +526,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
                     </option>
                   );
                 })}
-            </select>
+            </HiddenSelect>
           </S.CaretButtonWrapper>
         )}
         <S.IconButton
@@ -541,7 +543,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
         {!small && (
           <S.CaretButtonWrapper>
             <S.CaretButton />
-            <select
+            <HiddenSelect
               onChange={(e) => {
                 const { value } = e.target;
                 setLocalVideoInputDeviceId(value);
@@ -557,7 +559,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
                     </option>
                   );
                 })}
-            </select>
+            </HiddenSelect>
           </S.CaretButtonWrapper>
         )}
         <S.IconButton
@@ -570,7 +572,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
         {!small && (
           <S.CaretButtonWrapper>
             <S.CaretButton />
-            <select
+            <HiddenSelect
               onChange={(e) => {
                 const { value } = e.target;
                 setLocalAudioOutputDeviceId(value);
@@ -586,7 +588,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
                     </option>
                   );
                 })}
-            </select>
+            </HiddenSelect>
           </S.CaretButtonWrapper>
         )}
         <S.ScreenShareButton

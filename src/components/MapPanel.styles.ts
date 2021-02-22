@@ -42,14 +42,6 @@ export const CaretButtonWrapper = styled.div`
   z-index: 1;
   margin-left: -10px;
   overflow: hidden;
-  select {
-    opacity: 0;
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-  }
   &:hover {
     ${CaretButton} {
       opacity: 1;
