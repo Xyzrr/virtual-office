@@ -6,7 +6,6 @@ import { useVolume } from '../util/useVolume';
 import ScreenSharePicker from './ScreenSharePicker';
 import HiddenSelect from './HiddenSelect';
 import VolumeIndicator from './VolumeIndicator';
-import Icon from './Icon';
 import circleButtonWithOptions from '../masks/circleButtonWithOptions.svg';
 
 export interface MainToolbarProps {
@@ -79,7 +78,7 @@ const MainToolbar: React.FC<MainToolbarProps> = ({ className, minimized }) => {
     <S.Wrapper className={className} minimized={minimized}>
       <S.IconButton color={localAudioInputEnabled ? undefined : 'danger'}>
         <S.IconButtonBackground
-          mask={circleButtonWithOptions}
+          mask={!minimized && circleButtonWithOptions}
           onClick={() => {
             if (localAudioInputEnabled) {
               disableLocalAudioInput();
@@ -121,7 +120,7 @@ const MainToolbar: React.FC<MainToolbarProps> = ({ className, minimized }) => {
 
       <S.IconButton color={localVideoInputEnabled ? undefined : 'danger'}>
         <S.IconButtonBackground
-          mask={circleButtonWithOptions}
+          mask={!minimized && circleButtonWithOptions}
           onClick={() => {
             if (localVideoInputEnabled) {
               disableLocalVideoInput();
@@ -158,7 +157,7 @@ const MainToolbar: React.FC<MainToolbarProps> = ({ className, minimized }) => {
       </S.IconButton>
       <S.IconButton color={localAudioOutputEnabled ? undefined : 'danger'}>
         <S.IconButtonBackground
-          mask={circleButtonWithOptions}
+          mask={!minimized && circleButtonWithOptions}
           onClick={() => {
             setLocalAudioOutputEnabled(!localAudioOutputEnabled);
           }}

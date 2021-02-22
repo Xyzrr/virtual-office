@@ -32,6 +32,7 @@ export const IconButtonIcon = styled(Icon)`
 export const IconButton = styled.div<{
   color?: string;
 }>`
+  flex-shrink: 0;
   position: relative;
   height: 56px;
   width: 56px;
@@ -89,26 +90,10 @@ export const CaretButtonWrapper = styled.div`
   bottom: 0px;
   background: rgba(120, 120, 120, 0.4);
   border-radius: 50%;
-
+  overflow: hidden;
   &:hover {
     background: rgba(160, 160, 160, 0.4);
   }
-`;
-
-export const ScreenShareButton = styled(Icon)<{ active?: boolean }>`
-  padding: 8px;
-  color: white;
-  cursor: pointer;
-  opacity: 0.5;
-  &:hover {
-    opacity: 1 !important;
-  }
-  ${(props) =>
-    props.active &&
-    css`
-      color: lime;
-      opacity: 1 !important;
-    `}
 `;
 
 export const Wrapper = styled.div<{ minimized?: boolean }>`
@@ -117,4 +102,20 @@ export const Wrapper = styled.div<{ minimized?: boolean }>`
   bottom: 24px;
   width: 100%;
   justify-content: center;
+  z-index: 2;
+
+  ${(props) =>
+    props.minimized &&
+    css`
+      top: 108px;
+      bottom: auto;
+      ${IconButton} {
+        margin-right: 8px;
+        width: 28px;
+        height: 28px;
+        .material-icons-outlined {
+          font-size: 18px;
+        }
+      }
+    `}
 `;
