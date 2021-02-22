@@ -77,17 +77,17 @@ const MainToolbar: React.FC<MainToolbarProps> = ({ className, minimized }) => {
 
   return (
     <S.Wrapper className={className} minimized={minimized}>
-      <S.IconButton
-        color={localAudioInputEnabled ? undefined : 'danger'}
-        onClick={() => {
-          if (localAudioInputEnabled) {
-            disableLocalAudioInput();
-          } else {
-            enableLocalAudioInput();
-          }
-        }}
-      >
-        <S.IconButtonBackground mask={circleButtonWithOptions} />
+      <S.IconButton color={localAudioInputEnabled ? undefined : 'danger'}>
+        <S.IconButtonBackground
+          mask={circleButtonWithOptions}
+          onClick={() => {
+            if (localAudioInputEnabled) {
+              disableLocalAudioInput();
+            } else {
+              enableLocalAudioInput();
+            }
+          }}
+        />
         {localAudioInputEnabled ? (
           <VolumeIndicator volume={volume}></VolumeIndicator>
         ) : (
@@ -119,17 +119,17 @@ const MainToolbar: React.FC<MainToolbarProps> = ({ className, minimized }) => {
         )}
       </S.IconButton>
 
-      <S.IconButton
-        color={localVideoInputEnabled ? undefined : 'danger'}
-        onClick={() => {
-          if (localVideoInputEnabled) {
-            disableLocalVideoInput();
-          } else {
-            enableLocalVideoInput();
-          }
-        }}
-      >
-        <S.IconButtonBackground mask={circleButtonWithOptions} />
+      <S.IconButton color={localVideoInputEnabled ? undefined : 'danger'}>
+        <S.IconButtonBackground
+          mask={circleButtonWithOptions}
+          onClick={() => {
+            if (localVideoInputEnabled) {
+              disableLocalVideoInput();
+            } else {
+              enableLocalVideoInput();
+            }
+          }}
+        />
         <S.IconButtonIcon
           name={localVideoInputEnabled ? 'videocam' : 'videocam_off'}
         ></S.IconButtonIcon>
@@ -156,13 +156,13 @@ const MainToolbar: React.FC<MainToolbarProps> = ({ className, minimized }) => {
           </S.CaretButtonWrapper>
         )}
       </S.IconButton>
-      <S.IconButton
-        color={localAudioOutputEnabled ? undefined : 'danger'}
-        onClick={() => {
-          setLocalAudioOutputEnabled(!localAudioOutputEnabled);
-        }}
-      >
-        <S.IconButtonBackground mask={circleButtonWithOptions} />
+      <S.IconButton color={localAudioOutputEnabled ? undefined : 'danger'}>
+        <S.IconButtonBackground
+          mask={circleButtonWithOptions}
+          onClick={() => {
+            setLocalAudioOutputEnabled(!localAudioOutputEnabled);
+          }}
+        />
         <S.IconButtonIcon
           name={localAudioOutputEnabled ? 'volume_up' : 'volume_off'}
         ></S.IconButtonIcon>
@@ -190,17 +190,16 @@ const MainToolbar: React.FC<MainToolbarProps> = ({ className, minimized }) => {
         )}
       </S.IconButton>
 
-      <S.IconButton
-        color={localScreenShareEnabled ? 'good' : undefined}
-        onClick={() => {
-          if (localScreenShareEnabled) {
-            stopScreenShare();
-            return;
-          }
-          setScreenSharePickerOpen((o) => !o);
-        }}
-      >
-        <S.IconButtonBackground></S.IconButtonBackground>
+      <S.IconButton color={localScreenShareEnabled ? 'good' : undefined}>
+        <S.IconButtonBackground
+          onClick={() => {
+            if (localScreenShareEnabled) {
+              stopScreenShare();
+              return;
+            }
+            setScreenSharePickerOpen((o) => !o);
+          }}
+        ></S.IconButtonBackground>
         <S.IconButtonIcon
           name={localScreenShareEnabled ? 'stop_screen_share' : 'screen_share'}
         ></S.IconButtonIcon>
