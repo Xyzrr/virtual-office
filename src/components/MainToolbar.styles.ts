@@ -96,7 +96,7 @@ export const CaretButtonWrapper = styled.div`
   }
 `;
 
-export const Wrapper = styled.div<{ minimized?: boolean }>`
+export const Wrapper = styled.div<{ minimized?: boolean; hidden?: boolean }>`
   display: flex;
   position: absolute;
   bottom: 24px;
@@ -104,11 +104,25 @@ export const Wrapper = styled.div<{ minimized?: boolean }>`
   justify-content: center;
   z-index: 2;
 
+  transition: opacity 0.2s, transform 0.2s;
+  ${(props) =>
+    props.hidden &&
+    css`
+      opacity: 0;
+      transform: translateY(12px);
+    `}
+
   ${(props) =>
     props.minimized &&
     css`
       top: 108px;
       bottom: auto;
+
+      ${props.hidden &&
+      css`
+        transform: translateY(6px);
+      `}
+
       ${IconButton} {
         margin-right: 8px;
         width: 28px;

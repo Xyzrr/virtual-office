@@ -7,6 +7,7 @@ import ScreenSharePicker from './ScreenSharePicker';
 import HiddenSelect from './HiddenSelect';
 import VolumeIndicator from './VolumeIndicator';
 import circleButtonWithOptions from '../masks/circleButtonWithOptions.svg';
+import { useMouseIsIdle } from '../util/useMouseIsIdle';
 
 export interface MainToolbarProps {
   className?: string;
@@ -74,8 +75,11 @@ const MainToolbar: React.FC<MainToolbarProps> = ({ className, minimized }) => {
     navigator.mediaDevices.ondevicechange = updateDevices;
   }, []);
 
+  const mouseIsIdle = useMouseIsIdle();
+  console.log('IDLE', mouseIsIdle);
+
   return (
-    <S.Wrapper className={className} minimized={minimized}>
+    <S.Wrapper className={className} minimized={minimized} hidden={mouseIsIdle}>
       <S.IconButton color={localAudioInputEnabled ? undefined : 'danger'}>
         <S.IconButtonBackground
           mask={!minimized && circleButtonWithOptions}
