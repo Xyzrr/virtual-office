@@ -7,10 +7,25 @@ export const Wrapper = styled.div`
   width: 100vw;
   height: 100vh;
   overflow: auto;
-  -webkit-app-region: drag;
+  scrollbar-color: #222;
+  &::-webkit-scrollbar {
+    width: 12px;
+  }
+  &::-webkit-scrollbar-track {
+    background-color: #222;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: #333;
+    border-radius: 6px;
+    border: 4px solid #222;
+    &:hover {
+      background-color: #444;
+    }
+  }
 `;
 
 export const TopBar = styled.div`
+  -webkit-app-region: drag;
   width: 100%;
   height: 38px;
   background: #222;
