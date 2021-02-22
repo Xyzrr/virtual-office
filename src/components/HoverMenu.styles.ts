@@ -3,7 +3,7 @@ import Icon from './Icon';
 
 export const Menu = styled.div`
   display: flex;
-  background: rgba(20, 20, 20, 0.8);
+  background: rgba(20, 20, 20, 0.9);
   border-radius: 50%;
   padding: 4px;
 `;
@@ -32,6 +32,7 @@ export const MenuItem = styled(Icon)`
   color: white;
   cursor: pointer;
   opacity: 0.5;
+  font-size: 28px;
   &:hover {
     opacity: 1;
   }
