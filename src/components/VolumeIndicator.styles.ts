@@ -32,6 +32,6 @@ export const Wrapper = styled.div<{ volume: number }>`
   z-index: 1;
 
   ${CurrentVolumeWrapper} {
-    height: ${(props) => Math.floor(props.volume * 1000)}%;
+    height: ${(props) => Math.floor(props.volume * 200)}%;
   }
 `;

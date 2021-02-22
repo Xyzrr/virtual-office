@@ -50,6 +50,9 @@ export const IconButton = styled.div<{
           ${IconButtonBackground}, ${CaretButtonWrapper} {
             background: red;
             opacity: 1;
+            &:hover {
+              background: rgb(255, 60, 60);
+            }
           }
           ${IconButtonIcon}, ${CaretButton} {
             opacity: 1;
@@ -58,8 +61,11 @@ export const IconButton = styled.div<{
       : props.color === 'good'
       ? css`
           ${IconButtonBackground}, ${CaretButtonWrapper} {
-            background: lime;
+            background: rgb(0, 180, 0);
             opacity: 1;
+            &:hover {
+              background: rgb(60, 200, 60);
+            }
           }
           ${IconButtonIcon}, ${CaretButton} {
             opacity: 1;
@@ -109,4 +115,6 @@ export const Wrapper = styled.div<{ minimized?: boolean }>`
   display: flex;
   position: absolute;
   bottom: 24px;
+  width: 100%;
+  justify-content: center;
 `;

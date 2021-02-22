@@ -189,7 +189,6 @@ const MainToolbar: React.FC<MainToolbarProps> = ({ className, minimized }) => {
           </S.CaretButtonWrapper>
         )}
       </S.IconButton>
-
       <S.IconButton color={localScreenShareEnabled ? 'good' : undefined}>
         <S.IconButtonBackground
           onClick={() => {
