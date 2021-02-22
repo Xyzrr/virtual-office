@@ -7,20 +7,8 @@ import * as Colyseus from 'colyseus.js';
 import useResizeObserver from 'use-resize-observer';
 import * as _ from 'lodash';
 import * as TWEEN from '@tweenjs/tween.js';
-import { LocalMediaContext } from '../contexts/LocalMediaContext';
-import { useVolume } from '../util/useVolume';
-import { desktopCapturer } from 'electron';
-import {
-  createLocalTracks,
-  createLocalAudioTrack,
-  createLocalVideoTrack,
-  LocalVideoTrack,
-} from 'twilio-video';
-import { connect } from 'http2';
-import NewWindow from './NewWindow';
-import ScreenSharePicker from './ScreenSharePicker';
+
 import HoverMenu from './HoverMenu';
-import HiddenSelect from './HiddenSelect';
 
 export interface MapPanelProps {
   className?: string;
@@ -41,54 +29,6 @@ const MapPanel: React.FC<MapPanelProps> = ({
   onPlayerAudioEnabledChanged,
   onSetExpanded,
 }) => {
-  const {
-    localVideoInputEnabled,
-    localAudioInputEnabled,
-    localAudioOutputEnabled,
-    localScreenShareEnabled,
-    localAudioTrack,
-    localAudioInputDeviceId,
-    localAudioOutputDeviceId,
-    localVideoInputDeviceId,
-    enableLocalVideoInput,
-    disableLocalVideoInput,
-    enableLocalAudioInput,
-    disableLocalAudioInput,
-    setLocalAudioOutputEnabled,
-    setLocalAudioInputDeviceId,
-    setLocalAudioOutputDeviceId,
-    setLocalVideoInputDeviceId,
-    screenShare,
-    stopScreenShare,
-  } = React.useContext(LocalMediaContext);
-
-  const [mediaDevices, setMediaDevices] = React.useState<MediaDeviceInfo[]>([]);
-
-  const [volume, setVolume] = React.useState(0);
-  const [recentlyLoud, setRecentlyLoud] = React.useState(false);
-  const recentlyLoudTimerRef = React.useRef<number | null>(null);
-
-  const [screenSharePickerOpen, setScreenSharePickerOpen] = React.useState(
-    false
-  );
-
-  useVolume(localAudioTrack, (v) => {
-    setVolume(v);
-    if (v > 0.15) {
-      if (recentlyLoudTimerRef.current != null) {
-        window.clearTimeout(recentlyLoudTimerRef.current);
-        recentlyLoudTimerRef.current = null;
-      }
-
-      setRecentlyLoud(true);
-
-      recentlyLoudTimerRef.current = window.setTimeout(() => {
-        setRecentlyLoud(false);
-        recentlyLoudTimerRef.current = null;
-      }, 500);
-    }
-  });
-
   const wrapperRef = React.useRef<HTMLDivElement>(null);
   const windowSize = React.useRef<{ width: number; height: number }>({
     width: window.innerWidth,
@@ -458,18 +398,6 @@ const MapPanel: React.FC<MapPanelProps> = ({
     };
   }, [onKeyUp, onKeyDown]);
 
-  React.useEffect(() => {
-    const updateDevices = () => {
-      navigator.mediaDevices.enumerateDevices().then((devices) => {
-        setMediaDevices(devices);
-      });
-    };
-
-    updateDevices();
-
-    navigator.mediaDevices.ondevicechange = updateDevices;
-  }, []);
-
   return (
     <S.Wrapper className={className} ref={wrapperRef} small={small}>
       {small && (
@@ -482,136 +410,6 @@ const MapPanel: React.FC<MapPanelProps> = ({
           ></HoverMenuStyles.MenuItem>
         </HoverMenu>
       )}
-      <S.IconButtons>
-        <S.IconButton
-          name={localAudioInputEnabled ? 'mic' : 'mic_off'}
-          disabled={!localAudioInputEnabled}
-          forceDisplay={recentlyLoud}
-          onClick={() => {
-            if (localAudioInputEnabled) {
-              disableLocalAudioInput();
-            } else {
-              enableLocalAudioInput();
-            }
-          }}
-        />
-        {localAudioInputEnabled && (
-          <S.MicVolumeOverlayWrapper
-            style={{ height: 6 + volume * 100 }}
-            forceDisplay={recentlyLoud}
-          >
-            <S.MicVolumeOverlay name="mic"></S.MicVolumeOverlay>
-          </S.MicVolumeOverlayWrapper>
-        )}
-        {!small && (
-          <S.CaretButtonWrapper>
-            <S.CaretButton />
-            <HiddenSelect
-              onChange={(e) => {
-                const { value } = e.target;
-                console.log('Microphone CHANGED');
-                setLocalAudioInputDeviceId(value);
-                console.log('active el', document.activeElement);
-              }}
-              value={localAudioInputDeviceId}
-            >
-              {mediaDevices
-                .filter((device) => device.kind === 'audioinput')
-                .map((device) => {
-                  return (
-                    <option key={device.deviceId} value={device.deviceId}>
-                      {device.label}
-                    </option>
-                  );
-                })}
-            </HiddenSelect>
-          </S.CaretButtonWrapper>
-        )}
-        <S.IconButton
-          name={localVideoInputEnabled ? 'videocam' : 'videocam_off'}
-          disabled={!localVideoInputEnabled}
-          onClick={() => {
-            if (localVideoInputEnabled) {
-              disableLocalVideoInput();
-            } else {
-              enableLocalVideoInput();
-            }
-          }}
-        />
-        {!small && (
-          <S.CaretButtonWrapper>
-            <S.CaretButton />
-            <HiddenSelect
-              onChange={(e) => {
-                const { value } = e.target;
-                setLocalVideoInputDeviceId(value);
-              }}
-              value={localVideoInputDeviceId}
-            >
-              {mediaDevices
-                .filter((device) => device.kind === 'videoinput')
-                .map((device) => {
-                  return (
-                    <option key={device.deviceId} value={device.deviceId}>
-                      {device.label}
-                    </option>
-                  );
-                })}
-            </HiddenSelect>
-          </S.CaretButtonWrapper>
-        )}
-        <S.IconButton
-          name={localAudioOutputEnabled ? 'volume_up' : 'volume_off'}
-          disabled={!localAudioOutputEnabled}
-          onClick={() => {
-            setLocalAudioOutputEnabled(!localAudioOutputEnabled);
-          }}
-        />
-        {!small && (
-          <S.CaretButtonWrapper>
-            <S.CaretButton />
-            <HiddenSelect
-              onChange={(e) => {
-                const { value } = e.target;
-                setLocalAudioOutputDeviceId(value);
-              }}
-              value={localAudioOutputDeviceId}
-            >
-              {mediaDevices
-                .filter((device) => device.kind === 'audiooutput')
-                .map((device) => {
-                  return (
-                    <option key={device.deviceId} value={device.deviceId}>
-                      {device.label}
-                    </option>
-                  );
-                })}
-            </HiddenSelect>
-          </S.CaretButtonWrapper>
-        )}
-        <S.ScreenShareButton
-          name={localScreenShareEnabled ? 'stop_screen_share' : 'screen_share'}
-          active={localScreenShareEnabled}
-          onClick={() => {
-            if (localScreenShareEnabled) {
-              stopScreenShare();
-              return;
-            }
-            setScreenSharePickerOpen((o) => !o);
-          }}
-        />
-      </S.IconButtons>
-      <ScreenSharePicker
-        open={screenSharePickerOpen}
-        onClose={() => {
-          setScreenSharePickerOpen(false);
-        }}
-        onStart={(id) => {
-          console.log('Started sharing screen', id);
-          setScreenSharePickerOpen(false);
-          screenShare(id);
-        }}
-      ></ScreenSharePicker>
     </S.Wrapper>
   );
 };

@@ -32,6 +32,7 @@ import { min } from 'lodash';
 import { LocalMediaContext } from './contexts/LocalMediaContext';
 import RemoteScreenPanel from './components/RemoteScreenPanel';
 import ScreenShareToolbar from './components/ScreenShareToolbar';
+import MainToolbar from './components/MainToolbar';
 
 const local = false;
 
@@ -63,7 +64,7 @@ const Hello = () => {
     true
   );
   const [localAudioOutputEnabled, setLocalAudioOutputEnabled] = React.useState(
-    true
+    false
   );
   const [localScreenShareEnabled, setLocalScreenShareEnabled] = React.useState(
     false
@@ -900,6 +901,7 @@ const Hello = () => {
         <S.GlobalStyles minimized={minimized} focused={appFocused} />
         <S.DraggableBar />
         {panelElements}
+        <MainToolbar minimized={minimized} />
       </S.AppWrapper>
       <ScreenShareToolbar
         open={localScreenShareEnabled}

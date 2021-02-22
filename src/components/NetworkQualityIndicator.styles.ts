@@ -11,6 +11,9 @@ export const CurrentSignal = styled(Icon).attrs({
   name: 'signal_cellular_alt',
 })<{ networkQuality: number }>`
   overflow: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
   ${(props) =>
     props.networkQuality < 2
       ? css`
@@ -25,8 +28,6 @@ export const CurrentSignal = styled(Icon).attrs({
 export const MaxSignal = styled(Icon).attrs({
   name: 'signal_cellular_alt',
 })`
-  position: absolute;
-  top: 0;
-  left: 0;
   opacity: 0.25;
+  display: block;
 `;
