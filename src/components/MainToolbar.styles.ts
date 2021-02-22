@@ -14,7 +14,8 @@ export const IconButtonBackground = styled.div<{
   border-radius: 50%;
 
   &:hover {
-    background: rgb(160, 160, 160);
+    background: rgb(150, 150, 150);
+    opacity: 0.5;
   }
   ${(props) =>
     props.mask &&
@@ -27,6 +28,27 @@ export const IconButtonIcon = styled(Icon)`
   display: block;
   pointer-events: none;
   z-index: 1;
+`;
+
+export const CaretButton = styled(Icon).attrs({ name: 'expand_more' })`
+  color: white;
+  font-size: 16px;
+  padding: 2px;
+  display: block;
+  opacity: 0.5;
+`;
+
+export const CaretButtonWrapper = styled.div`
+  position: absolute;
+  z-index: 1;
+  right: 0px;
+  bottom: 0px;
+  background: rgba(120, 120, 120, 0.4);
+  border-radius: 50%;
+  overflow: hidden;
+  &:hover {
+    background: rgba(150, 150, 150, 0.5);
+  }
 `;
 
 export const IconButton = styled.div<{
@@ -73,27 +95,6 @@ export const IconButton = styled.div<{
           }
         `
       : ''}
-`;
-
-export const CaretButton = styled(Icon).attrs({ name: 'expand_more' })`
-  color: white;
-  font-size: 16px;
-  padding: 2px;
-  display: block;
-  opacity: 0.5;
-`;
-
-export const CaretButtonWrapper = styled.div`
-  position: absolute;
-  z-index: 1;
-  right: 0px;
-  bottom: 0px;
-  background: rgba(120, 120, 120, 0.4);
-  border-radius: 50%;
-  overflow: hidden;
-  &:hover {
-    background: rgba(160, 160, 160, 0.4);
-  }
 `;
 
 export const Wrapper = styled.div<{ minimized?: boolean; hidden?: boolean }>`
