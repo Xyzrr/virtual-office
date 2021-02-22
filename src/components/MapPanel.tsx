@@ -62,8 +62,6 @@ const MapPanel: React.FC<MapPanelProps> = ({
     stopScreenShare,
   } = React.useContext(LocalMediaContext);
 
-  console.log('MICROPHONE ID', localAudioInputDeviceId);
-
   const [mediaDevices, setMediaDevices] = React.useState<MediaDeviceInfo[]>([]);
 
   const [volume, setVolume] = React.useState(0);

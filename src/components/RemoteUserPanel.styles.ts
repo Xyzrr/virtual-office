@@ -1,5 +1,6 @@
 import styled, { css } from 'styled-components';
 import Icon from './Icon';
+import NetworkQualityIndicator from './NetworkQualityIndicator';
 
 export const Wrapper = styled.div<{ recentlyLoud: boolean }>`
   border-radius: 4px;
@@ -48,7 +49,7 @@ export const ReconnectingIndicator = styled.div`
   font-size: 14px;
 `;
 
-export const NetworkQualityIndicator = styled(Icon)`
+export const StyledNetworkQualityIndicator = styled(NetworkQualityIndicator)`
   position: absolute;
   bottom: 8px;
   right: 8px;

@@ -5,6 +5,7 @@ import React, { useContext } from 'react';
 import { useVolume } from '../util/useVolume';
 import { LocalMediaContext } from '../contexts/LocalMediaContext';
 import HoverMenu from './HoverMenu';
+import NetworkQualityIndicator from './NetworkQualityIndicator';
 
 export interface RemoteUserPanelProps {
   className?: string;
@@ -119,18 +120,8 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = ({
       {reconnecting && (
         <S.ReconnectingIndicator>Reconnecting...</S.ReconnectingIndicator>
       )}
-      {networkQuality && (
-        <S.NetworkQualityIndicator
-          name={
-            networkQuality < 2
-              ? 'signal_wifi_1_bar'
-              : networkQuality < 4
-              ? 'signal_wifi_2_bar'
-              : networkQuality < 5
-              ? 'signal_wifi_3_bar'
-              : 'signal_wifi_4_bar'
-          }
-        ></S.NetworkQualityIndicator>
+      {networkQuality != null && (
+        <S.StyledNetworkQualityIndicator networkQuality={networkQuality} />
       )}
       <S.StatusIcons>
         {!audioEnabled && <S.StatusIcon name="mic_off"></S.StatusIcon>}
