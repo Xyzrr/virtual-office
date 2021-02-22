@@ -1,4 +1,6 @@
 import * as S from './MapPanel.styles';
+import * as HoverMenuStyles from './HoverMenu.styles';
+
 import React from 'react';
 import * as PIXI from 'pixi.js';
 import * as Colyseus from 'colyseus.js';
@@ -17,6 +19,7 @@ import {
 import { connect } from 'http2';
 import NewWindow from './NewWindow';
 import ScreenSharePicker from './ScreenSharePicker';
+import HoverMenu from './HoverMenu';
 
 export interface MapPanelProps {
   className?: string;
@@ -25,6 +28,7 @@ export interface MapPanelProps {
   small: boolean;
   onPlayerDistanceChanged(identity: string, distance: number): void;
   onPlayerAudioEnabledChanged(identity: string, audioEnabled: boolean): void;
+  onSetExpanded(value: boolean): void;
 }
 
 const MapPanel: React.FC<MapPanelProps> = ({
@@ -34,6 +38,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
   small,
   onPlayerDistanceChanged,
   onPlayerAudioEnabledChanged,
+  onSetExpanded,
 }) => {
   const {
     localVideoInputEnabled,
@@ -468,6 +473,16 @@ const MapPanel: React.FC<MapPanelProps> = ({
 
   return (
     <S.Wrapper className={className} ref={wrapperRef} small={small}>
+      {small && (
+        <HoverMenu>
+          <HoverMenuStyles.MenuItem
+            name={small ? 'fullscreen' : 'fullscreen_exit'}
+            onClick={() => {
+              onSetExpanded(!!small);
+            }}
+          ></HoverMenuStyles.MenuItem>
+        </HoverMenu>
+      )}
       <S.IconButtons>
         <S.IconButton
           name={localAudioInputEnabled ? 'mic' : 'mic_off'}

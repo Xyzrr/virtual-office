@@ -439,6 +439,15 @@ const Hello = () => {
             }}
             colyseusRoom={colyseusRoom}
             small={small}
+            onSetExpanded={(value) => {
+              if (minimized) {
+                setMinimized(false);
+              }
+
+              if (value) {
+                setExpandedPanels([key]);
+              }
+            }}
           />
         </S.PanelWrapper>
       );

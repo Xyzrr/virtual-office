@@ -3,7 +3,7 @@ import Icon from './Icon';
 
 export const Menu = styled.div`
   display: flex;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(20, 20, 20, 0.8);
   border-radius: 50%;
   padding: 4px;
 `;
