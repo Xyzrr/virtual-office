@@ -100,11 +100,11 @@ const Hello = () => {
   );
 
   const createLocalVideoTrackOptions: CreateLocalTrackOptions = {
-    // width: 16,
-    // height: 9,
+    width: 16,
+    height: 9,
     name: `camera-${uuid()}`,
-    width: 1920,
-    height: 1080,
+    // width: 1920,
+    // height: 1080,
     deviceId: localVideoInputDeviceId,
   };
 

@@ -19,11 +19,11 @@ export const useFakeMinimize = () => {
       if (e.key === 'm' && e.metaKey) {
         e.preventDefault();
 
-        if (!e.shiftKey && !minimized) {
+        if (!minimized) {
           minimize();
         }
 
-        if (e.shiftKey && minimized) {
+        if (minimized) {
           unminimize();
         }
       }
