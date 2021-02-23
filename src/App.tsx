@@ -97,6 +97,7 @@ const App: React.FC = () => {
     [identity: string]: ActiveParticipant;
   }>({});
   const [expandedPanels, setExpandedPanels] = React.useState<string[]>(['map']);
+  const [smallPanelsScrollY, setSmallPanelsScrollY] = React.useState(0);
   const [windowSize, setWindowSize] = React.useState({
     width: window.innerWidth,
     height: window.innerHeight,
@@ -429,7 +430,7 @@ const App: React.FC = () => {
       width = 240;
       x = 8;
       height = 135;
-      y = nextSmallPanelY;
+      y = nextSmallPanelY - smallPanelsScrollY;
       nextSmallPanelY += height + 8;
     } else {
       x = 0;
@@ -502,7 +503,7 @@ const App: React.FC = () => {
         width = 240;
         x = 8;
         height = 435;
-        y = nextSmallPanelY;
+        y = nextSmallPanelY - smallPanelsScrollY;
         nextSmallPanelY += height + 8;
       } else {
         x = 0;
@@ -591,7 +592,7 @@ const App: React.FC = () => {
         width = 240 * scale;
         x = 8;
         height = 435 * scale;
-        y = nextSmallPanelY;
+        y = nextSmallPanelY - smallPanelsScrollY;
         nextSmallPanelY += height + 8;
       } else {
         x = 0;
@@ -681,7 +682,7 @@ const App: React.FC = () => {
         width = 240 * scale;
         x = 8;
         height = 135 * scale;
-        y = nextSmallPanelY;
+        y = nextSmallPanelY - smallPanelsScrollY;
         nextSmallPanelY += height + 8;
       } else {
         x = 0;
@@ -752,6 +753,24 @@ const App: React.FC = () => {
       Math.floor(nextSmallPanelY)
     );
   }, [nextSmallPanelY, minimized]);
+
+  React.useEffect(() => {
+    const onWheel = (e: WheelEvent) => {
+      if (e.x > window.innerWidth - 256 && e.x < window.innerWidth) {
+        setSmallPanelsScrollY((y) =>
+          Math.max(
+            0,
+            Math.min(nextSmallPanelY - window.innerHeight, y + e.deltaY)
+          )
+        );
+      }
+    };
+
+    window.addEventListener('wheel', onWheel);
+    return () => {
+      window.removeEventListener('wheel', onWheel);
+    };
+  }, [nextSmallPanelY]);
 
   const stopScreenShare = React.useCallback(() => {
     twilioRoom?.localParticipant.videoTracks.forEach((publication) => {
