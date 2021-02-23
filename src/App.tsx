@@ -501,7 +501,7 @@ const App: React.FC = () => {
       if (small) {
         width = 240;
         x = 8;
-        height = 135;
+        height = 435;
         y = nextSmallPanelY;
         nextSmallPanelY += height + 8;
       } else {
@@ -590,7 +590,7 @@ const App: React.FC = () => {
       if (small) {
         width = 240 * scale;
         x = 8;
-        height = 135 * scale;
+        height = 435 * scale;
         y = nextSmallPanelY;
         nextSmallPanelY += height + 8;
       } else {
