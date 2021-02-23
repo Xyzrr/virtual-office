@@ -540,6 +540,21 @@ const App: React.FC = () => {
     }
   })();
 
+  React.useEffect(() => {
+    Object.entries(activeParticipants).forEach(([identity, ap]) => {
+      const { distance } = ap;
+      let key = `remote-user-${identity}`;
+
+      if (
+        distance != null &&
+        distance > MAX_INTERACTION_DISTANCE &&
+        expandedPanels.includes(key)
+      ) {
+        setExpandedPanels(['map']);
+      }
+    });
+  }, [activeParticipants]);
+
   Object.entries(activeParticipants).forEach(([identity, ap]) => {
     const { sid, distance, audioEnabled } = ap;
 
