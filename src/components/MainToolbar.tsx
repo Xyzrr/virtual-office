@@ -70,9 +70,15 @@ const MainToolbar: React.FC<MainToolbarProps> = ({ className, minimized }) => {
       });
     };
 
+    navigator.mediaDevices.addEventListener('ondevicechange', updateDevices);
     updateDevices();
 
-    navigator.mediaDevices.ondevicechange = updateDevices;
+    return () => {
+      navigator.mediaDevices.removeEventListener(
+        'ondevicechange',
+        updateDevices
+      );
+    };
   }, []);
 
   const mouseIsIdle = useMouseIsIdle();
