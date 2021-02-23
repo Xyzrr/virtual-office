@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { StyleSheetManager } from 'styled-components';
+import electron from 'electron';
+import { ipcRenderer } from 'electron/renderer';
 
 function copyStyles(sourceDoc: Document, targetDoc: Document) {
   Array.from(sourceDoc.styleSheets).forEach((styleSheet) => {
@@ -38,10 +40,9 @@ const NewWindow: React.FC<NewWindowProps> = ({
   children,
   onClose,
 }) => {
-  //TODO: figure out whether I actually need to create a child element or if I can just use body
-  const containerEl = React.useMemo(() => document.createElement('div'), [
-    open,
-  ]);
+  const [containerEl, setContainerEl] = React.useState(() =>
+    document.createElement('div')
+  );
   const newWindow = React.useRef<Window | null>(null);
 
   React.useEffect(() => {
@@ -49,7 +50,13 @@ const NewWindow: React.FC<NewWindowProps> = ({
       newWindow.current = window.open('', name);
 
       if (newWindow.current != null) {
-        newWindow.current.document.body.appendChild(containerEl);
+        // Need a new container because React bindings get lost somehow
+        // when reusing the same container.
+        const temp = document.createElement('div');
+        setContainerEl(temp);
+
+        newWindow.current.document.body.appendChild(temp);
+
         copyStyles(window.document, newWindow.current.document);
 
         newWindow.current.addEventListener('beforeunload', () => {
@@ -57,14 +64,15 @@ const NewWindow: React.FC<NewWindowProps> = ({
         });
       }
     } else {
-      newWindow.current?.close();
+      electron.ipcRenderer.invoke('close', name);
       newWindow.current = null;
     }
   }, [open]);
 
-  if (!open) {
-    return null;
-  }
+  // TODO(john): figure out how to save memory without white-screening?
+  // if (!open) {
+  //   return null;
+  // }
 
   return (
     <StyleSheetManager target={newWindow.current?.document.body}>

@@ -18,6 +18,7 @@ import MenuBuilder from './menu';
 import { electron } from 'process';
 import { Rectangle } from 'electron/main';
 import { centerOnParent } from './util/electron-helpers';
+import ScreenSharePicker from './components/ScreenSharePicker';
 
 export default class AppUpdater {
   constructor() {
@@ -28,6 +29,8 @@ export default class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null;
+let screenSharePicker: BrowserWindow | undefined;
+let screenShareToolbar: BrowserWindow | undefined;
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -69,9 +72,6 @@ const createWindow = async () => {
   const getAssetPath = (...paths: string[]): string => {
     return path.join(RESOURCES_PATH, ...paths);
   };
-
-  let screenSharePicker: BrowserWindow | undefined;
-  let screenShareToolbar: BrowserWindow | undefined;
 
   mainWindow = new BrowserWindow({
     title: 'Virtual Office',
@@ -129,13 +129,18 @@ const createWindow = async () => {
           resizable: false,
           transparent: false,
           parent: mainWindow!,
-          backgroundColor: '#222',
+          show: false,
         });
 
         event.newGuest = screenSharePicker;
 
+        screenSharePicker.setBackgroundColor('#222');
         screenSharePicker.setMaximizable(false);
         screenSharePicker.setMinimizable(false);
+
+        screenSharePicker.once('ready-to-show', () => {
+          screenSharePicker?.show();
+        });
 
         centerOnParent(screenSharePicker);
 
@@ -157,14 +162,19 @@ const createWindow = async () => {
           minHeight: undefined,
           resizable: false,
           transparent: false,
-          backgroundColor: '#222',
+          show: false,
         });
 
         event.newGuest = screenShareToolbar;
 
+        screenShareToolbar.setBackgroundColor('#222');
         screenShareToolbar.setWindowButtonVisibility(false);
         screenShareToolbar.setAlwaysOnTop(true);
         screenShareToolbar.setContentProtection(true);
+
+        screenShareToolbar.once('ready-to-show', () => {
+          screenShareToolbar?.show();
+        });
 
         return;
       }
@@ -201,6 +211,17 @@ app.on('activate', () => {
 
 let previousMinimizedPosition: number[] | null = null;
 let previousUnminimizedBounds: Rectangle | null = null;
+
+ipcMain.handle('close', (e, windowName: string) => {
+  if (windowName === 'screen-share-picker') {
+    screenSharePicker?.hide();
+    screenSharePicker?.close();
+  }
+  if (windowName === 'screen-share-toolbar') {
+    screenShareToolbar?.hide();
+    screenShareToolbar?.close();
+  }
+});
 
 ipcMain.handle('unminimize', () => {
   if (mainWindow == null) {
