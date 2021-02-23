@@ -951,7 +951,10 @@ const App: React.FC = () => {
         <S.GlobalStyles minimized={minimized} focused={appFocused} />
         <S.DraggableBar />
         {panelElements}
-        <MainToolbar minimized={minimized} />
+        <MainToolbar
+          minimized={minimized}
+          smallPanelsScrollY={smallPanelsScrollY}
+        />
       </S.AppWrapper>
       <ScreenShareToolbar
         open={localScreenShareEnabled}

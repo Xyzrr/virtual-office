@@ -97,7 +97,11 @@ export const IconButton = styled.div<{
       : ''}
 `;
 
-export const Wrapper = styled.div<{ minimized?: boolean; hidden?: boolean }>`
+export const Wrapper = styled.div<{
+  minimized?: boolean;
+  hidden?: boolean;
+  smallPanelsScrollY: number;
+}>`
   display: flex;
   position: absolute;
   bottom: 16px;
@@ -116,7 +120,7 @@ export const Wrapper = styled.div<{ minimized?: boolean; hidden?: boolean }>`
   ${(props) =>
     props.minimized &&
     css`
-      top: 108px;
+      top: ${108 - props.smallPanelsScrollY}px;
       bottom: auto;
 
       ${props.hidden &&

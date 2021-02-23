@@ -12,9 +12,16 @@ import { useMouseIsIdle } from '../util/useMouseIsIdle';
 export interface MainToolbarProps {
   className?: string;
   minimized?: boolean;
+
+  // TODO: This is an ugly way to handle scrolling. Switch to portals in the future.
+  smallPanelsScrollY: number;
 }
 
-const MainToolbar: React.FC<MainToolbarProps> = ({ className, minimized }) => {
+const MainToolbar: React.FC<MainToolbarProps> = ({
+  className,
+  minimized,
+  smallPanelsScrollY,
+}) => {
   const [screenSharePickerOpen, setScreenSharePickerOpen] = React.useState(
     false
   );
@@ -84,7 +91,12 @@ const MainToolbar: React.FC<MainToolbarProps> = ({ className, minimized }) => {
   const mouseIsIdle = useMouseIsIdle();
 
   return (
-    <S.Wrapper className={className} minimized={minimized} hidden={mouseIsIdle}>
+    <S.Wrapper
+      className={className}
+      minimized={minimized}
+      hidden={mouseIsIdle}
+      smallPanelsScrollY={smallPanelsScrollY}
+    >
       <S.IconButton color={localAudioInputEnabled ? undefined : 'danger'}>
         <S.IconButtonBackground
           mask={minimized ? undefined : circleButtonWithOptions}
