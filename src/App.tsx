@@ -90,6 +90,8 @@ const Hello = () => {
     MediaStreamTrack | undefined
   >();
 
+  const wasMinimizedWhenStartedScreenSharing = React.useRef(false);
+
   const [activeParticipants, setActiveParticipants] = React.useState<{
     [identity: string]: ActiveParticipant;
   }>({});
@@ -738,6 +740,10 @@ const Hello = () => {
       }
     });
     setLocalScreenShareEnabled(false);
+
+    if (!wasMinimizedWhenStartedScreenSharing.current) {
+      setMinimized(false);
+    }
   }, [twilioRoom]);
 
   return (
@@ -889,6 +895,7 @@ const Hello = () => {
             await twilioRoom?.localParticipant.publishTrack(screenTrack);
 
             setLocalScreenShareEnabled(true);
+            wasMinimizedWhenStartedScreenSharing.current = minimized;
             setMinimized(true);
           } catch (e) {
             console.log('Could not capture screen', e);
