@@ -33,6 +33,7 @@ import { LocalMediaContext } from './contexts/LocalMediaContext';
 import RemoteScreenPanel from './components/RemoteScreenPanel';
 import ScreenShareToolbar from './components/ScreenShareToolbar';
 import MainToolbar from './components/MainToolbar';
+import { MAX_INTERACTION_DISTANCE } from './components/constants';
 
 const local = false;
 
@@ -552,7 +553,7 @@ const App: React.FC = () => {
       return;
     }
 
-    if (distance > 6) {
+    if (distance > MAX_INTERACTION_DISTANCE) {
       return;
     }
 
@@ -564,7 +565,10 @@ const App: React.FC = () => {
       let key = `remote-user-${identity}`;
       let small = minimized || !expandedPanels.includes(key);
 
-      const scale = Math.min(1, 3 / (distance + 0.1));
+      const scale = Math.min(
+        1,
+        MAX_INTERACTION_DISTANCE / 2 / (distance + 0.1)
+      );
 
       if (small) {
         width = 240 * scale;
@@ -610,7 +614,7 @@ const App: React.FC = () => {
             videoTrack={videoTrack}
             audioTrack={audioTrack}
             audioEnabled={audioEnabled}
-            volumeMultiplier={scale ** 2}
+            distance={distance}
             reconnecting={ap.reconnecting}
             networkQuality={ap.networkQuality}
             small={small}

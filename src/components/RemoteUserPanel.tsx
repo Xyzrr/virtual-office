@@ -7,13 +7,14 @@ import { LocalMediaContext } from '../contexts/LocalMediaContext';
 import HoverMenu from './HoverMenu';
 import NetworkQualityIndicator from './NetworkQualityIndicator';
 import { useMouseIsIdle } from '../util/useMouseIsIdle';
+import { MAX_INTERACTION_DISTANCE } from './constants';
 
 export interface RemoteUserPanelProps {
   className?: string;
   videoTrack?: MediaStreamTrack;
   audioTrack?: MediaStreamTrack;
   audioEnabled: boolean;
-  volumeMultiplier: number;
+  distance: number;
   reconnecting?: boolean;
   networkQuality?: number;
   small?: boolean;
@@ -25,7 +26,7 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = ({
   videoTrack,
   audioTrack,
   audioEnabled,
-  volumeMultiplier,
+  distance,
   reconnecting,
   networkQuality,
   small,
@@ -40,6 +41,15 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = ({
   const { localAudioOutputDeviceId, localAudioOutputEnabled } = useContext(
     LocalMediaContext
   );
+
+  const scale = Math.min(1, MAX_INTERACTION_DISTANCE / 2 / (distance + 0.1));
+  const volumeMultiplier = scale ** 2;
+  const videoOpacity = small
+    ? 1
+    : Math.min(
+        1,
+        (2 * (MAX_INTERACTION_DISTANCE - distance)) / MAX_INTERACTION_DISTANCE
+      );
 
   React.useEffect(() => {
     const videoEl = videoRef.current;
@@ -122,6 +132,7 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = ({
       className={className}
       ref={wrapperRef}
       recentlyLoud={recentlyLoud}
+      videoOpacity={videoOpacity}
     >
       <video ref={videoRef} autoPlay></video>
       <audio ref={audioRef} autoPlay></audio>
