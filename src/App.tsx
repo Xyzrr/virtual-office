@@ -543,12 +543,14 @@ const App: React.FC = () => {
   React.useEffect(() => {
     Object.entries(activeParticipants).forEach(([identity, ap]) => {
       const { distance } = ap;
-      let key = `remote-user-${identity}`;
+      let cameraKey = `remote-user-${identity}`;
+      let screenKey = `remote-screen-${identity}`;
 
       if (
         distance != null &&
         distance > MAX_INTERACTION_DISTANCE &&
-        expandedPanels.includes(key)
+        (expandedPanels.includes(cameraKey) ||
+          expandedPanels.includes(screenKey))
       ) {
         setExpandedPanels(['map']);
       }
@@ -711,7 +713,8 @@ const App: React.FC = () => {
         >
           <RemoteScreenPanel
             videoTrack={videoTrack}
-            expanded={expandedPanels.includes(key)}
+            distance={distance}
+            small={small}
             onSetExpanded={(value) => {
               console.log('setting expanded', value, key);
 

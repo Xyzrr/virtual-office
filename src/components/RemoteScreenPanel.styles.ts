@@ -1,7 +1,7 @@
 import styled, { css } from 'styled-components';
 import Icon from './Icon';
 
-export const Wrapper = styled.div`
+export const Wrapper = styled.div<{ videoOpacity: number }>`
   border-radius: 4px;
   overflow: hidden;
   transition: box-shadow 0.15s;
@@ -12,6 +12,7 @@ export const Wrapper = styled.div`
     display: block;
     width: 100%;
     height: 100%;
+    opacity: ${(props) => props.videoOpacity};
   }
 `;
 

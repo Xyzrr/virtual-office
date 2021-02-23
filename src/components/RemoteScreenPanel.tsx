@@ -3,21 +3,31 @@ import * as HoverMenuStyles from './HoverMenu.styles';
 
 import React from 'react';
 import HoverMenu from './HoverMenu';
+import { MAX_INTERACTION_DISTANCE } from './constants';
 
 export interface RemoteScreenPanelProps {
   className?: string;
   videoTrack?: MediaStreamTrack;
-  expanded?: boolean;
+  distance: number;
+  small?: boolean;
   onSetExpanded(value: boolean): void;
 }
 
 const RemoteScreenPanel: React.FC<RemoteScreenPanelProps> = ({
   className,
   videoTrack,
-  expanded,
+  distance,
+  small,
   onSetExpanded,
 }) => {
   const videoRef = React.useRef<HTMLVideoElement>(null);
+
+  const videoOpacity = small
+    ? 1
+    : Math.min(
+        1,
+        (2 * (MAX_INTERACTION_DISTANCE - distance)) / MAX_INTERACTION_DISTANCE
+      );
 
   React.useEffect(() => {
     const videoEl = videoRef.current;
@@ -36,13 +46,13 @@ const RemoteScreenPanel: React.FC<RemoteScreenPanelProps> = ({
   }, [videoTrack]);
 
   return (
-    <S.Wrapper className={className}>
+    <S.Wrapper className={className} videoOpacity={videoOpacity}>
       <video ref={videoRef} autoPlay></video>
       <HoverMenu>
         <HoverMenuStyles.MenuItem
-          name={expanded ? 'fullscreen_exit' : 'fullscreen'}
+          name={small ? 'fullscreen' : 'fullscreen_exit'}
           onClick={() => {
-            onSetExpanded(!expanded);
+            onSetExpanded(!!small);
           }}
         ></HoverMenuStyles.MenuItem>
       </HoverMenu>
