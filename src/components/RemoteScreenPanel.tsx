@@ -4,6 +4,7 @@ import * as HoverMenuStyles from './HoverMenu.styles';
 import React from 'react';
 import HoverMenu from './HoverMenu';
 import { MAX_INTERACTION_DISTANCE } from './constants';
+import { useMouseIsIdle } from '../util/useMouseIsIdle';
 
 export interface RemoteScreenPanelProps {
   className?: string;
@@ -20,6 +21,7 @@ const RemoteScreenPanel: React.FC<RemoteScreenPanelProps> = ({
   small,
   onSetExpanded,
 }) => {
+  const wrapperRef = React.useRef<HTMLDivElement>(null);
   const videoRef = React.useRef<HTMLVideoElement>(null);
 
   const videoOpacity = small
@@ -45,10 +47,16 @@ const RemoteScreenPanel: React.FC<RemoteScreenPanelProps> = ({
     };
   }, [videoTrack]);
 
+  const mouseIsIdle = useMouseIsIdle({ containerRef: wrapperRef });
+
   return (
-    <S.Wrapper className={className} videoOpacity={videoOpacity}>
+    <S.Wrapper
+      className={className}
+      ref={wrapperRef}
+      videoOpacity={videoOpacity}
+    >
       <video ref={videoRef} autoPlay></video>
-      <HoverMenu>
+      <HoverMenu hidden={mouseIsIdle}>
         <HoverMenuStyles.MenuItem
           name={small ? 'fullscreen' : 'fullscreen_exit'}
           onClick={() => {
