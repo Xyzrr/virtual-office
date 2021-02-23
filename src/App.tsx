@@ -105,11 +105,9 @@ const Hello = () => {
   );
 
   const createLocalVideoTrackOptions: CreateLocalTrackOptions = {
-    width: 16,
-    height: 9,
     name: `camera-${uuid()}`,
-    // width: 1920,
-    // height: 1080,
+    width: process.env.LOW_POWER ? 16 : 1920,
+    height: process.env.LOW_POWER ? 9 : 1080,
     deviceId: localVideoInputDeviceId,
   };
 
@@ -143,10 +141,17 @@ const Hello = () => {
 
         /** Initialize local tracks */
 
-        const localAudioTwilioTrack = await createLocalAudioTrack();
-        setLocalAudioTrack(localAudioTwilioTrack.mediaStreamTrack);
-        const localTracks: LocalTrack[] = [localAudioTwilioTrack];
-        // const localTracks: LocalTrack[] = [];
+        const localTracks: LocalTrack[] = [];
+
+        if (!process.env.NO_AUDIO) {
+          const localAudioTwilioTrack = await createLocalAudioTrack();
+          setLocalAudioTrack(localAudioTwilioTrack.mediaStreamTrack);
+          localTracks.push(localAudioTwilioTrack);
+
+          if (!localAudioInputEnabled) {
+            localAudioTwilioTrack.disable();
+          }
+        }
 
         if (localVideoInputEnabled) {
           const localVideoTwilioTrack = await createLocalVideoTrack(
@@ -154,12 +159,6 @@ const Hello = () => {
           );
           setLocalVideoTrack(localVideoTwilioTrack.mediaStreamTrack);
           localTracks.push(localVideoTwilioTrack);
-        }
-
-        console.log('local', localTracks);
-
-        if (!localAudioInputEnabled) {
-          localAudioTwilioTrack.disable();
         }
 
         /** Connect to Twilio */
