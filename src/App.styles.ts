@@ -68,6 +68,7 @@ export const PanelWrapper = styled.div<{
   small?: boolean;
   xDirection: 'left' | 'right';
 }>`
+  transition: width .2s, height .2s, transform .2s, z-index .2s;
   position: absolute;
   background: rgba(255, 255, 255, 0.2);
   z-index: 0;
