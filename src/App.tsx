@@ -591,7 +591,7 @@ const App: React.FC = () => {
       if (small) {
         width = 240 * scale;
         x = 8;
-        height = 435 * scale;
+        height = 1435 * scale;
         y = nextSmallPanelY - smallPanelsScrollY;
         nextSmallPanelY += height + 8;
       } else {
@@ -750,7 +750,10 @@ const App: React.FC = () => {
 
     electron.ipcRenderer.invoke(
       'updateMinimizedHeight',
-      Math.floor(nextSmallPanelY)
+      Math.min(
+        window.screen.availHeight - window.screenY,
+        Math.floor(nextSmallPanelY)
+      )
     );
   }, [nextSmallPanelY, minimized]);
 
