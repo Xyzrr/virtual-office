@@ -430,7 +430,7 @@ const App: React.FC = () => {
       width = 240;
       x = 8;
       height = 135;
-      y = nextSmallPanelY - smallPanelsScrollY;
+      y = nextSmallPanelY;
       nextSmallPanelY += height + 8;
     } else {
       x = 0;
@@ -951,10 +951,7 @@ const App: React.FC = () => {
         <S.GlobalStyles minimized={minimized} focused={appFocused} />
         <S.DraggableBar />
         {panelElements}
-        <MainToolbar
-          minimized={minimized}
-          smallPanelsScrollY={smallPanelsScrollY}
-        />
+        <MainToolbar minimized={minimized} />
       </S.AppWrapper>
       <ScreenShareToolbar
         open={localScreenShareEnabled}
