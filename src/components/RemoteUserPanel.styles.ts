@@ -6,6 +6,7 @@ export const Wrapper = styled.div<{
   recentlyLoud: boolean;
   videoOpacity: number;
 }>`
+  position: relative;
   border-radius: 4px;
   overflow: hidden;
   transition: box-shadow 0.15s;

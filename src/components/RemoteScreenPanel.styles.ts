@@ -2,6 +2,7 @@ import styled, { css } from 'styled-components';
 import Icon from './Icon';
 
 export const Wrapper = styled.div<{ videoOpacity: number }>`
+  position: relative;
   border-radius: 4px;
   overflow: hidden;
   transition: box-shadow 0.15s;

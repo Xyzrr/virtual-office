@@ -3,6 +3,7 @@ import styled from 'styled-components';
 export const Wrapper = styled.div<{
   small: boolean;
 }>`
+  position: relative;
   border-radius: 4px;
   overflow: hidden;
   height: 100%;

@@ -1,6 +1,7 @@
 import styled, { css } from 'styled-components';
 
 export const Wrapper = styled.div<{ recentlyLoud: boolean }>`
+  position: relative;
   border-radius: 4px;
   overflow: hidden;
   transition: box-shadow 0.15s;
