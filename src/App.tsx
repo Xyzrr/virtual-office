@@ -71,16 +71,16 @@ const App: React.FC = () => {
   const [localScreenShareEnabled, setLocalScreenShareEnabled] = React.useState(
     false
   );
-  const [localAudioInputDeviceId, setLocalAudioInputDeviceId] = React.useState(
-    'default'
-  );
+  const [localAudioInputDeviceId, setLocalAudioInputDeviceId] = React.useState<
+    string | undefined
+  >();
   const [
     localAudioOutputDeviceId,
     setLocalAudioOutputDeviceId,
   ] = React.useState('default');
-  const [localVideoInputDeviceId, setLocalVideoInputDeviceId] = React.useState(
-    'default'
-  );
+  const [localVideoInputDeviceId, setLocalVideoInputDeviceId] = React.useState<
+    string | undefined
+  >();
 
   const [localAudioTrack, setLocalAudioTrack] = React.useState<
     MediaStreamTrack | undefined

@@ -8,9 +8,9 @@ interface LocalMediaContextValue {
   localAudioTrack?: MediaStreamTrack;
   localVideoTrack?: MediaStreamTrack;
   localScreenVideoTrack?: MediaStreamTrack;
-  localAudioInputDeviceId: string;
+  localAudioInputDeviceId?: string;
   localAudioOutputDeviceId: string;
-  localVideoInputDeviceId: string;
+  localVideoInputDeviceId?: string;
   enableLocalVideoInput(): void;
   disableLocalVideoInput(): void;
   enableLocalAudioInput(): void;

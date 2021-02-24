@@ -25,6 +25,7 @@ const MainToolbar: React.FC<MainToolbarProps> = ({ className, minimized }) => {
     localAudioOutputEnabled,
     localScreenShareEnabled,
     localAudioTrack,
+    localVideoTrack,
     localAudioInputDeviceId,
     localAudioOutputDeviceId,
     localVideoInputDeviceId,
@@ -111,7 +112,10 @@ const MainToolbar: React.FC<MainToolbarProps> = ({ className, minimized }) => {
                 setLocalAudioInputDeviceId(value);
                 console.log('active el', document.activeElement);
               }}
-              value={localAudioInputDeviceId}
+              value={
+                localAudioInputDeviceId ||
+                localAudioTrack?.getSettings().deviceId
+              }
             >
               {mediaDevices
                 .filter((device) => device.kind === 'audioinput')
@@ -149,7 +153,10 @@ const MainToolbar: React.FC<MainToolbarProps> = ({ className, minimized }) => {
                 const { value } = e.target;
                 setLocalVideoInputDeviceId(value);
               }}
-              value={localVideoInputDeviceId}
+              value={
+                localVideoInputDeviceId ||
+                localVideoTrack?.getSettings().deviceId
+              }
             >
               {mediaDevices
                 .filter((device) => device.kind === 'videoinput')

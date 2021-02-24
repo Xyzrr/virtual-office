@@ -172,6 +172,8 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
       };
       requestAnimationFrame(animate);
 
+      console.log('PLAYERS', colyseusRoom.state.players);
+
       colyseusRoom.state.players.onAdd = (player: any, sessionId: any) => {
         console.log('Colyseus player added', player);
 
