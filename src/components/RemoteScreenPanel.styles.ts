@@ -15,7 +15,6 @@ export const Wrapper = styled.div<{ videoOpacity: number }>`
     width: 100%;
     height: 100%;
     opacity: ${(props) => props.videoOpacity};
-    background: black;
   }
 `;
 
