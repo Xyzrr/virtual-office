@@ -1,4 +1,5 @@
 import styled, { createGlobalStyle, css } from 'styled-components';
+import * as PanelWrapperStyles from './components/PanelWrapper.styles';
 
 export const GlobalStyles = createGlobalStyle<{
   minimized?: boolean;
@@ -13,7 +14,7 @@ export const GlobalStyles = createGlobalStyle<{
   ${(props) =>
     props.minimized
       ? css`
-          ${AppWrapper}, ${PanelWrapper} {
+          ${AppWrapper}, ${PanelWrapperStyles.Wrapper} {
             -webkit-app-region: drag !important;
           }
           ${AppWrapper} {
@@ -36,7 +37,7 @@ export const GlobalStyles = createGlobalStyle<{
       ${(props) =>
         props.focused &&
         css`
-          ${PanelWrapper} {
+          ${PanelWrapperStyles.Wrapper} {
             box-shadow: 0px 2px 5px 1px rgba(0, 0, 0, 0.7),
               0px 0px 0 1px rgba(255, 255, 255, 0.2) !important;
           }
@@ -58,42 +59,4 @@ export const DraggableBar = styled.div`
   &:hover {
     background: rgba(255, 255, 255, 0.1);
   }
-`;
-
-export const PanelWrapper = styled.div<{
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  small?: boolean;
-  xDirection: 'left' | 'right';
-}>`
-  // transition: width .2s, height .2s, transform .2s, z-index .2s;
-  position: absolute;
-  background: rgba(255, 255, 255, 0.2);
-  z-index: 0;
-  top: 0;
-  ${(props) =>
-    props.xDirection === 'left'
-      ? css`
-          right: 0;
-        `
-      : css`
-          left: 0;
-        `}
-  transform: translate(
-    ${(props) => props.x * (props.xDirection === 'left' ? -1 : 1)}px,
-    ${(props) => props.y}px
-  );
-  width: ${(props) => props.width}px;
-  height: ${(props) => props.height}px;
-  border-radius: 4px;
-  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.4),
-    0px 0px 0 1px rgba(255, 255, 255, 0.08);
-  ${(props) =>
-    props.small &&
-    css`
-      z-index: 2;
-      -webkit-app-region: no-drag;
-    `}
 `;

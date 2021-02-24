@@ -34,6 +34,7 @@ import RemoteScreenPanel from './components/RemoteScreenPanel';
 import ScreenShareToolbar from './components/ScreenShareToolbar';
 import MainToolbar from './components/MainToolbar';
 import { MAX_INTERACTION_DISTANCE } from './components/constants';
+import PanelWrapper from './components/PanelWrapper';
 
 const local = false;
 
@@ -441,7 +442,7 @@ const App: React.FC = () => {
 
     if (colyseusRoom != null) {
       panelElements.push(
-        <S.PanelWrapper
+        <PanelWrapper
           key={key}
           x={x}
           y={y}
@@ -485,7 +486,7 @@ const App: React.FC = () => {
               }
             }}
           />
-        </S.PanelWrapper>
+        </PanelWrapper>
       );
     }
   })();
@@ -513,7 +514,7 @@ const App: React.FC = () => {
       }
 
       panelElements.push(
-        <S.PanelWrapper
+        <PanelWrapper
           key={key}
           x={x}
           y={y}
@@ -521,6 +522,7 @@ const App: React.FC = () => {
           height={height}
           small={small}
           xDirection="left"
+          minY={small && !expandedPanels.includes('map') ? 135 + 16 : undefined}
         >
           <LocalUserPanel
             small={small}
@@ -536,7 +538,7 @@ const App: React.FC = () => {
               }
             }}
           />
-        </S.PanelWrapper>
+        </PanelWrapper>
       );
     }
   })();
@@ -619,7 +621,7 @@ const App: React.FC = () => {
       });
 
       panelElements.push(
-        <S.PanelWrapper
+        <PanelWrapper
           key={key}
           x={x}
           y={y}
@@ -627,6 +629,7 @@ const App: React.FC = () => {
           height={height}
           small={small}
           xDirection="left"
+          minY={small && !expandedPanels.includes('map') ? 135 + 16 : undefined}
         >
           <RemoteUserPanel
             videoTrack={videoTrack}
@@ -660,7 +663,7 @@ const App: React.FC = () => {
               }
             }}
           />
-        </S.PanelWrapper>
+        </PanelWrapper>
       );
     })();
 
@@ -703,7 +706,7 @@ const App: React.FC = () => {
       });
 
       panelElements.push(
-        <S.PanelWrapper
+        <PanelWrapper
           key={key}
           x={x}
           y={y}
@@ -711,6 +714,7 @@ const App: React.FC = () => {
           height={height}
           small={small}
           xDirection="left"
+          minY={small && !expandedPanels.includes('map') ? 135 + 16 : undefined}
         >
           <RemoteScreenPanel
             videoTrack={videoTrack}
@@ -738,7 +742,7 @@ const App: React.FC = () => {
               }
             }}
           />
-        </S.PanelWrapper>
+        </PanelWrapper>
       );
     })();
   });
