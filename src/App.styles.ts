@@ -31,14 +31,16 @@ export const GlobalStyles = createGlobalStyle<{
             -webkit-app-region: drag;
           }
           ${AppWrapper} {
-            background: black;
+            background: black !important;
           }
         `}
       ${(props) =>
         props.focused &&
         css`
           ${AppWrapper} {
-            background: rgba(80, 80, 80, 0.4) !important;
+            && {
+              background: rgba(80, 80, 80, 0.4);
+            }
           }
         `}
 `;

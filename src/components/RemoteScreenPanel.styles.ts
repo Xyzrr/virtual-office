@@ -8,12 +8,13 @@ export const Wrapper = styled.div<{ videoOpacity: number }>`
   box-shadow: 0 0 0 2px rgba(0, 255, 0, 0);
   width: 100%;
   height: 100%;
-  background: rgba(255, 255, 255, 0.2);
+  background: black;
   video {
     display: block;
     width: 100%;
     height: 100%;
     opacity: ${(props) => props.videoOpacity};
+    background: black;
   }
 `;
 
