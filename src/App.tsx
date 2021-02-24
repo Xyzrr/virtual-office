@@ -446,9 +446,9 @@ const App: React.FC = () => {
           key={key}
           x={x}
           y={y}
+          z={small ? 3 : 0}
           width={width}
           height={height}
-          small={small}
           xDirection="left"
         >
           <MapPanel
@@ -518,9 +518,9 @@ const App: React.FC = () => {
           key={key}
           x={x}
           y={y}
+          z={small ? 2 : 0}
           width={width}
           height={height}
-          small={small}
           xDirection="left"
           minY={small && !expandedPanels.includes('map') ? 135 + 16 : undefined}
         >
@@ -625,9 +625,9 @@ const App: React.FC = () => {
           key={key}
           x={x}
           y={y}
+          z={small ? 2 : 0}
           width={width}
           height={height}
-          small={small}
           xDirection="left"
           minY={small && !expandedPanels.includes('map') ? 135 + 16 : undefined}
         >
@@ -710,9 +710,9 @@ const App: React.FC = () => {
           key={key}
           x={x}
           y={y}
+          z={small ? 2 : 0}
           width={width}
           height={height}
-          small={small}
           xDirection="left"
           minY={small && !expandedPanels.includes('map') ? 135 + 16 : undefined}
         >

@@ -3,6 +3,7 @@ import styled, { css } from 'styled-components';
 interface WrapperProps {
   x: number;
   y: number;
+  z?: number;
   width: number;
   height: number;
   small?: boolean;
@@ -44,10 +45,5 @@ export const Wrapper = styled.div<WrapperProps>`
     border-radius: 4px;
     box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.4),
       0px 0px 0 1px rgba(255, 255, 255, 0.08);
-    ${(props) =>
-      props.small &&
-      css`
-        z-index: 2;
-        -webkit-app-region: no-drag;
-      `}
+    z-index: ${(props) => props.z || 0};
   `;

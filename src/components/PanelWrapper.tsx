@@ -5,9 +5,9 @@ export interface PanelWrapperProps {
   className?: string;
   x: number;
   y: number;
+  z?: number;
   width: number;
   height: number;
-  small?: boolean;
   xDirection: 'left' | 'right';
   minY?: number;
 }
@@ -16,9 +16,9 @@ const PanelWrapper: React.FC<PanelWrapperProps> = ({
   className,
   x,
   y,
+  z,
   width,
   height,
-  small,
   xDirection,
   minY,
   children,
@@ -28,9 +28,9 @@ const PanelWrapper: React.FC<PanelWrapperProps> = ({
       className={className}
       x={x}
       y={y}
+      z={z}
       width={width}
       height={height}
-      small={small}
       xDirection={xDirection}
       minY={minY}
     >
