@@ -12,8 +12,8 @@ const VolumeIndicator: React.FC<VolumeIndicatorProps> = ({
 }) => {
   return (
     <S.Wrapper className={className} volume={volume}>
-      <S.CurrentVolumeWrapper>
-        <S.CurrentVolume volume={volume} />
+      <S.CurrentVolumeWrapper style={{ height: Math.floor(volume * 200) }}>
+        <S.CurrentVolume />
       </S.CurrentVolumeWrapper>
       <S.MaxVolume />
     </S.Wrapper>

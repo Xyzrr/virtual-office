@@ -10,7 +10,7 @@ export const CurrentVolumeWrapper = styled.div`
 `;
 export const CurrentVolume = styled(Icon).attrs({
   name: 'mic',
-})<{ volume: number }>`
+})`
   position: absolute;
   color: lime;
   overflow: hidden;
@@ -30,8 +30,4 @@ export const Wrapper = styled.div<{ volume: number }>`
   position: relative;
   pointer-events: none;
   z-index: 1;
-
-  ${CurrentVolumeWrapper} {
-    height: ${(props) => Math.floor(props.volume * 200)}%;
-  }
 `;
