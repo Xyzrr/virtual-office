@@ -25,28 +25,33 @@ const PanelWrapper: React.FC<PanelWrapperProps> = ({
 }) => {
   return (
     <S.Wrapper
-      className={className}
       style={{
-        WebkitMaskImage:
-          minY == null || y >= minY
-            ? undefined
-            : `linear-gradient(
-            to bottom,
-            rgba(0, 0, 0, 0),
-            rgba(0, 0, 0, 0) ${-y + minY - 8}px,
-            rgba(0, 0, 0, 1) ${-y + minY + 8}px
-          )`,
         transform: `translate(
-            ${x * (xDirection === 'left' ? -1 : 1)}px,
-            ${y}px
-          )`,
+          ${x * (xDirection === 'left' ? -1 : 1)}px,
+          ${y}px
+        )`,
         width,
         height,
       }}
       z={z}
       xDirection={xDirection}
     >
-      {children}
+      <S.InnerWrapper
+        className={className}
+        style={{
+          WebkitMaskImage:
+            minY == null || y >= minY
+              ? undefined
+              : `linear-gradient(
+            to bottom,
+            rgba(0, 0, 0, 0),
+            rgba(0, 0, 0, 0) ${-y + minY - 4}px,
+            rgba(0, 0, 0, 1) ${-y + minY + 4}px
+          )`,
+        }}
+      >
+        {children}
+      </S.InnerWrapper>
     </S.Wrapper>
   );
 };
