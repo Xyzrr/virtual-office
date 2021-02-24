@@ -419,6 +419,8 @@ const App: React.FC = () => {
   let nextSmallPanelY = 8;
   const panelElements: React.ReactNode[] = [];
 
+  let mapIsSmall: boolean;
+
   (() => {
     let x: number;
     let y: number;
@@ -426,6 +428,7 @@ const App: React.FC = () => {
     let height: number;
     let key = 'map';
     let small = minimized || !expandedPanels.includes(key);
+    mapIsSmall = small;
 
     if (small) {
       width = 240;
@@ -522,7 +525,7 @@ const App: React.FC = () => {
           width={width}
           height={height}
           xDirection="left"
-          minY={small && !expandedPanels.includes('map') ? 135 + 16 : undefined}
+          minY={small && mapIsSmall ? 135 + 16 : undefined}
         >
           <LocalUserPanel
             small={small}
@@ -629,7 +632,7 @@ const App: React.FC = () => {
           width={width}
           height={height}
           xDirection="left"
-          minY={small && !expandedPanels.includes('map') ? 135 + 16 : undefined}
+          minY={small && mapIsSmall ? 135 + 16 : undefined}
         >
           <RemoteUserPanel
             videoTrack={videoTrack}
@@ -714,7 +717,7 @@ const App: React.FC = () => {
           width={width}
           height={height}
           xDirection="left"
-          minY={small && !expandedPanels.includes('map') ? 135 + 16 : undefined}
+          minY={small && mapIsSmall ? 135 + 16 : undefined}
         >
           <RemoteScreenPanel
             videoTrack={videoTrack}
