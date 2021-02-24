@@ -12,7 +12,6 @@ export const Wrapper = styled.div<{
   position: absolute;
   z-index: ${(props) => props.z || 0};
   top: 0;
-  border-radius: 4px;
   ${(props) =>
     props.xDirection === 'left'
       ? css`
@@ -24,6 +23,7 @@ export const Wrapper = styled.div<{
 `;
 
 export const InnerWrapper = styled.div`
+  border-radius: 4px;
   background: rgba(255, 255, 255, 0.2);
   height: 100%;
 `;

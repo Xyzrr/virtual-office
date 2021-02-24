@@ -37,9 +37,8 @@ export const GlobalStyles = createGlobalStyle<{
       ${(props) =>
         props.focused &&
         css`
-          ${PanelWrapperStyles.Wrapper} {
-            // box-shadow: 0px 2px 5px 1px rgba(0, 0, 0, 0.7),
-            //   0px 0px 0 1px rgba(255, 255, 255, 0.2) !important;
+          ${AppWrapper} {
+            background: rgba(80, 80, 80, 0.4) !important;
           }
         `}
 `;
