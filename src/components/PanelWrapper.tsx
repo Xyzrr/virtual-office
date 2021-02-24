@@ -27,11 +27,11 @@ const PanelWrapper: React.FC<PanelWrapperProps> = ({
     <S.Wrapper
       style={{
         transform: `translate(
-          ${x * (xDirection === 'left' ? -1 : 1)}px,
-          ${y}px
+          ${(x - 8) * (xDirection === 'left' ? -1 : 1)}px,
+          ${y - 8}px
         )`,
-        width,
-        height,
+        width: width + 16,
+        height: height + 16,
       }}
       z={z}
       xDirection={xDirection}
@@ -45,8 +45,8 @@ const PanelWrapper: React.FC<PanelWrapperProps> = ({
               : `linear-gradient(
             to bottom,
             rgba(0, 0, 0, 0),
-            rgba(0, 0, 0, 0) ${-y + minY - 4}px,
-            rgba(0, 0, 0, 1) ${-y + minY + 4}px
+            rgba(0, 0, 0, 0) ${-y + minY - 4 + 8}px,
+            rgba(0, 0, 0, 1) ${-y + minY + 4 + 8}px
           )`,
         }}
       >

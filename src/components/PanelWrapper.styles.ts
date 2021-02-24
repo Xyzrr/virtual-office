@@ -24,6 +24,7 @@ export const Wrapper = styled.div<{
 
 export const InnerWrapper = styled.div`
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.2);
   height: 100%;
+  // padding adds room for a border around the panel
+  padding: 8px;
 `;

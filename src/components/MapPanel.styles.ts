@@ -1,5 +1,4 @@
-import styled, { css } from 'styled-components';
-import Icon from './Icon';
+import styled from 'styled-components';
 
 export const Wrapper = styled.div<{
   small: boolean;
@@ -7,6 +6,7 @@ export const Wrapper = styled.div<{
   border-radius: 4px;
   overflow: hidden;
   height: 100%;
+  background: rgba(255, 255, 255, 0.2);
   canvas {
     display: block;
   }
