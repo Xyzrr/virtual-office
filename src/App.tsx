@@ -927,10 +927,10 @@ const App: React.FC = () => {
                 mandatory: {
                   chromeMediaSource: 'desktop',
                   chromeMediaSourceId: id,
-                  minWidth: 1280,
-                  maxWidth: 1280,
-                  minHeight: 720,
-                  maxHeight: 720,
+                  // minWidth: 1280,
+                  // maxWidth: 1280,
+                  // minHeight: 720,
+                  // maxHeight: 720,
                 },
               },
             } as any);

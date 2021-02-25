@@ -50,7 +50,48 @@ const RemoteScreenPanel: React.FC<RemoteScreenPanelProps> = React.memo(
         ref={wrapperRef}
         videoOpacity={videoOpacity}
       >
-        <video ref={videoRef} autoPlay></video>
+        <video
+          ref={videoRef}
+          autoPlay
+          onMouseMove={(e) => {
+            const settings = videoTrack?.getSettings();
+            if (
+              settings == null ||
+              settings.width == null ||
+              settings.height == null
+            ) {
+              return;
+            }
+
+            const screenAspectRatio = settings.width / settings.height;
+            const panelBounds = e.currentTarget.getBoundingClientRect();
+            const panelAspectRatio = panelBounds.width / panelBounds.height;
+            const mouseX = e.clientX - panelBounds.x;
+            const mouseY = e.clientY - panelBounds.y;
+
+            console.log('stream size', settings.width, settings.height);
+            console.log('panel size', panelBounds.width, panelBounds.height);
+
+            let xp: number;
+            let yp: number;
+
+            if (screenAspectRatio < panelAspectRatio) {
+              yp = mouseY / panelBounds.height;
+              const screenProjectedWidth =
+                panelBounds.height * screenAspectRatio;
+              const xOffset = (panelBounds.width - screenProjectedWidth) / 2;
+              xp = (mouseX - xOffset) / screenProjectedWidth;
+            } else {
+              xp = mouseX / panelBounds.width;
+              const screenProjectedHeight =
+                panelBounds.width / screenAspectRatio;
+              const yOffset = (panelBounds.height - screenProjectedHeight) / 2;
+              yp = (mouseY - yOffset) / screenProjectedHeight;
+            }
+
+            console.log('xpyp', xp, yp);
+          }}
+        ></video>
         <HoverMenu hidden={mouseIsIdle}>
           <HoverMenuStyles.MenuItem
             name={small ? 'fullscreen' : 'fullscreen_exit'}
