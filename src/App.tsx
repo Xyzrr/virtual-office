@@ -445,51 +445,45 @@ const App: React.FC = () => {
 
     if (colyseusRoom != null) {
       panelElements.push(
-        <PanelWrapper
-          key={key}
+        <MapPanel
           x={x}
           y={y}
-          z={small ? 2 : 0}
           width={width}
           height={height}
-          xDirection="left"
-        >
-          <MapPanel
-            localPlayerIdentity={identity}
-            onPlayerAudioEnabledChanged={(identity, audioEnabled) => {
-              console.log('heard audio change');
-              setActiveParticipants((aps) => {
-                return produce(aps, (draft) => {
-                  if (draft[identity] == null) {
-                    draft[identity] = {};
-                  }
-                  draft[identity].audioEnabled = audioEnabled;
-                });
-              });
-            }}
-            onPlayerDistanceChanged={(identity, distance) => {
-              setActiveParticipants((aps) => {
-                return produce(aps, (draft) => {
-                  if (draft[identity] == null) {
-                    draft[identity] = {};
-                  }
-                  draft[identity].distance = distance;
-                });
-              });
-            }}
-            colyseusRoom={colyseusRoom}
-            small={small}
-            onSetExpanded={(value) => {
-              if (value) {
-                if (minimized) {
-                  setMinimized(false);
+          localPlayerIdentity={identity}
+          onPlayerAudioEnabledChanged={(identity, audioEnabled) => {
+            console.log('heard audio change');
+            setActiveParticipants((aps) => {
+              return produce(aps, (draft) => {
+                if (draft[identity] == null) {
+                  draft[identity] = {};
                 }
-
-                setExpandedPanels([key]);
+                draft[identity].audioEnabled = audioEnabled;
+              });
+            });
+          }}
+          onPlayerDistanceChanged={(identity, distance) => {
+            setActiveParticipants((aps) => {
+              return produce(aps, (draft) => {
+                if (draft[identity] == null) {
+                  draft[identity] = {};
+                }
+                draft[identity].distance = distance;
+              });
+            });
+          }}
+          colyseusRoom={colyseusRoom}
+          small={small}
+          onSetExpanded={(value) => {
+            if (value) {
+              if (minimized) {
+                setMinimized(false);
               }
-            }}
-          />
-        </PanelWrapper>
+
+              setExpandedPanels([key]);
+            }
+          }}
+        />
       );
     }
   })();
@@ -517,31 +511,25 @@ const App: React.FC = () => {
       }
 
       panelElements.push(
-        <PanelWrapper
-          key={key}
+        <LocalUserPanel
           x={x}
           y={y}
-          z={small ? 2 : 0}
           width={width}
           height={height}
-          xDirection="left"
           minY={small && mapIsSmall ? 135 + 16 : undefined}
-        >
-          <LocalUserPanel
-            small={small}
-            onSetExpanded={(value) => {
-              if (value) {
-                if (minimized) {
-                  setMinimized(false);
-                }
-
-                setExpandedPanels([key]);
-              } else {
-                setExpandedPanels(['map']);
+          small={small}
+          onSetExpanded={(value) => {
+            if (value) {
+              if (minimized) {
+                setMinimized(false);
               }
-            }}
-          />
-        </PanelWrapper>
+
+              setExpandedPanels([key]);
+            } else {
+              setExpandedPanels(['map']);
+            }
+          }}
+        />
       );
     }
   })();
@@ -643,49 +631,43 @@ const App: React.FC = () => {
       });
 
       panelElements.push(
-        <PanelWrapper
-          key={key}
+        <RemoteUserPanel
           x={x}
           y={y}
-          z={small ? 2 : 0}
           width={width}
           height={height}
-          xDirection="left"
           minY={small && mapIsSmall ? 135 + 16 : undefined}
-        >
-          <RemoteUserPanel
-            videoTrack={videoTrack}
-            audioTrack={audioTrack}
-            audioEnabled={audioEnabled}
-            distance={distance}
-            reconnecting={ap.reconnecting}
-            networkQuality={ap.networkQuality}
-            small={small}
-            onSetExpanded={(value) => {
-              if (value) {
-                if (minimized) {
-                  setMinimized(false);
-                }
-
-                participant.videoTracks.forEach((publication) => {
-                  if (publication.trackName.startsWith('camera')) {
-                    publication.track?.setPriority('high');
-                  }
-                });
-
-                setExpandedPanels([key]);
-              } else {
-                participant.videoTracks.forEach((publication) => {
-                  if (publication.trackName.startsWith('camera')) {
-                    publication.track?.setPriority('low');
-                  }
-                });
-
-                setExpandedPanels(['map']);
+          videoTrack={videoTrack}
+          audioTrack={audioTrack}
+          audioEnabled={audioEnabled}
+          distance={distance}
+          reconnecting={ap.reconnecting}
+          networkQuality={ap.networkQuality}
+          small={small}
+          onSetExpanded={(value) => {
+            if (value) {
+              if (minimized) {
+                setMinimized(false);
               }
-            }}
-          />
-        </PanelWrapper>
+
+              participant.videoTracks.forEach((publication) => {
+                if (publication.trackName.startsWith('camera')) {
+                  publication.track?.setPriority('high');
+                }
+              });
+
+              setExpandedPanels([key]);
+            } else {
+              participant.videoTracks.forEach((publication) => {
+                if (publication.trackName.startsWith('camera')) {
+                  publication.track?.setPriority('low');
+                }
+              });
+
+              setExpandedPanels(['map']);
+            }
+          }}
+        />
       );
     })();
 
@@ -728,50 +710,42 @@ const App: React.FC = () => {
       });
 
       panelElements.push(
-        <PanelWrapper
-          key={key}
+        <RemoteScreenPanel
           x={x}
           y={y}
-          z={small ? 2 : 0}
           width={width}
           height={height}
-          xDirection="left"
           minY={small && mapIsSmall ? 135 + 16 : undefined}
-        >
-          <RemoteScreenPanel
-            videoTrack={videoTrack}
-            distance={distance}
-            small={small}
-            onSetExpanded={(value) => {
-              if (value) {
-                if (minimized) {
-                  setMinimized(false);
-                }
-
-                participant.videoTracks.forEach((publication) => {
-                  if (publication.trackName.startsWith('screen')) {
-                    publication.track?.setPriority('high');
-                  }
-                });
-
-                setExpandedPanels([key]);
-              } else {
-                participant.videoTracks.forEach((publication) => {
-                  if (publication.trackName.startsWith('screen')) {
-                    publication.track?.setPriority('low');
-                  }
-                });
-
-                setExpandedPanels(['map']);
+          videoTrack={videoTrack}
+          distance={distance}
+          small={small}
+          onSetExpanded={(value) => {
+            if (value) {
+              if (minimized) {
+                setMinimized(false);
               }
-            }}
-          />
-        </PanelWrapper>
+
+              participant.videoTracks.forEach((publication) => {
+                if (publication.trackName.startsWith('screen')) {
+                  publication.track?.setPriority('high');
+                }
+              });
+
+              setExpandedPanels([key]);
+            } else {
+              participant.videoTracks.forEach((publication) => {
+                if (publication.trackName.startsWith('screen')) {
+                  publication.track?.setPriority('low');
+                }
+              });
+
+              setExpandedPanels(['map']);
+            }
+          }}
+        />
       );
     })();
   });
-
-  console.log('app render, wtf');
 
   React.useEffect(() => {
     if (!minimized) {

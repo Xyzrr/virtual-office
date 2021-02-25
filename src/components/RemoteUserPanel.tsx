@@ -11,6 +11,13 @@ import { MAX_INTERACTION_DISTANCE } from './constants';
 
 export interface RemoteUserPanelProps {
   className?: string;
+
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  minY?: number;
+
   videoTrack?: MediaStreamTrack;
   audioTrack?: MediaStreamTrack;
   audioEnabled: boolean;
@@ -24,6 +31,11 @@ export interface RemoteUserPanelProps {
 const RemoteUserPanel: React.FC<RemoteUserPanelProps> = React.memo(
   ({
     className,
+    x,
+    y,
+    width,
+    height,
+    minY,
     videoTrack,
     audioTrack,
     audioEnabled,
@@ -129,32 +141,42 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = React.memo(
     const mouseIsIdle = useMouseIsIdle({ containerRef: wrapperRef });
 
     return (
-      <S.Wrapper
-        className={className}
-        ref={wrapperRef}
-        recentlyLoud={recentlyLoud}
-        videoOpacity={videoOpacity}
+      <PanelWrapper
+        x={x}
+        y={y}
+        z={small ? 2 : 0}
+        width={width}
+        height={height}
+        xDirection="left"
+        minY={minY}
       >
-        <video ref={videoRef} autoPlay></video>
-        <audio ref={audioRef} autoPlay></audio>
-        {reconnecting && (
-          <S.ReconnectingIndicator>Reconnecting...</S.ReconnectingIndicator>
-        )}
-        {networkQuality != null && (
-          <S.StyledNetworkQualityIndicator networkQuality={networkQuality} />
-        )}
-        <S.StatusIcons>
-          {!audioEnabled && <S.StatusIcon name="mic_off"></S.StatusIcon>}
-        </S.StatusIcons>
-        <HoverMenu hidden={mouseIsIdle}>
-          <HoverMenuStyles.MenuItem
-            name={small ? 'fullscreen' : 'fullscreen_exit'}
-            onClick={() => {
-              onSetExpanded(!!small);
-            }}
-          ></HoverMenuStyles.MenuItem>
-        </HoverMenu>
-      </S.Wrapper>
+        <S.Wrapper
+          className={className}
+          ref={wrapperRef}
+          recentlyLoud={recentlyLoud}
+          videoOpacity={videoOpacity}
+        >
+          <video ref={videoRef} autoPlay></video>
+          <audio ref={audioRef} autoPlay></audio>
+          {reconnecting && (
+            <S.ReconnectingIndicator>Reconnecting...</S.ReconnectingIndicator>
+          )}
+          {networkQuality != null && (
+            <S.StyledNetworkQualityIndicator networkQuality={networkQuality} />
+          )}
+          <S.StatusIcons>
+            {!audioEnabled && <S.StatusIcon name="mic_off"></S.StatusIcon>}
+          </S.StatusIcons>
+          <HoverMenu hidden={mouseIsIdle}>
+            <HoverMenuStyles.MenuItem
+              name={small ? 'fullscreen' : 'fullscreen_exit'}
+              onClick={() => {
+                onSetExpanded(!!small);
+              }}
+            ></HoverMenuStyles.MenuItem>
+          </HoverMenu>
+        </S.Wrapper>
+      </PanelWrapper>
     );
   }
 );

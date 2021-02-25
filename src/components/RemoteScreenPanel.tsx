@@ -5,9 +5,17 @@ import React from 'react';
 import HoverMenu from './HoverMenu';
 import { MAX_INTERACTION_DISTANCE } from './constants';
 import { useMouseIsIdle } from '../util/useMouseIsIdle';
+import PanelWrapper from './PanelWrapper';
 
 export interface RemoteScreenPanelProps {
   className?: string;
+
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  minY?: number;
+
   videoTrack?: MediaStreamTrack;
   distance: number;
   small?: boolean;
@@ -15,7 +23,18 @@ export interface RemoteScreenPanelProps {
 }
 
 const RemoteScreenPanel: React.FC<RemoteScreenPanelProps> = React.memo(
-  ({ className, videoTrack, distance, small, onSetExpanded }) => {
+  ({
+    className,
+    x,
+    y,
+    width,
+    height,
+    minY,
+    videoTrack,
+    distance,
+    small,
+    onSetExpanded,
+  }) => {
     const wrapperRef = React.useRef<HTMLDivElement>(null);
     const videoRef = React.useRef<HTMLVideoElement>(null);
 
@@ -45,62 +64,73 @@ const RemoteScreenPanel: React.FC<RemoteScreenPanelProps> = React.memo(
     const mouseIsIdle = useMouseIsIdle({ containerRef: wrapperRef });
 
     return (
-      <S.Wrapper
-        className={className}
-        ref={wrapperRef}
-        videoOpacity={videoOpacity}
+      <PanelWrapper
+        x={x}
+        y={y}
+        z={small ? 2 : 0}
+        width={width}
+        height={height}
+        xDirection="left"
+        minY={minY}
       >
-        <video
-          ref={videoRef}
-          autoPlay
-          onMouseMove={(e) => {
-            const settings = videoTrack?.getSettings();
-            if (
-              settings == null ||
-              settings.width == null ||
-              settings.height == null
-            ) {
-              return;
-            }
+        <S.Wrapper
+          className={className}
+          ref={wrapperRef}
+          videoOpacity={videoOpacity}
+        >
+          <video
+            ref={videoRef}
+            autoPlay
+            onMouseMove={(e) => {
+              const settings = videoTrack?.getSettings();
+              if (
+                settings == null ||
+                settings.width == null ||
+                settings.height == null
+              ) {
+                return;
+              }
 
-            const screenAspectRatio = settings.width / settings.height;
-            const panelBounds = e.currentTarget.getBoundingClientRect();
-            const panelAspectRatio = panelBounds.width / panelBounds.height;
-            const mouseX = e.clientX - panelBounds.x;
-            const mouseY = e.clientY - panelBounds.y;
+              const screenAspectRatio = settings.width / settings.height;
+              const panelBounds = e.currentTarget.getBoundingClientRect();
+              const panelAspectRatio = panelBounds.width / panelBounds.height;
+              const mouseX = e.clientX - panelBounds.x;
+              const mouseY = e.clientY - panelBounds.y;
 
-            console.log('stream size', settings.width, settings.height);
-            console.log('panel size', panelBounds.width, panelBounds.height);
+              console.log('stream size', settings.width, settings.height);
+              console.log('panel size', panelBounds.width, panelBounds.height);
 
-            let xp: number;
-            let yp: number;
+              let xp: number;
+              let yp: number;
 
-            if (screenAspectRatio < panelAspectRatio) {
-              yp = mouseY / panelBounds.height;
-              const screenProjectedWidth =
-                panelBounds.height * screenAspectRatio;
-              const xOffset = (panelBounds.width - screenProjectedWidth) / 2;
-              xp = (mouseX - xOffset) / screenProjectedWidth;
-            } else {
-              xp = mouseX / panelBounds.width;
-              const screenProjectedHeight =
-                panelBounds.width / screenAspectRatio;
-              const yOffset = (panelBounds.height - screenProjectedHeight) / 2;
-              yp = (mouseY - yOffset) / screenProjectedHeight;
-            }
+              if (screenAspectRatio < panelAspectRatio) {
+                yp = mouseY / panelBounds.height;
+                const screenProjectedWidth =
+                  panelBounds.height * screenAspectRatio;
+                const xOffset = (panelBounds.width - screenProjectedWidth) / 2;
+                xp = (mouseX - xOffset) / screenProjectedWidth;
+              } else {
+                xp = mouseX / panelBounds.width;
+                const screenProjectedHeight =
+                  panelBounds.width / screenAspectRatio;
+                const yOffset =
+                  (panelBounds.height - screenProjectedHeight) / 2;
+                yp = (mouseY - yOffset) / screenProjectedHeight;
+              }
 
-            console.log('xpyp', xp, yp);
-          }}
-        ></video>
-        <HoverMenu hidden={mouseIsIdle}>
-          <HoverMenuStyles.MenuItem
-            name={small ? 'fullscreen' : 'fullscreen_exit'}
-            onClick={() => {
-              onSetExpanded(!!small);
+              console.log('xpyp', xp, yp);
             }}
-          ></HoverMenuStyles.MenuItem>
-        </HoverMenu>
-      </S.Wrapper>
+          ></video>
+          <HoverMenu hidden={mouseIsIdle}>
+            <HoverMenuStyles.MenuItem
+              name={small ? 'fullscreen' : 'fullscreen_exit'}
+              onClick={() => {
+                onSetExpanded(!!small);
+              }}
+            ></HoverMenuStyles.MenuItem>
+          </HoverMenu>
+        </S.Wrapper>
+      </PanelWrapper>
     );
   }
 );

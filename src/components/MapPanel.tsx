@@ -10,9 +10,16 @@ import * as TWEEN from '@tweenjs/tween.js';
 
 import HoverMenu from './HoverMenu';
 import { useMouseIsIdle } from '../util/useMouseIsIdle';
+import PanelWrapper from './PanelWrapper';
 
 export interface MapPanelProps {
   className?: string;
+
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+
   localPlayerIdentity: string;
   colyseusRoom: Colyseus.Room;
   small: boolean;
@@ -24,6 +31,10 @@ export interface MapPanelProps {
 const MapPanel: React.FC<MapPanelProps> = React.memo(
   ({
     className,
+    x,
+    y,
+    width,
+    height,
     localPlayerIdentity,
     colyseusRoom,
     small,
@@ -408,18 +419,27 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
     const mouseIsIdle = useMouseIsIdle({ containerRef: wrapperRef });
 
     return (
-      <S.Wrapper className={className} ref={wrapperRef} small={small}>
-        {small && (
-          <HoverMenu hidden={mouseIsIdle}>
-            <HoverMenuStyles.MenuItem
-              name={small ? 'fullscreen' : 'fullscreen_exit'}
-              onClick={() => {
-                onSetExpanded(!!small);
-              }}
-            ></HoverMenuStyles.MenuItem>
-          </HoverMenu>
-        )}
-      </S.Wrapper>
+      <PanelWrapper
+        x={x}
+        y={y}
+        z={small ? 2 : 0}
+        width={width}
+        height={height}
+        xDirection="left"
+      >
+        <S.Wrapper className={className} ref={wrapperRef} small={small}>
+          {small && (
+            <HoverMenu hidden={mouseIsIdle}>
+              <HoverMenuStyles.MenuItem
+                name={small ? 'fullscreen' : 'fullscreen_exit'}
+                onClick={() => {
+                  onSetExpanded(!!small);
+                }}
+              ></HoverMenuStyles.MenuItem>
+            </HoverMenu>
+          )}
+        </S.Wrapper>
+      </PanelWrapper>
     );
   }
 );

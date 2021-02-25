@@ -6,15 +6,23 @@ import { useVolume } from '../util/useVolume';
 import HoverMenu from './HoverMenu';
 import { LocalMediaContext } from '../contexts/LocalMediaContext';
 import { useMouseIsIdle } from '../util/useMouseIsIdle';
+import PanelWrapper, { PanelWrapperProps } from './PanelWrapper';
 
 export interface LocalUserPanelProps {
   className?: string;
+
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  minY?: number;
+
   small?: boolean;
   onSetExpanded(value: boolean): void;
 }
 
 const LocalUserPanel: React.FC<LocalUserPanelProps> = React.memo(
-  ({ className, small, onSetExpanded }) => {
+  ({ className, x, y, width, height, minY, small, onSetExpanded }) => {
     const wrapperRef = React.useRef<HTMLDivElement>(null);
     const videoRef = React.useRef<HTMLVideoElement>(null);
     const [recentlyLoud, setRecentlyLoud] = React.useState(false);
@@ -63,21 +71,31 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = React.memo(
     const mouseIsIdle = useMouseIsIdle({ containerRef: wrapperRef });
 
     return (
-      <S.Wrapper
-        className={className}
-        ref={wrapperRef}
-        recentlyLoud={recentlyLoud}
+      <PanelWrapper
+        x={x}
+        y={y}
+        z={small ? 2 : 0}
+        width={width}
+        height={height}
+        xDirection="left"
+        minY={minY}
       >
-        <video ref={videoRef} autoPlay></video>
-        <HoverMenu hidden={mouseIsIdle}>
-          <HoverMenuStyles.MenuItem
-            name={small ? 'fullscreen' : 'fullscreen_exit'}
-            onClick={() => {
-              onSetExpanded(!!small);
-            }}
-          ></HoverMenuStyles.MenuItem>
-        </HoverMenu>
-      </S.Wrapper>
+        <S.Wrapper
+          className={className}
+          ref={wrapperRef}
+          recentlyLoud={recentlyLoud}
+        >
+          <video ref={videoRef} autoPlay></video>
+          <HoverMenu hidden={mouseIsIdle}>
+            <HoverMenuStyles.MenuItem
+              name={small ? 'fullscreen' : 'fullscreen_exit'}
+              onClick={() => {
+                onSetExpanded(!!small);
+              }}
+            ></HoverMenuStyles.MenuItem>
+          </HoverMenu>
+        </S.Wrapper>
+      </PanelWrapper>
     );
   }
 );
