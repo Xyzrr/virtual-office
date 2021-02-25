@@ -549,8 +549,8 @@ const App: React.FC = () => {
   React.useEffect(() => {
     Object.entries(activeParticipants).forEach(([identity, ap]) => {
       const { distance } = ap;
-      let cameraKey = `remote-user-${identity}`;
-      let screenKey = `remote-screen-${identity}`;
+      let cameraKey = `remote-user:${identity}`;
+      let screenKey = `remote-screen:${identity}`;
 
       if (
         distance != null &&
@@ -561,6 +561,25 @@ const App: React.FC = () => {
         setExpandedPanels(['map']);
       }
     });
+
+    for (const panel of expandedPanels) {
+      const [type, identity] = panel.split(':');
+
+      if (type === 'remote-user') {
+        if (activeParticipants[identity] == null) {
+          setExpandedPanels(['map']);
+        }
+      }
+
+      if (type === 'remote-screen') {
+        if (
+          activeParticipants[identity] == null ||
+          !activeParticipants[identity].screenSubscribed
+        ) {
+          setExpandedPanels(['map']);
+        }
+      }
+    }
   }, [activeParticipants]);
 
   Object.entries(activeParticipants).forEach(([identity, ap]) => {
@@ -585,7 +604,7 @@ const App: React.FC = () => {
       let y: number;
       let width: number;
       let height: number;
-      let key = `remote-user-${identity}`;
+      let key = `remote-user:${identity}`;
       let small = minimized || !expandedPanels.includes(key);
 
       const scale = Math.min(
@@ -679,7 +698,7 @@ const App: React.FC = () => {
       let y: number;
       let width: number;
       let height: number;
-      let key = `remote-screen-${identity}`;
+      let key = `remote-screen:${identity}`;
       let small = minimized || !expandedPanels.includes(key);
 
       const scale = Math.min(1, 3 / (distance + 0.1));
