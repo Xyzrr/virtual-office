@@ -64,8 +64,10 @@ const NewWindow: React.FC<NewWindowProps> = ({
         });
       }
     } else {
-      electron.ipcRenderer.invoke('close', name);
-      newWindow.current = null;
+      if (newWindow.current != null) {
+        electron.ipcRenderer.invoke('close', name);
+        newWindow.current = null;
+      }
     }
   }, [open]);
 
