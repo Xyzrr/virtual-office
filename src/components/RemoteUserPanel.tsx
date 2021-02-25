@@ -8,6 +8,7 @@ import HoverMenu from './HoverMenu';
 import NetworkQualityIndicator from './NetworkQualityIndicator';
 import { useMouseIsIdle } from '../util/useMouseIsIdle';
 import { MAX_INTERACTION_DISTANCE } from './constants';
+import PanelWrapper from './PanelWrapper';
 
 export interface RemoteUserPanelProps {
   className?: string;
