@@ -449,7 +449,7 @@ const App: React.FC = () => {
           key={key}
           x={x}
           y={y}
-          z={small ? 3 : 0}
+          z={small ? 2 : 0}
           width={width}
           height={height}
           xDirection="left"
