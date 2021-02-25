@@ -66,7 +66,7 @@ const App: React.FC = () => {
     true
   );
   const [localAudioOutputEnabled, setLocalAudioOutputEnabled] = React.useState(
-    false
+    true
   );
   const [localScreenShareEnabled, setLocalScreenShareEnabled] = React.useState(
     false
@@ -480,11 +480,11 @@ const App: React.FC = () => {
             colyseusRoom={colyseusRoom}
             small={small}
             onSetExpanded={(value) => {
-              if (minimized) {
-                setMinimized(false);
-              }
-
               if (value) {
+                if (minimized) {
+                  setMinimized(false);
+                }
+
                 setExpandedPanels([key]);
               }
             }}
@@ -530,11 +530,11 @@ const App: React.FC = () => {
           <LocalUserPanel
             small={small}
             onSetExpanded={(value) => {
-              if (minimized) {
-                setMinimized(false);
-              }
-
               if (value) {
+                if (minimized) {
+                  setMinimized(false);
+                }
+
                 setExpandedPanels([key]);
               } else {
                 setExpandedPanels(['map']);
@@ -662,11 +662,11 @@ const App: React.FC = () => {
             networkQuality={ap.networkQuality}
             small={small}
             onSetExpanded={(value) => {
-              if (minimized) {
-                setMinimized(false);
-              }
-
               if (value) {
+                if (minimized) {
+                  setMinimized(false);
+                }
+
                 participant.videoTracks.forEach((publication) => {
                   if (publication.trackName.startsWith('camera')) {
                     publication.track?.setPriority('high');
@@ -743,9 +743,11 @@ const App: React.FC = () => {
             distance={distance}
             small={small}
             onSetExpanded={(value) => {
-              console.log('setting expanded', value, key);
-
               if (value) {
+                if (minimized) {
+                  setMinimized(false);
+                }
+
                 participant.videoTracks.forEach((publication) => {
                   if (publication.trackName.startsWith('screen')) {
                     publication.track?.setPriority('high');
@@ -768,6 +770,8 @@ const App: React.FC = () => {
       );
     })();
   });
+
+  console.log('app render, wtf');
 
   React.useEffect(() => {
     if (!minimized) {

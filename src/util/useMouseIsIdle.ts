@@ -13,7 +13,6 @@ export const useMouseIsIdle = (opts?: {
     const container = containerRef ? containerRef.current : document;
 
     const onMouseMove = () => {
-      console.log('MOVE');
       setMouseIsIdle(false);
       if (lastMouseMoveTimerRef.current != null) {
         window.clearTimeout(lastMouseMoveTimerRef.current);
@@ -24,7 +23,6 @@ export const useMouseIsIdle = (opts?: {
     };
 
     const onMouseLeave = () => {
-      console.log('LEAVE!');
       setMouseIsIdle(true);
     };
 
