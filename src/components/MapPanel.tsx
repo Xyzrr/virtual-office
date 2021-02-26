@@ -114,7 +114,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
 
     React.useEffect(() => {
       const playerGraphics: {
-        [sessionId: string]: PIXI.Graphics;
+        [identity: string]: PIXI.Graphics;
       } = {};
 
       const worldObjectGraphics = new WeakMap<any, PIXI.Graphics>();
@@ -167,8 +167,8 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
             localPlayer.x,
             localPlayer.y
           );
-          playerGraphics[colyseusRoom.sessionId].x = mappedX;
-          playerGraphics[colyseusRoom.sessionId].y = mappedY;
+          playerGraphics[localPlayerIdentity].x = mappedX;
+          playerGraphics[localPlayerIdentity].y = mappedY;
 
           centerCameraAround(mappedX, mappedY);
 
@@ -185,7 +185,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
 
       console.log('PLAYERS', colyseusRoom.state.players);
 
-      colyseusRoom.state.players.onAdd = (player: any, sessionId: any) => {
+      colyseusRoom.state.players.onAdd = (player: any, identity: string) => {
         console.log('Colyseus player added', player);
 
         const graphic = new PIXI.Graphics();
@@ -198,11 +198,11 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
         graphic.x = mappedX;
         graphic.y = mappedY;
 
-        playerGraphics[sessionId] = graphic;
+        playerGraphics[identity] = graphic;
 
-        onPlayerAudioEnabledChanged(player.identity, player.audioEnabled);
+        onPlayerAudioEnabledChanged(identity, player.audioEnabled);
 
-        if (sessionId === colyseusRoom.sessionId) {
+        if (identity === localPlayerIdentity) {
           console.log('Got initial local player state', player);
           localPlayerRef.current = {
             x: player.x,
@@ -241,10 +241,10 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
         }
       };
 
-      colyseusRoom.state.players.onRemove = (player: any, sessionId: any) => {
+      colyseusRoom.state.players.onRemove = (player: any, identity: any) => {
         console.log('Colyseus player removed', player);
-        pixiApp?.stage.removeChild(playerGraphics[sessionId]);
-        delete playerGraphics[sessionId];
+        pixiApp?.stage.removeChild(playerGraphics[identity]);
+        delete playerGraphics[identity];
       };
 
       colyseusRoom.state.worldObjects.onAdd = (worldObject: any) => {
