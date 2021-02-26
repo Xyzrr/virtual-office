@@ -132,9 +132,12 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
           localPlayer.y -=
             localPlayer.speed * Math.sin(localPlayer.dir) * delta;
 
-          colyseusRoom.state.players.forEach((player: any) => {
-            if (player.identity === localPlayerIdentity) {
-              return;
+          for (const [
+            identity,
+            player,
+          ] of colyseusRoom.state.players.entries()) {
+            if (identity === localPlayerIdentity) {
+              break;
             }
 
             const dist = Math.sqrt(
@@ -142,12 +145,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
             );
 
             if (dist < 0.8) {
-              console.log(
-                'Pushed by:',
-                player.identity,
-                'Self:',
-                localPlayerIdentity
-              );
+              console.log('Pushed by:', identity, 'Self:', localPlayerIdentity);
 
               const atan = Math.atan(
                 (localPlayer.y - player.y) / (player.x - localPlayer.x)
@@ -159,9 +157,8 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
               localPlayer.x += Math.cos(pushDir) * pushDist;
               localPlayer.y -= Math.sin(pushDir) * pushDist;
             }
-
-            onPlayerDistanceChanged(player.identity, dist);
-          });
+            onPlayerDistanceChanged(identity, dist);
+          }
 
           const [mappedX, mappedY] = mapWorldCoordToPixiCoord(
             localPlayer.x,
@@ -179,6 +176,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
         }
 
         TWEEN.update(time);
+
         requestAnimationFrame(animate);
       };
       requestAnimationFrame(animate);
@@ -186,7 +184,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
       console.log('PLAYERS', colyseusRoom.state.players);
 
       colyseusRoom.state.players.onAdd = (player: any, identity: string) => {
-        console.log('Colyseus player added', player);
+        console.log('Colyseus player added', identity);
 
         const graphic = new PIXI.Graphics();
         graphic.beginFill(player.color);
@@ -210,6 +208,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
             dir: player.dir,
             speed: player.speed,
           };
+          console.log('lref', localPlayerRef);
         } else {
           player.onChange = (changes: Colyseus.DataChange[]) => {
             const [mappedX, mappedY] = mapWorldCoordToPixiCoord(
@@ -229,13 +228,13 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
                 (player.x - localPlayer.x) ** 2 +
                   (player.y - localPlayer.y) ** 2
               );
-              onPlayerDistanceChanged(player.identity, dist);
+              onPlayerDistanceChanged(identity, dist);
             }
 
             if (
               changes.find((c) => (c as any).field === 'audioEnabled') != null
             ) {
-              onPlayerAudioEnabledChanged(player.identity, player.audioEnabled);
+              onPlayerAudioEnabledChanged(identity, player.audioEnabled);
             }
           };
         }
