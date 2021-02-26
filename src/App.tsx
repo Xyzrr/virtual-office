@@ -446,6 +446,7 @@ const App: React.FC = () => {
     if (colyseusRoom != null) {
       panelElements.push(
         <MapPanel
+          key={key}
           x={x}
           y={y}
           width={width}
@@ -512,6 +513,7 @@ const App: React.FC = () => {
 
       panelElements.push(
         <LocalUserPanel
+          key={key}
           x={x}
           y={y}
           width={width}
@@ -632,6 +634,7 @@ const App: React.FC = () => {
 
       panelElements.push(
         <RemoteUserPanel
+          key={key}
           x={x}
           y={y}
           width={width}
@@ -711,6 +714,7 @@ const App: React.FC = () => {
 
       panelElements.push(
         <RemoteScreenPanel
+          key={key}
           x={x}
           y={y}
           width={width}
