@@ -54,6 +54,7 @@ export const CaretButtonWrapper = styled.div`
 export const IconButton = styled.div<{
   color?: string;
 }>`
+  pointer-events: auto;
   flex-shrink: 0;
   position: relative;
   height: 56px;
@@ -101,6 +102,7 @@ export const Wrapper = styled.div<{
   minimized?: boolean;
   hidden?: boolean;
 }>`
+  pointer-events: none;
   display: flex;
   position: absolute;
   bottom: 16px;

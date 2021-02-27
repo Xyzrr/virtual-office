@@ -15,7 +15,6 @@
   },
   "license": "MIT",
   "dependencies": {
-    "active-win": "^6.2.0",
-    "node-gyp": "^7.1.2"
+    "active-win": "^6.2.0"
   }
 }
