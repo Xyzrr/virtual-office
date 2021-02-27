@@ -32,6 +32,7 @@ import { min } from 'lodash';
 import { LocalMediaContext } from './contexts/LocalMediaContext';
 import RemoteScreenPanel from './components/RemoteScreenPanel';
 import ScreenShareToolbar from './components/ScreenShareToolbar';
+import ScreenShareOverlay from './components/ScreenShareOverlay';
 import MainToolbar from './components/MainToolbar';
 import { MAX_INTERACTION_DISTANCE } from './components/constants';
 import PanelWrapper from './components/PanelWrapper';
@@ -991,6 +992,7 @@ const App: React.FC = () => {
         open={localScreenShareEnabled}
         onStop={stopScreenShare}
       ></ScreenShareToolbar>
+      <ScreenShareOverlay open={localScreenShareEnabled} />
     </LocalMediaContext.Provider>
   );
 };

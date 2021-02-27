@@ -31,6 +31,7 @@ export default class AppUpdater {
 let mainWindow: BrowserWindow | null = null;
 let screenSharePicker: BrowserWindow | undefined;
 let screenShareToolbar: BrowserWindow | undefined;
+let screenShareOverlay: BrowserWindow | undefined;
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -179,6 +180,34 @@ const createWindow = async () => {
         return;
       }
 
+      if (frameName === 'screen-share-overlay') {
+        event.preventDefault();
+
+        screenShareOverlay = new BrowserWindow({
+          ...options,
+          transparent: true,
+          show: false,
+          titleBarStyle: 'hidden',
+        });
+
+        event.newGuest = screenShareOverlay;
+
+        screenShareOverlay.setBackgroundColor('#00000000');
+        screenShareOverlay.setSimpleFullScreen(true);
+        screenShareOverlay.setAlwaysOnTop(true, 'screen-saver');
+        screenShareOverlay.setVisibleOnAllWorkspaces(true, {
+          visibleOnFullScreen: true,
+        });
+        screenShareOverlay.setIgnoreMouseEvents(true);
+        screenShareOverlay.setContentProtection(true);
+
+        screenShareOverlay.once('ready-to-show', () => {
+          screenShareOverlay?.show();
+        });
+
+        return;
+      }
+
       event.preventDefault();
       shell.openExternal(url);
     }
@@ -220,6 +249,10 @@ ipcMain.handle('close', (e, windowName: string) => {
   if (windowName === 'screen-share-toolbar') {
     screenShareToolbar?.hide();
     screenShareToolbar?.close();
+  }
+  if (windowName === 'screen-share-overlay') {
+    screenShareOverlay?.hide();
+    screenShareOverlay?.close();
   }
 });
 
