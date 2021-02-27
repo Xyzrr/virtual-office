@@ -134,14 +134,16 @@ const RemoteScreenPanel: React.FC<RemoteScreenPanelProps> = React.memo(
               colyseusRoom.send('removeCursor');
             }}
           ></video>
-          <HoverMenu hidden={mouseIsIdle}>
-            <HoverMenuStyles.MenuItem
-              name={small ? 'fullscreen' : 'fullscreen_exit'}
-              onClick={() => {
-                onSetExpanded(!!small);
-              }}
-            ></HoverMenuStyles.MenuItem>
-          </HoverMenu>
+          {small && (
+            <HoverMenu hidden={mouseIsIdle}>
+              <HoverMenuStyles.MenuItem
+                name={small ? 'fullscreen' : 'fullscreen_exit'}
+                onClick={() => {
+                  onSetExpanded(!!small);
+                }}
+              ></HoverMenuStyles.MenuItem>
+            </HoverMenu>
+          )}
         </S.Wrapper>
       </PanelWrapper>
     );
