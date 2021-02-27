@@ -37,7 +37,7 @@ import MainToolbar from './components/MainToolbar';
 import { MAX_INTERACTION_DISTANCE } from './components/constants';
 import PanelWrapper from './components/PanelWrapper';
 
-const local = false;
+const local = true;
 
 let host: string;
 if (local) {
@@ -992,7 +992,13 @@ const App: React.FC = () => {
         open={localScreenShareEnabled}
         onStop={stopScreenShare}
       ></ScreenShareToolbar>
-      <ScreenShareOverlay open={localScreenShareEnabled} />
+      {colyseusRoom != null && (
+        <ScreenShareOverlay
+          open={localScreenShareEnabled}
+          colyseusRoom={colyseusRoom}
+          localIdentity={localIdentity}
+        />
+      )}
     </LocalMediaContext.Provider>
   );
 };
