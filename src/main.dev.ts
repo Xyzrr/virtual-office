@@ -19,6 +19,7 @@ import { electron } from 'process';
 import { Rectangle } from 'electron/main';
 import { centerOnParent } from './util/electron-helpers';
 import ScreenSharePicker from './components/ScreenSharePicker';
+import activeWin from 'active-win';
 
 export default class AppUpdater {
   constructor() {
@@ -183,8 +184,12 @@ const createWindow = async () => {
       if (frameName === 'screen-share-overlay') {
         event.preventDefault();
 
+        const sharingWholeScreen = 'shareDisplayId' in options;
+
+        let failed = false;
+
         const additionalOpts: any = {};
-        if ('shareDisplayId' in options) {
+        if (sharingWholeScreen) {
           const displayId = parseInt(
             (options as any).shareDisplayId as string,
             10
@@ -197,6 +202,20 @@ const createWindow = async () => {
 
           additionalOpts.x = sharedDisplay?.bounds.x;
           additionalOpts.y = sharedDisplay?.bounds.y;
+        } else {
+          let bounds:
+            | { x: number; y: number; width: number; height: number }
+            | undefined;
+          try {
+            bounds = activeWin.sync()?.bounds;
+          } catch (e) {
+            console.log('Error trying to get active window data:', e);
+            failed = true;
+          }
+          additionalOpts.x = bounds?.x;
+          additionalOpts.y = bounds?.y;
+          additionalOpts.width = bounds?.width;
+          additionalOpts.height = bounds?.height;
         }
 
         screenShareOverlay = new BrowserWindow({
@@ -210,18 +229,23 @@ const createWindow = async () => {
         event.newGuest = screenShareOverlay;
 
         screenShareOverlay.setBackgroundColor('#00000000');
-        screenShareOverlay.setSimpleFullScreen(true);
+        if (sharingWholeScreen) {
+          screenShareOverlay.setSimpleFullScreen(true);
+          screenShareOverlay.setAlwaysOnTop(true, 'screen-saver');
+          screenShareOverlay.setVisibleOnAllWorkspaces(true, {
+            visibleOnFullScreen: true,
+          });
+        }
+        screenShareOverlay.setFocusable(false);
         screenShareOverlay.setWindowButtonVisibility(false);
-        screenShareOverlay.setAlwaysOnTop(true, 'screen-saver');
-        screenShareOverlay.setVisibleOnAllWorkspaces(true, {
-          visibleOnFullScreen: true,
-        });
         screenShareOverlay.setIgnoreMouseEvents(true);
         screenShareOverlay.setContentProtection(true);
 
-        screenShareOverlay.once('ready-to-show', () => {
-          screenShareOverlay?.show();
-        });
+        if (!failed) {
+          screenShareOverlay.once('ready-to-show', () => {
+            screenShareOverlay?.show();
+          });
+        }
 
         return;
       }
