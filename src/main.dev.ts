@@ -20,6 +20,7 @@ import { Rectangle } from 'electron/main';
 import { centerOnParent } from './util/electron-helpers';
 import ScreenSharePicker from './components/ScreenSharePicker';
 import activeWin from 'active-win';
+import * as _ from 'lodash';
 
 export default class AppUpdater {
   constructor() {
@@ -33,6 +34,8 @@ let mainWindow: BrowserWindow | null = null;
 let screenSharePicker: BrowserWindow | undefined;
 let screenShareToolbar: BrowserWindow | undefined;
 let screenShareOverlay: BrowserWindow | undefined;
+
+let screenShareOverlayInterval: NodeJS.Timeout | undefined;
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -173,6 +176,7 @@ const createWindow = async () => {
         screenShareToolbar.setWindowButtonVisibility(false);
         screenShareToolbar.setAlwaysOnTop(true);
         screenShareToolbar.setContentProtection(true);
+        screenShareToolbar.setFocusable(false);
 
         screenShareToolbar.once('ready-to-show', () => {
           screenShareToolbar?.show();
@@ -206,16 +210,52 @@ const createWindow = async () => {
           let bounds:
             | { x: number; y: number; width: number; height: number }
             | undefined;
+          let id: number | undefined;
+
           try {
-            bounds = activeWin.sync()?.bounds;
+            const win = activeWin.sync();
+            bounds = win?.bounds;
+            id = win?.id;
           } catch (e) {
             console.log('Error trying to get active window data:', e);
             failed = true;
           }
-          additionalOpts.x = bounds?.x;
-          additionalOpts.y = bounds?.y;
-          additionalOpts.width = bounds?.width;
-          additionalOpts.height = bounds?.height;
+
+          if (!failed) {
+            screenShareOverlayInterval = setInterval(() => {
+              const startTime = Date.now();
+              activeWin()
+                .then((result) => {
+                  const endTime = Date.now();
+                  console.log('TOOK', endTime - startTime, 'ms', id, result);
+                  if (result && result.id === id) {
+                    if (
+                      !_.isEqual(screenShareOverlay?.getBounds(), result.bounds)
+                    ) {
+                      screenShareOverlay?.setBounds(result.bounds);
+                    }
+                    if (!screenShareOverlay?.isAlwaysOnTop()) {
+                      screenShareOverlay?.setAlwaysOnTop(true, 'floating', -1);
+                    }
+                  } else {
+                    if (screenShareOverlay?.isAlwaysOnTop()) {
+                      screenShareOverlay?.setAlwaysOnTop(false);
+                      screenShareOverlay?.moveAbove(`window:${id}:0`);
+                    }
+                  }
+                })
+                .catch((e) => {
+                  console.log(
+                    'Failed to get active window data after successfully getting it earlier:',
+                    e
+                  );
+                });
+            }, 1000);
+            additionalOpts.x = bounds?.x;
+            additionalOpts.y = bounds?.y;
+            additionalOpts.width = bounds?.width;
+            additionalOpts.height = bounds?.height;
+          }
         }
 
         screenShareOverlay = new BrowserWindow({
@@ -223,6 +263,8 @@ const createWindow = async () => {
           ...additionalOpts,
           transparent: true,
           show: false,
+          minWidth: undefined,
+          minHeight: undefined,
           titleBarStyle: 'hidden',
         });
 
@@ -235,6 +277,8 @@ const createWindow = async () => {
           screenShareOverlay.setVisibleOnAllWorkspaces(true, {
             visibleOnFullScreen: true,
           });
+        } else {
+          screenShareOverlay.setAlwaysOnTop(true, 'floating', -1);
         }
         screenShareOverlay.setFocusable(false);
         screenShareOverlay.setWindowButtonVisibility(false);
@@ -293,6 +337,10 @@ ipcMain.handle('close', (e, windowName: string) => {
     screenShareToolbar?.close();
   }
   if (windowName === 'screen-share-overlay') {
+    if (screenShareOverlayInterval != null) {
+      clearInterval(screenShareOverlayInterval);
+    }
+
     screenShareOverlay?.hide();
     screenShareOverlay?.setSimpleFullScreen(false);
     screenShareOverlay?.close();
