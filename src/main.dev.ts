@@ -266,6 +266,7 @@ const createWindow = async () => {
           minWidth: undefined,
           minHeight: undefined,
           titleBarStyle: 'hidden',
+          hasShadow: false,
         });
 
         event.newGuest = screenShareOverlay;

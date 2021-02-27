@@ -3,6 +3,7 @@ import React from 'react';
 import NewWindow from './NewWindow';
 import * as Colyseus from 'colyseus.js';
 import produce from 'immer';
+import FakeCursor from './FakeCursor';
 
 export interface ScreenShareOverlayProps {
   className?: string;
@@ -59,11 +60,18 @@ const ScreenShareOverlay: React.FC<ScreenShareOverlayProps> = React.memo(
         features={displayId == null ? undefined : `shareDisplayId=${displayId}`}
       >
         <S.Wrapper className={className}>
-          {Object.entries(cursors).map(([identity, cursor]) => (
-            <S.RemoteCursor
-              style={{ left: `${cursor.x * 100}%`, top: `${cursor.y * 100}%` }}
-            ></S.RemoteCursor>
-          ))}
+          {Object.entries(cursors).map(([identity, cursor]) => {
+            console.log('wtf', colyseusRoom.state.players.get(identity));
+            return (
+              <FakeCursor
+                x={`${cursor.x * 100}%`}
+                y={`${cursor.y * 100}%`}
+                color={`#${colyseusRoom.state.players
+                  .get(identity)
+                  .color.toString(16)}`}
+              ></FakeCursor>
+            );
+          })}
         </S.Wrapper>
       </NewWindow>
     );
