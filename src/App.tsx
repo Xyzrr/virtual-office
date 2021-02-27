@@ -114,7 +114,7 @@ const App: React.FC = () => {
     deviceId: localVideoInputDeviceId,
   };
 
-  const identity = React.useMemo(() => {
+  const localIdentity = React.useMemo(() => {
     const result = `cool-person-${uuid()}`;
     console.log('IDENTITY', result);
     return result;
@@ -123,7 +123,7 @@ const App: React.FC = () => {
   React.useEffect(() => {
     const endpoint = `http${local ? '' : 's'}://${host}/token`;
     const params = new window.URLSearchParams({
-      identity,
+      identity: localIdentity,
       roomName: 'cool-room',
     });
     const headers = new window.Headers();
@@ -354,10 +354,56 @@ const App: React.FC = () => {
     const client = new Colyseus.Client(`ws://${host}`);
 
     client
-      .joinOrCreate('main', { identity, audioEnabled: localAudioInputEnabled })
+      .joinOrCreate('main', {
+        identity: localIdentity,
+        audioEnabled: localAudioInputEnabled,
+      })
       .then((room: Colyseus.Room<any>) => {
         console.log('Joined or created Colyseus room:', room);
         setColyseusRoom(room);
+
+        room.state.players.onAdd = (player: any, identity: string) => {
+          console.log('Colyseus player added:', identity);
+
+          setActiveParticipants((aps) => {
+            return produce(aps, (draft) => {
+              if (draft[identity] == null) {
+                draft[identity] = {};
+              }
+              draft[identity].audioEnabled = player.audioEnabled;
+            });
+          });
+
+          player.onChange = (changes: Colyseus.DataChange[]) => {
+            console.log('Player changed:', changes);
+
+            const localPlayer = room.state.players.get(localIdentity);
+
+            if (localPlayer != null) {
+              const dist = Math.sqrt(
+                (player.x - localPlayer.x) ** 2 +
+                  (player.y - localPlayer.y) ** 2
+              );
+
+              setActiveParticipants((aps) => {
+                console.log('changing aps', aps);
+                return produce(aps, (draft) => {
+                  draft[identity].distance = dist;
+                });
+              });
+            }
+
+            if (
+              changes.find((c) => (c as any).field === 'audioEnabled') != null
+            ) {
+              setActiveParticipants((aps) => {
+                return produce(aps, (draft) => {
+                  draft[identity].audioEnabled = player.audioEnabled;
+                });
+              });
+            }
+          };
+        };
       });
   }, []);
 
@@ -451,28 +497,7 @@ const App: React.FC = () => {
           y={y}
           width={width}
           height={height}
-          localPlayerIdentity={identity}
-          onPlayerAudioEnabledChanged={(identity, audioEnabled) => {
-            console.log('heard audio change');
-            setActiveParticipants((aps) => {
-              return produce(aps, (draft) => {
-                if (draft[identity] == null) {
-                  draft[identity] = {};
-                }
-                draft[identity].audioEnabled = audioEnabled;
-              });
-            });
-          }}
-          onPlayerDistanceChanged={(identity, distance) => {
-            setActiveParticipants((aps) => {
-              return produce(aps, (draft) => {
-                if (draft[identity] == null) {
-                  draft[identity] = {};
-                }
-                draft[identity].distance = distance;
-              });
-            });
-          }}
+          localPlayerIdentity={localIdentity}
           colyseusRoom={colyseusRoom}
           small={small}
           onSetExpanded={(value) => {

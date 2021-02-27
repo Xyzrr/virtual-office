@@ -23,8 +23,6 @@ export interface MapPanelProps {
   localPlayerIdentity: string;
   colyseusRoom: Colyseus.Room;
   small: boolean;
-  onPlayerDistanceChanged(identity: string, distance: number): void;
-  onPlayerAudioEnabledChanged(identity: string, audioEnabled: boolean): void;
   onSetExpanded(value: boolean): void;
 }
 
@@ -38,8 +36,6 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
     localPlayerIdentity,
     colyseusRoom,
     small,
-    onPlayerDistanceChanged,
-    onPlayerAudioEnabledChanged,
     onSetExpanded,
   }) => {
     const wrapperRef = React.useRef<HTMLDivElement>(null);
@@ -137,7 +133,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
             player,
           ] of colyseusRoom.state.players.entries()) {
             if (identity === localPlayerIdentity) {
-              break;
+              continue;
             }
 
             const dist = Math.sqrt(
@@ -157,7 +153,6 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
               localPlayer.x += Math.cos(pushDir) * pushDist;
               localPlayer.y -= Math.sin(pushDir) * pushDist;
             }
-            onPlayerDistanceChanged(identity, dist);
           }
 
           const [mappedX, mappedY] = mapWorldCoordToPixiCoord(
@@ -183,8 +178,9 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
 
       console.log('PLAYERS', colyseusRoom.state.players);
 
+      const { onAdd } = colyseusRoom.state.players;
       colyseusRoom.state.players.onAdd = (player: any, identity: string) => {
-        console.log('Colyseus player added', identity);
+        onAdd?.(player, identity);
 
         const graphic = new PIXI.Graphics();
         graphic.beginFill(player.color);
@@ -198,8 +194,6 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
 
         playerGraphics[identity] = graphic;
 
-        onPlayerAudioEnabledChanged(identity, player.audioEnabled);
-
         if (identity === localPlayerIdentity) {
           console.log('Got initial local player state', player);
           localPlayerRef.current = {
@@ -208,9 +202,11 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
             dir: player.dir,
             speed: player.speed,
           };
-          console.log('lref', localPlayerRef);
         } else {
+          const { onChange } = player;
           player.onChange = (changes: Colyseus.DataChange[]) => {
+            onChange?.(changes);
+
             const [mappedX, mappedY] = mapWorldCoordToPixiCoord(
               player.x,
               player.y
@@ -222,20 +218,6 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
               .start();
 
             console.log('Remote player changed', Date.now(), player);
-            const localPlayer = localPlayerRef.current;
-            if (localPlayer != null) {
-              const dist = Math.sqrt(
-                (player.x - localPlayer.x) ** 2 +
-                  (player.y - localPlayer.y) ** 2
-              );
-              onPlayerDistanceChanged(identity, dist);
-            }
-
-            if (
-              changes.find((c) => (c as any).field === 'audioEnabled') != null
-            ) {
-              onPlayerAudioEnabledChanged(identity, player.audioEnabled);
-            }
           };
         }
       };
