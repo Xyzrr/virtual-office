@@ -380,18 +380,27 @@ const App: React.FC = () => {
 
             const localPlayer = room.state.players.get(localIdentity);
 
-            if (localPlayer != null) {
+            const updateDistanceToPlayer = (id: string, player: any) => {
               const dist = Math.sqrt(
                 (player.x - localPlayer.x) ** 2 +
                   (player.y - localPlayer.y) ** 2
               );
 
               setActiveParticipants((aps) => {
-                console.log('changing aps', aps);
                 return produce(aps, (draft) => {
-                  draft[identity].distance = dist;
+                  draft[id].distance = dist;
                 });
               });
+            };
+
+            if (localPlayer != null) {
+              if (identity === localIdentity) {
+                for (const [id, p] of room.state.players.entries()) {
+                  updateDistanceToPlayer(id, p);
+                }
+              } else {
+                updateDistanceToPlayer(identity, player);
+              }
             }
 
             if (
@@ -958,10 +967,8 @@ const App: React.FC = () => {
                 mandatory: {
                   chromeMediaSource: 'desktop',
                   chromeMediaSourceId: id,
-                  // minWidth: 1280,
-                  // maxWidth: 1280,
-                  // minHeight: 720,
-                  // maxHeight: 720,
+                  maxFrameRate: 10,
+                  maxWidth: 1280,
                 },
               },
             } as any);
