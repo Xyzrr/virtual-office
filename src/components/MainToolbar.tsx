@@ -230,10 +230,10 @@ const MainToolbar: React.FC<MainToolbarProps> = React.memo(
           onClose={() => {
             setScreenSharePickerOpen(false);
           }}
-          onStart={(id) => {
+          onStart={(id, displayId) => {
             console.log('Started sharing screen', id);
             setScreenSharePickerOpen(false);
-            screenShare(id);
+            screenShare(id, displayId);
           }}
         ></ScreenSharePicker>
       </S.Wrapper>

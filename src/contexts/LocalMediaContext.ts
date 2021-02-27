@@ -11,6 +11,7 @@ interface LocalMediaContextValue {
   localAudioInputDeviceId?: string;
   localAudioOutputDeviceId: string;
   localVideoInputDeviceId?: string;
+  localScreenShareDisplayId?: string;
   enableLocalVideoInput(): void;
   disableLocalVideoInput(): void;
   enableLocalAudioInput(): void;

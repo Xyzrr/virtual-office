@@ -72,6 +72,10 @@ const App: React.FC = () => {
   const [localScreenShareEnabled, setLocalScreenShareEnabled] = React.useState(
     false
   );
+  const [
+    localScreenShareDisplayId,
+    setLocalScreenShareDisplayId,
+  ] = React.useState<string | undefined>();
   const [localAudioInputDeviceId, setLocalAudioInputDeviceId] = React.useState<
     string | undefined
   >();
@@ -845,6 +849,7 @@ const App: React.FC = () => {
         localAudioInputDeviceId,
         localAudioOutputDeviceId,
         localVideoInputDeviceId,
+        localScreenShareDisplayId,
         localScreenShareEnabled,
         enableLocalVideoInput() {
           createLocalVideoTrack(createLocalVideoTrackOptions)
@@ -959,7 +964,7 @@ const App: React.FC = () => {
           console.log('Published new video track from device ID', value);
           return track;
         },
-        async screenShare(id: string) {
+        async screenShare(id: string, displayId?: string) {
           try {
             const stream = await navigator.mediaDevices.getUserMedia({
               audio: false,
@@ -979,6 +984,7 @@ const App: React.FC = () => {
             });
             await twilioRoom?.localParticipant.publishTrack(screenTrack);
 
+            setLocalScreenShareDisplayId(displayId);
             setLocalScreenShareEnabled(true);
             wasMinimizedWhenStartedScreenSharing.current = minimized;
             setMinimized(true);
@@ -1004,6 +1010,7 @@ const App: React.FC = () => {
           open={localScreenShareEnabled}
           colyseusRoom={colyseusRoom}
           localIdentity={localIdentity}
+          displayId={localScreenShareDisplayId}
         />
       )}
     </LocalMediaContext.Provider>

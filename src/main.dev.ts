@@ -183,8 +183,25 @@ const createWindow = async () => {
       if (frameName === 'screen-share-overlay') {
         event.preventDefault();
 
+        const additionalOpts: any = {};
+        if ('shareDisplayId' in options) {
+          const displayId = parseInt(
+            (options as any).shareDisplayId as string,
+            10
+          );
+          delete (options as any).shareDisplayId;
+
+          const sharedDisplay = screen
+            .getAllDisplays()
+            .find((d) => d.id === displayId);
+
+          additionalOpts.x = sharedDisplay?.bounds.x;
+          additionalOpts.y = sharedDisplay?.bounds.y;
+        }
+
         screenShareOverlay = new BrowserWindow({
           ...options,
+          ...additionalOpts,
           transparent: true,
           show: false,
           titleBarStyle: 'hidden',
@@ -194,6 +211,7 @@ const createWindow = async () => {
 
         screenShareOverlay.setBackgroundColor('#00000000');
         screenShareOverlay.setSimpleFullScreen(true);
+        screenShareOverlay.setWindowButtonVisibility(false);
         screenShareOverlay.setAlwaysOnTop(true, 'screen-saver');
         screenShareOverlay.setVisibleOnAllWorkspaces(true, {
           visibleOnFullScreen: true,

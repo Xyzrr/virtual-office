@@ -31,12 +31,14 @@ export interface NewWindowProps {
   className?: string;
   name: string;
   open: boolean;
+  features?: string;
   onClose?(): void;
 }
 
 const NewWindow: React.FC<NewWindowProps> = ({
   name,
   open,
+  features,
   children,
   onClose,
 }) => {
@@ -47,7 +49,7 @@ const NewWindow: React.FC<NewWindowProps> = ({
 
   React.useEffect(() => {
     if (open) {
-      newWindow.current = window.open('', name);
+      newWindow.current = window.open('', name, features);
 
       if (newWindow.current != null) {
         // Need a new container because React bindings get lost somehow
