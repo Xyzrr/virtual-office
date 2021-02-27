@@ -270,6 +270,7 @@ ipcMain.handle('close', (e, windowName: string) => {
   }
   if (windowName === 'screen-share-overlay') {
     screenShareOverlay?.hide();
+    screenShareOverlay?.setSimpleFullScreen(false);
     screenShareOverlay?.close();
   }
 });
