@@ -737,42 +737,46 @@ const App: React.FC = () => {
         }
       });
 
-      panelElements.push(
-        <RemoteScreenPanel
-          key={key}
-          x={x}
-          y={y}
-          width={width}
-          height={height}
-          minY={small && mapIsSmall ? 135 + 16 : undefined}
-          videoTrack={videoTrack}
-          distance={distance}
-          small={small}
-          onSetExpanded={(value) => {
-            if (value) {
-              if (minimized) {
-                setMinimized(false);
+      if (colyseusRoom != null) {
+        panelElements.push(
+          <RemoteScreenPanel
+            key={key}
+            x={x}
+            y={y}
+            width={width}
+            height={height}
+            minY={small && mapIsSmall ? 135 + 16 : undefined}
+            ownerIdentity={identity}
+            colyseusRoom={colyseusRoom}
+            videoTrack={videoTrack}
+            distance={distance}
+            small={small}
+            onSetExpanded={(value) => {
+              if (value) {
+                if (minimized) {
+                  setMinimized(false);
+                }
+
+                participant.videoTracks.forEach((publication) => {
+                  if (publication.trackName.startsWith('screen')) {
+                    publication.track?.setPriority('high');
+                  }
+                });
+
+                setExpandedPanels([key]);
+              } else {
+                participant.videoTracks.forEach((publication) => {
+                  if (publication.trackName.startsWith('screen')) {
+                    publication.track?.setPriority('low');
+                  }
+                });
+
+                setExpandedPanels(['map']);
               }
-
-              participant.videoTracks.forEach((publication) => {
-                if (publication.trackName.startsWith('screen')) {
-                  publication.track?.setPriority('high');
-                }
-              });
-
-              setExpandedPanels([key]);
-            } else {
-              participant.videoTracks.forEach((publication) => {
-                if (publication.trackName.startsWith('screen')) {
-                  publication.track?.setPriority('low');
-                }
-              });
-
-              setExpandedPanels(['map']);
-            }
-          }}
-        />
-      );
+            }}
+          />
+        );
+      }
     })();
   });
 

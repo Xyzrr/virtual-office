@@ -2,6 +2,7 @@ import * as S from './RemoteScreenPanel.styles';
 import * as HoverMenuStyles from './HoverMenu.styles';
 
 import React from 'react';
+import * as Colyseus from 'colyseus.js';
 import HoverMenu from './HoverMenu';
 import { MAX_INTERACTION_DISTANCE } from './constants';
 import { useMouseIsIdle } from '../util/useMouseIsIdle';
@@ -16,6 +17,8 @@ export interface RemoteScreenPanelProps {
   height: number;
   minY?: number;
 
+  ownerIdentity: string;
+  colyseusRoom: Colyseus.Room;
   videoTrack?: MediaStreamTrack;
   distance: number;
   small?: boolean;
@@ -30,6 +33,8 @@ const RemoteScreenPanel: React.FC<RemoteScreenPanelProps> = React.memo(
     width,
     height,
     minY,
+    ownerIdentity,
+    colyseusRoom,
     videoTrack,
     distance,
     small,
@@ -119,6 +124,14 @@ const RemoteScreenPanel: React.FC<RemoteScreenPanelProps> = React.memo(
               }
 
               console.log('xpyp', xp, yp);
+              colyseusRoom.send('setCursorPosition', {
+                x: xp,
+                y: yp,
+                screenOwnerIdentity: ownerIdentity,
+              });
+            }}
+            onMouseLeave={() => {
+              colyseusRoom.send('removeCursor');
             }}
           ></video>
           <HoverMenu hidden={mouseIsIdle}>
