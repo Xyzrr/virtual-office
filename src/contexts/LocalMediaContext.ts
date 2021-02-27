@@ -20,7 +20,7 @@ interface LocalMediaContextValue {
   setLocalAudioInputDeviceId(id: string): void;
   setLocalAudioOutputDeviceId(id: string): void;
   setLocalVideoInputDeviceId(id: string): void;
-  screenShare(id: string): void;
+  screenShare(id: string, displayId?: string): void;
   stopScreenShare(): void;
 }
 
