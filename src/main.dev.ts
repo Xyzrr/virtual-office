@@ -325,6 +325,8 @@ app.on('activate', () => {
   if (mainWindow === null) createWindow();
 });
 
+app.commandLine.appendSwitch('disable-features', 'IOSurfaceCapturer');
+
 let previousMinimizedPosition: number[] | null = null;
 let previousUnminimizedBounds: Rectangle | null = null;
 

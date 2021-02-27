@@ -51,8 +51,6 @@ const ScreenShareOverlay: React.FC<ScreenShareOverlayProps> = React.memo(
       };
     }, [colyseusRoom]);
 
-    console.log('DISPLAY ID', displayId);
-
     return (
       <NewWindow
         name="screen-share-overlay"
