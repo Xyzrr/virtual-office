@@ -25,6 +25,7 @@ const ScreenShareOverlay: React.FC<ScreenShareOverlayProps> = React.memo(
             draft[cursor.cursorOwnerIdentity] = { x: cursor.x, y: cursor.y };
           })
         );
+
         cursor.onChange = () => {
           setCursors((cs) =>
             produce(cs, (draft) => {
@@ -33,6 +34,14 @@ const ScreenShareOverlay: React.FC<ScreenShareOverlayProps> = React.memo(
             })
           );
         };
+      };
+
+      colyseusRoom.state.cursors.onRemove = (cursor: any) => {
+        setCursors((cs) =>
+          produce(cs, (draft) => {
+            delete draft[cursor.cursorOwnerIdentity];
+          })
+        );
       };
     }, [colyseusRoom]);
 
