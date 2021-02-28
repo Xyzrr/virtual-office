@@ -7,7 +7,6 @@ import HoverMenu from './HoverMenu';
 import { MAX_INTERACTION_DISTANCE } from './constants';
 import { useMouseIsIdle } from '../util/useMouseIsIdle';
 import PanelWrapper from './PanelWrapper';
-import CursorsOverlay from './CursorsOverlay';
 
 export interface RemoteScreenPanelProps {
   className?: string;
@@ -149,10 +148,28 @@ const RemoteScreenPanel: React.FC<RemoteScreenPanelProps> = React.memo(
             ref={videoRef}
             autoPlay
             onMouseMove={(e) => {
+              if (!small) {
+                return;
+              }
+
               const mouseX = e.clientX - x;
               const mouseY = e.clientY - y;
 
               colyseusRoom.send('setCursorPosition', {
+                x: (mouseX - videoXOffset) / videoProjectedWidth,
+                y: (mouseY - videoYOffset) / videoProjectedHeight,
+                screenOwnerIdentity: ownerIdentity,
+              });
+            }}
+            onMouseDown={(e) => {
+              if (!small) {
+                return;
+              }
+
+              const mouseX = e.clientX - x;
+              const mouseY = e.clientY - y;
+
+              colyseusRoom.send('cursorMouseDown', {
                 x: (mouseX - videoXOffset) / videoProjectedWidth,
                 y: (mouseY - videoYOffset) / videoProjectedHeight,
                 screenOwnerIdentity: ownerIdentity,

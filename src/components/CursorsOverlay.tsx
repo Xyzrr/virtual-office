@@ -57,6 +57,8 @@ const CursorsOverlay: React.FC<CursorsOverlayProps> = ({
         );
       }
     };
+
+    colyseusRoom.onMessage('cursorMouseDown', (cursorData: any) => {});
   }, [colyseusRoom]);
 
   return (
