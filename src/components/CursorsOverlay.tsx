@@ -24,7 +24,10 @@ const CursorsOverlay: React.FC<CursorsOverlayProps> = ({
 
   React.useEffect(() => {
     colyseusRoom.state.cursors.onAdd = (cursor: any) => {
-      if (cursor.screenOwnerIdentity === screenOwnerIdentity) {
+      if (
+        cursor.screenOwnerIdentity === screenOwnerIdentity &&
+        cursor.cursorOwnerIdentity !== localIdentity
+      ) {
         setCursors((cs) =>
           produce(cs, (draft) => {
             draft[cursor.cursorOwnerIdentity] = { x: cursor.x, y: cursor.y };
@@ -43,7 +46,10 @@ const CursorsOverlay: React.FC<CursorsOverlayProps> = ({
     };
 
     colyseusRoom.state.cursors.onRemove = (cursor: any) => {
-      if (cursor.screenOwnerIdentity === screenOwnerIdentity) {
+      if (
+        cursor.screenOwnerIdentity === screenOwnerIdentity &&
+        cursor.cursorOwnerIdentity !== localIdentity
+      ) {
         setCursors((cs) =>
           produce(cs, (draft) => {
             delete draft[cursor.cursorOwnerIdentity];
@@ -56,7 +62,6 @@ const CursorsOverlay: React.FC<CursorsOverlayProps> = ({
   return (
     <S.Wrapper className={className}>
       {Object.entries(cursors).map(([identity, cursor]) => {
-        console.log('wtf', colyseusRoom.state.players.get(identity));
         return (
           <FakeCursor
             x={`${cursor.x * 100}%`}
