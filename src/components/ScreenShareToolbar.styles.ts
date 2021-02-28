@@ -7,7 +7,6 @@ export const Wrapper = styled.div`
   justify-content: center;
   width: 100%;
   height: 100%;
-  background: #222;
   -webkit-app-region: drag;
 `;
 

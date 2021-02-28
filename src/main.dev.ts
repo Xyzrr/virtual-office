@@ -172,11 +172,12 @@ const createWindow = async () => {
 
         event.newGuest = screenShareToolbar;
 
-        screenShareToolbar.setBackgroundColor('#222');
+        screenShareToolbar.setBackgroundColor('#00000000');
         screenShareToolbar.setWindowButtonVisibility(false);
         screenShareToolbar.setAlwaysOnTop(true);
         screenShareToolbar.setContentProtection(true);
         screenShareToolbar.setFocusable(false);
+        screenShareToolbar.setVibrancy('menu');
 
         screenShareToolbar.once('ready-to-show', () => {
           screenShareToolbar?.show();
