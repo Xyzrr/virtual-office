@@ -56,8 +56,8 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
       const app = new PIXI.Application({
         width: windowSize.current.width,
         height: windowSize.current.height,
-        antialias: true,
-        resolution: window.devicePixelRatio,
+        antialias: !process.env.LOW_POWER,
+        resolution: process.env.LOW_POWER ? 1 : window.devicePixelRatio,
         autoDensity: true,
       });
       app.stage.sortableChildren = true;
