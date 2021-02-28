@@ -2,24 +2,18 @@ import * as S from './App.styles';
 
 import { v4 as uuid } from 'uuid';
 import React from 'react';
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import {
   connect,
   Room,
   createLocalVideoTrack,
   RemoteParticipant,
   RemoteTrack,
-  Participant,
-  RemoteVideoTrack,
-  RemoteAudioTrack,
-  createLocalTracks,
   createLocalAudioTrack,
   LocalTrack,
   CreateLocalTrackOptions,
   LocalVideoTrack,
   LocalAudioTrack,
 } from 'twilio-video';
-import * as PIXI from 'pixi.js';
 import * as Colyseus from 'colyseus.js';
 import { useFakeMinimize } from './util/useFakeMinimize';
 import produce from 'immer';
@@ -27,20 +21,15 @@ import RemoteUserPanel from './components/RemoteUserPanel';
 import MapPanel from './components/MapPanel';
 import * as electron from 'electron';
 import LocalUserPanel from './components/LocalUserPanel';
-import Icon from './components/Icon';
-import { min } from 'lodash';
 import { LocalMediaContext } from './contexts/LocalMediaContext';
 import RemoteScreenPanel from './components/RemoteScreenPanel';
 import ScreenShareToolbar from './components/ScreenShareToolbar';
 import ScreenShareOverlay from './components/ScreenShareOverlay';
 import MainToolbar from './components/MainToolbar';
 import { MAX_INTERACTION_DISTANCE } from './components/constants';
-import PanelWrapper from './components/PanelWrapper';
-
-const local = true;
 
 let host: string;
-if (local) {
+if (process.env.LOCAL) {
   host = 'localhost:5000';
 } else {
   host = 'virtual-office-server.herokuapp.com';
@@ -126,7 +115,7 @@ const App: React.FC = () => {
   }, []);
 
   React.useEffect(() => {
-    const endpoint = `http${local ? '' : 's'}://${host}/token`;
+    const endpoint = `http${process.env.LOCAL ? '' : 's'}://${host}/token`;
     const params = new window.URLSearchParams({
       identity: localIdentity,
       roomName: 'cool-room',
