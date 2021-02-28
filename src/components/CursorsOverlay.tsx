@@ -8,12 +8,14 @@ import FakeCursor from './FakeCursor';
 export interface CursorsOverlayProps {
   className?: string;
   colyseusRoom: Colyseus.Room;
+  screenOwnerIdentity: string;
   localIdentity: string;
 }
 
 const CursorsOverlay: React.FC<CursorsOverlayProps> = ({
   className,
   colyseusRoom,
+  screenOwnerIdentity,
   localIdentity,
 }) => {
   const [cursors, setCursors] = React.useState<{
@@ -22,7 +24,7 @@ const CursorsOverlay: React.FC<CursorsOverlayProps> = ({
 
   React.useEffect(() => {
     colyseusRoom.state.cursors.onAdd = (cursor: any) => {
-      if (cursor.screenOwnerIdentity === localIdentity) {
+      if (cursor.screenOwnerIdentity === screenOwnerIdentity) {
         setCursors((cs) =>
           produce(cs, (draft) => {
             draft[cursor.cursorOwnerIdentity] = { x: cursor.x, y: cursor.y };
@@ -41,7 +43,7 @@ const CursorsOverlay: React.FC<CursorsOverlayProps> = ({
     };
 
     colyseusRoom.state.cursors.onRemove = (cursor: any) => {
-      if (cursor.screenOwnerIdentity === localIdentity) {
+      if (cursor.screenOwnerIdentity === screenOwnerIdentity) {
         setCursors((cs) =>
           produce(cs, (draft) => {
             delete draft[cursor.cursorOwnerIdentity];

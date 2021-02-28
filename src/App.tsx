@@ -761,6 +761,7 @@ const App: React.FC = () => {
             height={height}
             minY={small && mapIsSmall ? 135 + 16 : undefined}
             ownerIdentity={identity}
+            localIdentity={localIdentity}
             colyseusRoom={colyseusRoom}
             videoTrack={videoTrack}
             distance={distance}

@@ -7,6 +7,7 @@ import HoverMenu from './HoverMenu';
 import { MAX_INTERACTION_DISTANCE } from './constants';
 import { useMouseIsIdle } from '../util/useMouseIsIdle';
 import PanelWrapper from './PanelWrapper';
+import CursorsOverlay from './CursorsOverlay';
 
 export interface RemoteScreenPanelProps {
   className?: string;
@@ -18,6 +19,7 @@ export interface RemoteScreenPanelProps {
   minY?: number;
 
   ownerIdentity: string;
+  localIdentity: string;
   colyseusRoom: Colyseus.Room;
   videoTrack?: MediaStreamTrack;
   distance: number;
@@ -34,6 +36,7 @@ const RemoteScreenPanel: React.FC<RemoteScreenPanelProps> = React.memo(
     height,
     minY,
     ownerIdentity,
+    localIdentity,
     colyseusRoom,
     videoTrack,
     distance,
@@ -42,6 +45,10 @@ const RemoteScreenPanel: React.FC<RemoteScreenPanelProps> = React.memo(
   }) => {
     const wrapperRef = React.useRef<HTMLDivElement>(null);
     const videoRef = React.useRef<HTMLVideoElement>(null);
+    const [videoSize, setVideoSize] = React.useState<{
+      width: number;
+      height: number;
+    }>({ width: 100, height: 100 });
 
     const videoOpacity = small
       ? 1
@@ -66,7 +73,62 @@ const RemoteScreenPanel: React.FC<RemoteScreenPanelProps> = React.memo(
       };
     }, [videoTrack]);
 
+    React.useEffect(() => {
+      const videoEl = videoRef.current;
+      if (videoEl == null) {
+        return;
+      }
+
+      const onResize = () => {
+        console.log('VIDEO SIZE', videoEl.videoWidth, videoEl.videoHeight);
+        setVideoSize({
+          width: videoEl.videoWidth,
+          height: videoEl.videoHeight,
+        });
+      };
+
+      videoEl.addEventListener('resize', onResize);
+
+      return () => {
+        videoEl?.removeEventListener('resize', onResize);
+      };
+    }, []);
+
     const mouseIsIdle = useMouseIsIdle({ containerRef: wrapperRef });
+
+    const {
+      videoProjectedWidth,
+      videoProjectedHeight,
+      videoXOffset,
+      videoYOffset,
+    } = React.useMemo(() => {
+      let videoProjectedWidth: number;
+      let videoProjectedHeight: number;
+      let videoXOffset: number;
+      let videoYOffset: number;
+
+      const videoAspectRatio = videoSize.width / videoSize.height;
+      const panelAspectRatio = width / height;
+
+      if (videoAspectRatio < panelAspectRatio) {
+        videoProjectedWidth = height * videoAspectRatio;
+        videoProjectedHeight = height;
+        videoXOffset = (width - videoProjectedWidth) / 2;
+        videoYOffset = 0;
+      } else {
+        videoProjectedWidth = width;
+        videoProjectedHeight = width / videoAspectRatio;
+        videoXOffset = 0;
+        videoYOffset = (height - videoProjectedHeight) / 2;
+      }
+
+      return {
+        videoProjectedWidth,
+        videoProjectedHeight,
+        videoXOffset,
+        videoYOffset,
+      };
+    }, [videoSize, width, height]);
 
     return (
       <PanelWrapper
@@ -87,46 +149,12 @@ const RemoteScreenPanel: React.FC<RemoteScreenPanelProps> = React.memo(
             ref={videoRef}
             autoPlay
             onMouseMove={(e) => {
-              const settings = videoTrack?.getSettings();
-              if (
-                settings == null ||
-                settings.width == null ||
-                settings.height == null
-              ) {
-                return;
-              }
+              const mouseX = e.clientX - x;
+              const mouseY = e.clientY - y;
 
-              const screenAspectRatio = settings.width / settings.height;
-              const panelBounds = e.currentTarget.getBoundingClientRect();
-              const panelAspectRatio = panelBounds.width / panelBounds.height;
-              const mouseX = e.clientX - panelBounds.x;
-              const mouseY = e.clientY - panelBounds.y;
-
-              console.log('stream size', settings.width, settings.height);
-              console.log('panel size', panelBounds.width, panelBounds.height);
-
-              let xp: number;
-              let yp: number;
-
-              if (screenAspectRatio < panelAspectRatio) {
-                yp = mouseY / panelBounds.height;
-                const screenProjectedWidth =
-                  panelBounds.height * screenAspectRatio;
-                const xOffset = (panelBounds.width - screenProjectedWidth) / 2;
-                xp = (mouseX - xOffset) / screenProjectedWidth;
-              } else {
-                xp = mouseX / panelBounds.width;
-                const screenProjectedHeight =
-                  panelBounds.width / screenAspectRatio;
-                const yOffset =
-                  (panelBounds.height - screenProjectedHeight) / 2;
-                yp = (mouseY - yOffset) / screenProjectedHeight;
-              }
-
-              console.log('xpyp', xp, yp);
               colyseusRoom.send('setCursorPosition', {
-                x: xp,
-                y: yp,
+                x: (mouseX - videoXOffset) / videoProjectedWidth,
+                y: (mouseY - videoYOffset) / videoProjectedHeight,
                 screenOwnerIdentity: ownerIdentity,
               });
             }}
@@ -143,6 +171,17 @@ const RemoteScreenPanel: React.FC<RemoteScreenPanelProps> = React.memo(
                 }}
               ></HoverMenuStyles.MenuItem>
             </HoverMenu>
+          )}
+          {!small && (
+            <S.ShiftedCursorsOverlay
+              colyseusRoom={colyseusRoom}
+              screenOwnerIdentity={ownerIdentity}
+              localIdentity={localIdentity}
+              x={videoXOffset}
+              y={videoYOffset}
+              width={videoProjectedWidth}
+              height={videoProjectedHeight}
+            ></S.ShiftedCursorsOverlay>
           )}
         </S.Wrapper>
       </PanelWrapper>

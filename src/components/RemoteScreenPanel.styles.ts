@@ -1,5 +1,6 @@
 import styled, { css } from 'styled-components';
 import Icon from './Icon';
+import CursorsOverlay from './CursorsOverlay';
 
 export const Wrapper = styled.div<{ videoOpacity: number }>`
   position: relative;
@@ -29,4 +30,16 @@ export const StatusIcons = styled.div`
 export const StatusIcon = styled(Icon)`
   padding: 4px;
   color: red;
+`;
+
+export const ShiftedCursorsOverlay = styled(CursorsOverlay)<{
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}>`
+  left: ${(props) => props.x}px;
+  top: ${(props) => props.y}px;
+  width: ${(props) => props.width}px;
+  height: ${(props) => props.height}px;
 `;

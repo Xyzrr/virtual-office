@@ -21,8 +21,10 @@ const ScreenShareOverlay: React.FC<ScreenShareOverlayProps> = React.memo(
         features={displayId == null ? undefined : `shareDisplayId=${displayId}`}
       >
         <S.Wrapper className={className}>
+          <S.Frame />
           <CursorsOverlay
             colyseusRoom={colyseusRoom}
+            screenOwnerIdentity={localIdentity}
             localIdentity={localIdentity}
           ></CursorsOverlay>
         </S.Wrapper>
