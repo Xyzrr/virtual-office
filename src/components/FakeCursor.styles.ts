@@ -36,6 +36,7 @@ export const Wrapper = styled.div<{ color: string }>`
   position: absolute;
   width: 100px;
   height: 100px;
+  transition: top 0.1s, left 0.1s;
   transform-origin: top left;
   transform: scale(0.2);
   ${Inner} {
