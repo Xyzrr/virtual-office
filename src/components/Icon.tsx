@@ -6,7 +6,7 @@ export type IconProps = Omit<React.ComponentProps<'i'>, 'ref'> & {
   name: string;
 };
 
-const Icon = React.forwardRef<HTMLDivElement, IconProps>(
+const Icon: React.FC<IconProps> = React.forwardRef<HTMLDivElement, IconProps>(
   ({ name, className, ...standardProps }, ref) => {
     return (
       <S.Wrapper
