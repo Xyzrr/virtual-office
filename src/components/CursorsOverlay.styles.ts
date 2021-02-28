@@ -3,15 +3,14 @@ import styled, { keyframes } from 'styled-components';
 const flash = keyframes`
   0%   {
       opacity: 0;
-      transform: scale(0.5);
-      // border-width: 4px;
+      transform: scale(0.2);
   }
   50%  {
-      opacity: 0.2;
+      opacity: 0.6;
   }
   100% {
       opacity: 0;
-      transform: scale(1.8);
+      transform: scale(1);
       border-width: 0;
   }
 `;
@@ -35,7 +34,7 @@ export const Wrapper = styled.div`
     height: 40px;
     border-radius: 100%;
     transform-origin: 50% 50%;
-    border: 4px solid @linkBlue;
-    position: fixed;
+    border: 8px solid white;
+    position: absolute;
   }
 `;
