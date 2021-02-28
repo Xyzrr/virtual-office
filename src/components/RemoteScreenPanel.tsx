@@ -148,7 +148,7 @@ const RemoteScreenPanel: React.FC<RemoteScreenPanelProps> = React.memo(
             ref={videoRef}
             autoPlay
             onMouseMove={(e) => {
-              if (!small) {
+              if (small) {
                 return;
               }
 
@@ -162,7 +162,7 @@ const RemoteScreenPanel: React.FC<RemoteScreenPanelProps> = React.memo(
               });
             }}
             onMouseDown={(e) => {
-              if (!small) {
+              if (small) {
                 return;
               }
 

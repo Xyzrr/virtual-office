@@ -5,6 +5,28 @@ import * as Colyseus from 'colyseus.js';
 import produce from 'immer';
 import FakeCursor from './FakeCursor';
 
+/**
+ * Flashes a growing blue ring around the element, like a single
+ * ripple in water.
+ * @param el The element to flash.
+ */
+export const flash = (el: Element) => {
+  // If we ever actually use this function,
+  // we should make it more like flashFocus,
+  // with options and absolute position instead of fixed.
+  const rect = el.getBoundingClientRect();
+
+  const flasher = document.createElement('div');
+  flasher.className = 'flasher';
+  document.body.appendChild(flasher);
+  flasher.style.left = `${rect.left + rect.width / 2}px`;
+  flasher.style.top = `${rect.top + rect.height / 2}px`;
+
+  window.setTimeout(() => {
+    document.body.removeChild(flasher);
+  }, 2000);
+};
+
 export interface CursorsOverlayProps {
   className?: string;
   colyseusRoom: Colyseus.Room;
@@ -21,6 +43,21 @@ const CursorsOverlay: React.FC<CursorsOverlayProps> = ({
   const [cursors, setCursors] = React.useState<{
     [identity: string]: { x: number; y: number };
   }>({});
+
+  const flash = (x: number, y: number) => {
+    // If we ever actually use this function,
+    // we should make it more like flashFocus,
+    // with options and absolute position instead of fixed.
+    const flasher = document.createElement('div');
+    flasher.className = 'flasher';
+    document.body.appendChild(flasher);
+    flasher.style.left = `${x}px`;
+    flasher.style.top = `${y}px`;
+
+    window.setTimeout(() => {
+      document.body.removeChild(flasher);
+    }, 2000);
+  };
 
   React.useEffect(() => {
     colyseusRoom.state.cursors.onAdd = (cursor: any) => {
@@ -58,7 +95,10 @@ const CursorsOverlay: React.FC<CursorsOverlayProps> = ({
       }
     };
 
-    colyseusRoom.onMessage('cursorMouseDown', (cursorData: any) => {});
+    colyseusRoom.onMessage('cursorMouseDown', (cursorData: any) => {
+      console.log('RECEIVED MOUSE DOWN', cursorData);
+      flash(400, 400);
+    });
   }, [colyseusRoom]);
 
   return (
