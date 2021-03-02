@@ -1,5 +1,6 @@
 import React from 'react';
 import * as electron from 'electron';
+import isHotkey from 'is-hotkey';
 
 export const useFakeMinimize = (opts?: {
   onSetMinimized?(minimized: boolean): void;
@@ -22,7 +23,8 @@ export const useFakeMinimize = (opts?: {
 
   const onKeyDown = React.useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === 'm' && e.metaKey) {
+      console.log('pressed key', e);
+      if (isHotkey('mod+m', e)) {
         e.preventDefault();
 
         if (!minimized) {
