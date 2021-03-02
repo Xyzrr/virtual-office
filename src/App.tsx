@@ -842,7 +842,8 @@ const App: React.FC = () => {
 
   const dragProps = useWindowsDrag();
 
-  useAppTracker(colyseusRoom);
+  const localApp = useAppTracker(colyseusRoom);
+  console.log('LOCAL APP', localApp);
 
   const stopScreenShare = React.useCallback(() => {
     twilioRoom?.localParticipant.videoTracks.forEach((publication) => {

@@ -8,10 +8,18 @@ import * as Colyseus from 'colyseus.js';
 const APPS = [
   { name: 'Code', icon: iconVSCode },
   { name: 'Figma', url: 'figma.com', icon: iconFigma },
-  { name: 'Notion', url: 'notion.so', icon: iconFigma },
+  { name: 'Notion', url: 'notion.so', icon: iconNotion },
 ];
 
+export interface AppInfo {
+  name: string;
+  title: string;
+  url?: string;
+}
+
 export const useAppTracker = (colyseusRoom: Colyseus.Room | null) => {
+  const [localApp, setLocalApp] = React.useState<AppInfo | null>(null);
+
   React.useEffect(() => {
     if (colyseusRoom == null) {
       return;
@@ -31,11 +39,14 @@ export const useAppTracker = (colyseusRoom: Colyseus.Room | null) => {
             ((result as any).url != null &&
               (result as any).url.includes(app.url))
           ) {
-            colyseusRoom.send('appInfo', {
+            const appInfo = {
               title: result.title,
               name: app.name,
               url: (result as any).url,
-            });
+            };
+
+            setLocalApp(appInfo);
+            colyseusRoom.send('appInfo', { ...appInfo });
           }
         }
       });
@@ -45,4 +56,6 @@ export const useAppTracker = (colyseusRoom: Colyseus.Room | null) => {
       window.clearInterval(interval);
     };
   }, [colyseusRoom]);
+
+  return localApp;
 };
