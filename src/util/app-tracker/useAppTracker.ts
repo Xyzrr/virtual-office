@@ -30,6 +30,9 @@ import iconIntelliJ from './app-icons/intellij.png';
 import iconIntercom from './app-icons/intercom.png';
 import iconJira from './app-icons/jira.ico';
 import iconSlack from './app-icons/slack.png';
+import iconSpotify from './app-icons/spotify.png';
+import iconExpensify from './app-icons/expensify.png';
+import iconITerm2 from './app-icons/iterm2.png';
 
 export const APPS = [
   { name: 'VS Code', nameMatch: 'Code', icon: iconVSCode },
@@ -97,6 +100,9 @@ export const APPS = [
   { name: 'Intercom', url: 'intercom.com', icon: iconIntercom },
   { name: 'Jira', url: 'atlassian.net', icon: iconJira },
   { name: 'Slack', url: 'slack.com', icon: iconSlack },
+  { name: 'Spotify', url: 'open.spotify.com', icon: iconSpotify },
+  { name: 'Expensify', url: 'expensify.com', icon: iconExpensify },
+  { name: 'iTerm2', icon: iconITerm2 },
 ];
 
 export interface AppInfo {
