@@ -23,5 +23,9 @@ export const useWindowsDrag = () => {
     window.addEventListener('mousemove', onMouseMove);
   };
 
+  if (process.platform !== 'win32') {
+    return {};
+  }
+
   return { onMouseDown };
 };
