@@ -28,7 +28,7 @@ import ScreenShareOverlay from './components/ScreenShareOverlay';
 import MainToolbar from './components/MainToolbar';
 import { MAX_INTERACTION_DISTANCE } from './components/constants';
 import { useWindowsDrag } from './util/windowsDrag';
-import { useAppTracker } from './util/app-tracker/useAppTracker';
+import { useAppTracker, AppInfo } from './util/app-tracker/useAppTracker';
 
 let host: string;
 if (process.env.LOCAL) {
@@ -46,11 +46,7 @@ export interface ActiveParticipant {
   audioEnabled?: boolean;
   reconnecting?: boolean;
   networkQuality?: number;
-  sharedApp?: {
-    title: string;
-    name: string;
-    url?: string;
-  };
+  sharedApp?: AppInfo;
 }
 
 const App: React.FC = () => {
@@ -490,6 +486,10 @@ const App: React.FC = () => {
     };
   });
 
+  const dragProps = useWindowsDrag();
+
+  const localApp = useAppTracker(colyseusRoom);
+
   const [minimized, setMinimized] = useFakeMinimize();
 
   let nextSmallPanelY = 8;
@@ -574,6 +574,7 @@ const App: React.FC = () => {
           width={width}
           height={height}
           minY={small && mapIsSmall ? 135 + 16 : undefined}
+          sharedApp={localApp}
           small={small}
           onSetExpanded={(value) => {
             if (value) {
@@ -839,11 +840,6 @@ const App: React.FC = () => {
       window.removeEventListener('wheel', onWheel);
     };
   }, [nextSmallPanelY]);
-
-  const dragProps = useWindowsDrag();
-
-  const localApp = useAppTracker(colyseusRoom);
-  console.log('LOCAL APP', localApp);
 
   const stopScreenShare = React.useCallback(() => {
     twilioRoom?.localParticipant.videoTracks.forEach((publication) => {
