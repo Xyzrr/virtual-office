@@ -173,7 +173,11 @@ const createWindow = async () => {
         event.newGuest = screenShareToolbar;
 
         screenShareToolbar.setBackgroundColor('#00000000');
-        screenShareToolbar.setWindowButtonVisibility(false);
+        try {
+          screenShareToolbar.setWindowButtonVisibility(false);
+        } catch (e) {
+          console.log('Could not set window button visibility:', e);
+        }
         screenShareToolbar.setAlwaysOnTop(true);
         screenShareToolbar.setContentProtection(true);
         screenShareToolbar.setFocusable(false);
@@ -283,7 +287,11 @@ const createWindow = async () => {
           screenShareOverlay.setAlwaysOnTop(true, 'floating', -1);
         }
         screenShareOverlay.setFocusable(false);
-        screenShareOverlay.setWindowButtonVisibility(false);
+        try {
+          screenShareOverlay.setWindowButtonVisibility(false);
+        } catch (e) {
+          console.log('Could not set window button visibility:', e);
+        }
         screenShareOverlay.setIgnoreMouseEvents(true);
         screenShareOverlay.setContentProtection(true);
 
@@ -356,7 +364,11 @@ ipcMain.handle('unminimize', () => {
     return;
   }
 
-  mainWindow.setWindowButtonVisibility(true);
+  try {
+    mainWindow.setWindowButtonVisibility(true);
+  } catch (e) {
+    console.log('Could not set window button visibility:', e);
+  }
   mainWindow.setResizable(true);
   mainWindow.setAlwaysOnTop(false);
   mainWindow.setVisibleOnAllWorkspaces(false);
@@ -381,7 +393,11 @@ ipcMain.handle('minimize', (e) => {
 
   mainWindow.setVisibleOnAllWorkspaces(true);
   mainWindow.setMinimumSize(minimizedWidth, 135 + 16);
-  mainWindow.setWindowButtonVisibility(false);
+  try {
+    mainWindow.setWindowButtonVisibility(false);
+  } catch (e) {
+    console.log('Could not set window button visibility:', e);
+  }
   mainWindow.setResizable(false);
   mainWindow.setAlwaysOnTop(true);
   mainWindow.setHasShadow(false);
