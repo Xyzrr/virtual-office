@@ -9,6 +9,8 @@ import NetworkQualityIndicator from './NetworkQualityIndicator';
 import { useMouseIsIdle } from '../util/useMouseIsIdle';
 import { MAX_INTERACTION_DISTANCE } from './constants';
 import PanelWrapper from './PanelWrapper';
+import { AppInfo } from '../util/app-tracker/useAppTracker';
+import AppIndicator from './AppIndicator';
 
 export interface RemoteUserPanelProps {
   className?: string;
@@ -25,6 +27,8 @@ export interface RemoteUserPanelProps {
   distance: number;
   reconnecting?: boolean;
   networkQuality?: number;
+  sharedApp?: AppInfo;
+
   small?: boolean;
   onSetExpanded(value: boolean): void;
 }
@@ -43,6 +47,7 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = React.memo(
     distance,
     reconnecting,
     networkQuality,
+    sharedApp,
     small,
     onSetExpanded,
   }) => {
@@ -176,6 +181,7 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = React.memo(
               }}
             ></HoverMenuStyles.MenuItem>
           </HoverMenu>
+          {sharedApp != null && <AppIndicator appInfo={sharedApp} />}
         </S.Wrapper>
       </PanelWrapper>
     );

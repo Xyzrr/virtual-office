@@ -108,9 +108,7 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = React.memo(
               }}
             ></HoverMenuStyles.MenuItem>
           </HoverMenu>
-          {sharedApp != null && (
-            <AppIndicator appInfo={sharedApp}></AppIndicator>
-          )}
+          {sharedApp != null && <AppIndicator appInfo={sharedApp} />}
         </S.Wrapper>
       </PanelWrapper>
     );

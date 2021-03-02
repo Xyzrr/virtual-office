@@ -702,6 +702,7 @@ const App: React.FC = () => {
           distance={distance}
           reconnecting={ap.reconnecting}
           networkQuality={ap.networkQuality}
+          sharedApp={ap.sharedApp}
           small={small}
           onSetExpanded={(value) => {
             if (value) {
