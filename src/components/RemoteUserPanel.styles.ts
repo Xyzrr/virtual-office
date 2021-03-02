@@ -58,6 +58,6 @@ export const ReconnectingIndicator = styled.div`
 export const StyledNetworkQualityIndicator = styled(NetworkQualityIndicator)`
   position: absolute;
   bottom: 8px;
-  right: 8px;
+  right: 32px;
   color: white;
 `;
