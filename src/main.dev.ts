@@ -411,3 +411,8 @@ ipcMain.handle('updateMinimizedHeight', (e, minimizedHeight: number) => {
 
   mainWindow.setBounds({ height: minimizedHeight });
 });
+
+ipcMain.on('windowMoving', (e, { mouseX, mouseY }) => {
+  const { x, y } = screen.getCursorScreenPoint();
+  mainWindow?.setPosition(x - mouseX, y - mouseY);
+});

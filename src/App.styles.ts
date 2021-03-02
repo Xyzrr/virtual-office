@@ -15,7 +15,9 @@ export const GlobalStyles = createGlobalStyle<{
     props.minimized
       ? css`
           ${AppWrapper}, ${PanelWrapperStyles.Wrapper} {
-            -webkit-app-region: drag !important;
+            -webkit-app-region: ${process.platform === 'win32'
+              ? 'no-drag'
+              : 'drag'} !important;
           }
           ${AppWrapper} {
             &:hover {
@@ -28,7 +30,9 @@ export const GlobalStyles = createGlobalStyle<{
         `
       : css`
           ${DraggableBar} {
-            -webkit-app-region: drag;
+            -webkit-app-region: ${process.platform === 'win32'
+              ? 'no-drag'
+              : 'drag'};
           }
           ${AppWrapper} {
             background: black !important;
@@ -52,10 +56,10 @@ export const AppWrapper = styled.div`
 `;
 
 export const DraggableBar = styled.div`
-  position: relative;
+  position: absolute;
+  top: 0;
   width: 100%;
   height: 40px;
-  margin-bottom: -40px;
   z-index: 1;
   &:hover {
     background: rgba(255, 255, 255, 0.1);

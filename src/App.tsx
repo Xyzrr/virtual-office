@@ -27,6 +27,7 @@ import ScreenShareToolbar from './components/ScreenShareToolbar';
 import ScreenShareOverlay from './components/ScreenShareOverlay';
 import MainToolbar from './components/MainToolbar';
 import { MAX_INTERACTION_DISTANCE } from './components/constants';
+import { useWindowsDrag } from './util/windowsDrag';
 
 let host: string;
 if (process.env.LOCAL) {
@@ -827,6 +828,8 @@ const App: React.FC = () => {
     }
   }, [twilioRoom]);
 
+  const dragProps = useWindowsDrag();
+
   return (
     <LocalMediaContext.Provider
       value={{
@@ -985,9 +988,9 @@ const App: React.FC = () => {
         stopScreenShare,
       }}
     >
-      <S.AppWrapper>
+      <S.AppWrapper {...(minimized && dragProps)}>
         <S.GlobalStyles minimized={minimized} focused={appFocused} />
-        <S.DraggableBar />
+        <S.DraggableBar {...(!minimized && dragProps)}></S.DraggableBar>
         {panelElements}
         <MainToolbar minimized={minimized} />
       </S.AppWrapper>
