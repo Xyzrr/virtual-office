@@ -10,7 +10,7 @@ export const useWindowsDrag = () => {
   };
 
   const onMouseMove = () => {
-    ipcRenderer.send('windowMoving', {
+    ipcRenderer.send('dragWindow', {
       mouseX: mousePos.current.x,
       mouseY: mousePos.current.y,
     });
@@ -23,9 +23,13 @@ export const useWindowsDrag = () => {
     window.addEventListener('mousemove', onMouseMove);
   };
 
+  const onDoubleClick = (e: React.MouseEvent) => {
+    ipcRenderer.send('toggleMaximized');
+  };
+
   if (process.platform !== 'win32') {
     return {};
   }
 
-  return { onMouseDown };
+  return { onMouseDown, onDoubleClick };
 };

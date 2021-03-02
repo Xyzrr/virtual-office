@@ -412,7 +412,32 @@ ipcMain.handle('updateMinimizedHeight', (e, minimizedHeight: number) => {
   mainWindow.setBounds({ height: minimizedHeight });
 });
 
-ipcMain.on('windowMoving', (e, { mouseX, mouseY }) => {
+ipcMain.on('dragWindow', (e, { mouseX, mouseY }) => {
+  if (mainWindow == null) {
+    return;
+  }
+
+  if (mainWindow.isMaximized()) {
+    mainWindow.unmaximize();
+  }
+
+  const { width } = mainWindow.getBounds();
+  if (mouseX > width) {
+    mouseX = width;
+  }
+
   const { x, y } = screen.getCursorScreenPoint();
-  mainWindow?.setPosition(x - mouseX, y - mouseY);
+  mainWindow.setPosition(x - mouseX, y - mouseY);
+});
+
+ipcMain.on('toggleMaximized', () => {
+  if (mainWindow == null) {
+    return;
+  }
+
+  if (mainWindow.isMaximized()) {
+    mainWindow.unmaximize();
+  } else {
+    mainWindow.maximize();
+  }
 });
