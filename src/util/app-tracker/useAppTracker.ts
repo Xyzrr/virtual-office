@@ -8,7 +8,7 @@ import iconVSCode from './app-icons/vscode.ico';
 import iconAsana from './app-icons/asana.png';
 import iconGoogleCal from './app-icons/google-cal.ico';
 import iconGoogleDocs from './app-icons/google-docs.ico';
-import iconGoogleDrive from './app-icons/google-drive.png';
+import iconGoogleDrive from './app-icons/google-drive.ico';
 import iconGoogleMeet from './app-icons/google-meet.png';
 import iconGoogleSheets from './app-icons/google-sheets.ico';
 import iconGoogleSlides from './app-icons/google-slides.ico';
@@ -28,7 +28,7 @@ import iconGCloud from './app-icons/gcloud.png';
 import iconGitLab from './app-icons/gitlab.png';
 import iconIntelliJ from './app-icons/intellij.png';
 import iconIntercom from './app-icons/intercom.png';
-import iconJira from './app-icons/jira.png';
+import iconJira from './app-icons/jira.ico';
 import iconSlack from './app-icons/slack.png';
 
 export const APPS = [
