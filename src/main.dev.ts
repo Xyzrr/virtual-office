@@ -155,14 +155,14 @@ const createWindow = async () => {
       if (frameName === 'screen-share-toolbar') {
         event.preventDefault();
 
-        const screenBounds = screen.getPrimaryDisplay().bounds;
+        const workAreaBounds = screen.getPrimaryDisplay().workArea;
 
         screenShareToolbar = new BrowserWindow({
           ...options,
           width: 252,
           height: 52,
-          x: screenBounds.width / 2 - 252 / 2,
-          y: screenBounds.height - 52 - 8,
+          x: workAreaBounds.x + workAreaBounds.width / 2 - 252 / 2,
+          y: workAreaBounds.y + workAreaBounds.height - 52 - 8,
           minWidth: undefined,
           minHeight: undefined,
           resizable: false,

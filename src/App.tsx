@@ -28,6 +28,7 @@ import ScreenShareOverlay from './components/ScreenShareOverlay';
 import MainToolbar from './components/MainToolbar';
 import { MAX_INTERACTION_DISTANCE } from './components/constants';
 import { useWindowsDrag } from './util/windowsDrag';
+import { useAppTracker } from './util/app-tracker/useAppTracker';
 
 let host: string;
 if (process.env.LOCAL) {
@@ -45,6 +46,11 @@ export interface ActiveParticipant {
   audioEnabled?: boolean;
   reconnecting?: boolean;
   networkQuality?: number;
+  sharedApp?: {
+    title: string;
+    name: string;
+    url?: string;
+  };
 }
 
 const App: React.FC = () => {
@@ -411,6 +417,18 @@ const App: React.FC = () => {
                   }
 
                   draft[identity].audioEnabled = player.audioEnabled;
+                });
+              });
+            }
+
+            if (changes.find((c) => (c as any).field === 'sharedApp') != null) {
+              setActiveParticipants((aps) => {
+                return produce(aps, (draft) => {
+                  if (draft[identity] == null) {
+                    return;
+                  }
+
+                  draft[identity].sharedApp = player.sharedApp;
                 });
               });
             }
@@ -822,6 +840,10 @@ const App: React.FC = () => {
     };
   }, [nextSmallPanelY]);
 
+  const dragProps = useWindowsDrag();
+
+  useAppTracker(colyseusRoom);
+
   const stopScreenShare = React.useCallback(() => {
     twilioRoom?.localParticipant.videoTracks.forEach((publication) => {
       if (publication.trackName.startsWith('screen')) {
@@ -835,8 +857,6 @@ const App: React.FC = () => {
       setMinimized(false);
     }
   }, [twilioRoom]);
-
-  const dragProps = useWindowsDrag();
 
   return (
     <LocalMediaContext.Provider

@@ -7,6 +7,7 @@ import HoverMenu from './HoverMenu';
 import { LocalMediaContext } from '../contexts/LocalMediaContext';
 import { useMouseIsIdle } from '../util/useMouseIsIdle';
 import PanelWrapper, { PanelWrapperProps } from './PanelWrapper';
+import * as Colyseus from 'colyseus.js';
 
 export interface LocalUserPanelProps {
   className?: string;
