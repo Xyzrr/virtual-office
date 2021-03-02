@@ -382,6 +382,10 @@ const App: React.FC = () => {
 
               setActiveParticipants((aps) => {
                 return produce(aps, (draft) => {
+                  if (draft[id] == null) {
+                    return;
+                  }
+
                   draft[id].distance = dist;
                 });
               });
@@ -402,6 +406,10 @@ const App: React.FC = () => {
             ) {
               setActiveParticipants((aps) => {
                 return produce(aps, (draft) => {
+                  if (draft[identity] == null) {
+                    return;
+                  }
+                  
                   draft[identity].audioEnabled = player.audioEnabled;
                 });
               });
