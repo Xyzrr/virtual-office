@@ -13,4 +13,6 @@ export const Wrapper = styled.div`
 export const StopButton = styled(Button).attrs({
   color: 'danger',
   variant: 'contained',
-})``;
+})`
+  -webkit-app-region: no-drag;
+`;
