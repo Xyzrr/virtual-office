@@ -9,16 +9,16 @@ export interface ScreenShareOverlayProps {
   open: boolean;
   colyseusRoom: Colyseus.Room;
   localIdentity: string;
-  displayId?: string;
+  sourceId: string;
 }
 
 const ScreenShareOverlay: React.FC<ScreenShareOverlayProps> = React.memo(
-  ({ className, open, colyseusRoom, localIdentity, displayId }) => {
+  ({ className, open, colyseusRoom, localIdentity, sourceId }) => {
     return (
       <NewWindow
         name="screen-share-overlay"
         open={open}
-        features={displayId == null ? undefined : `shareDisplayId=${displayId}`}
+        features={`shareSourceId=${sourceId}`}
       >
         <S.Wrapper className={className}>
           <S.Frame />

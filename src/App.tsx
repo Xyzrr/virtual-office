@@ -63,8 +63,8 @@ const App: React.FC = () => {
     false
   );
   const [
-    localScreenShareDisplayId,
-    setLocalScreenShareDisplayId,
+    localScreenShareSourceId,
+    setLocalScreenShareSourceId,
   ] = React.useState<string | undefined>();
   const [localAudioInputDeviceId, setLocalAudioInputDeviceId] = React.useState<
     string | undefined
@@ -409,7 +409,7 @@ const App: React.FC = () => {
                   if (draft[identity] == null) {
                     return;
                   }
-                  
+
                   draft[identity].audioEnabled = player.audioEnabled;
                 });
               });
@@ -850,7 +850,7 @@ const App: React.FC = () => {
         localAudioInputDeviceId,
         localAudioOutputDeviceId,
         localVideoInputDeviceId,
-        localScreenShareDisplayId,
+        localScreenShareSourceId,
         localScreenShareEnabled,
         enableLocalVideoInput() {
           createLocalVideoTrack(createLocalVideoTrackOptions)
@@ -965,7 +965,7 @@ const App: React.FC = () => {
           console.log('Published new video track from device ID', value);
           return track;
         },
-        async screenShare(id: string, displayId?: string) {
+        async screenShare(id: string) {
           try {
             const stream = await navigator.mediaDevices.getUserMedia({
               audio: false,
@@ -985,7 +985,7 @@ const App: React.FC = () => {
             });
             await twilioRoom?.localParticipant.publishTrack(screenTrack);
 
-            setLocalScreenShareDisplayId(displayId);
+            setLocalScreenShareSourceId(id);
             setLocalScreenShareEnabled(true);
             wasMinimizedWhenStartedScreenSharing.current = minimized;
             setMinimized(true);
@@ -1006,12 +1006,12 @@ const App: React.FC = () => {
         open={localScreenShareEnabled}
         onStop={stopScreenShare}
       ></ScreenShareToolbar>
-      {colyseusRoom != null && (
+      {colyseusRoom != null && localScreenShareSourceId != null && (
         <ScreenShareOverlay
           open={localScreenShareEnabled}
           colyseusRoom={colyseusRoom}
           localIdentity={localIdentity}
-          displayId={localScreenShareDisplayId}
+          sourceId={localScreenShareSourceId}
         />
       )}
     </LocalMediaContext.Provider>

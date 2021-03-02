@@ -9,7 +9,7 @@ export interface ScreenSharePickerProps {
   className?: string;
   open: boolean;
   onClose?(): void;
-  onStart?(id: string, displayId?: string): void;
+  onStart?(id: string): void;
 }
 
 const ScreenSharePicker: React.FC<ScreenSharePickerProps> = React.memo(
@@ -23,10 +23,6 @@ const ScreenSharePicker: React.FC<ScreenSharePickerProps> = React.memo(
     const [selectedSourceId, setSelectedSourceId] = React.useState<
       string | null
     >(null);
-    const [
-      selectedSourceDisplayId,
-      setSelectedSourceDisplayId,
-    ] = React.useState<string | undefined>(undefined);
 
     React.useEffect(() => {
       if (!open) {
@@ -67,16 +63,11 @@ const ScreenSharePicker: React.FC<ScreenSharePickerProps> = React.memo(
                     key={source.id}
                     selected={source.id === selectedSourceId}
                     onClick={() => {
-                      console.log(
-                        'Selected screen',
-                        source.id,
-                        source.display_id
-                      );
+                      console.log('Selected screen', source.id);
                       setSelectedSourceId(source.id);
-                      setSelectedSourceDisplayId(source.display_id);
                     }}
                     onDoubleClick={() => {
-                      onStart?.(source.id, source.display_id);
+                      onStart?.(source.id);
                     }}
                   >
                     {source.thumbnail != null && (
@@ -103,13 +94,8 @@ const ScreenSharePicker: React.FC<ScreenSharePickerProps> = React.memo(
                       key={source.id}
                       selected={source.id === selectedSourceId}
                       onClick={() => {
-                        console.log(
-                          'Selected window',
-                          source.id,
-                          source.display_id
-                        );
+                        console.log('Selected window', source.id);
                         setSelectedSourceId(source.id);
-                        setSelectedSourceDisplayId(undefined);
                       }}
                       onDoubleClick={() => {
                         onStart?.(source.id);
@@ -142,7 +128,7 @@ const ScreenSharePicker: React.FC<ScreenSharePickerProps> = React.memo(
               disabled={selectedSourceId == null}
               onClick={() => {
                 if (selectedSourceId != null) {
-                  onStart?.(selectedSourceId, selectedSourceDisplayId);
+                  onStart?.(selectedSourceId);
                 }
               }}
             >

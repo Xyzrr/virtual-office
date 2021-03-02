@@ -189,21 +189,20 @@ const createWindow = async () => {
       if (frameName === 'screen-share-overlay') {
         event.preventDefault();
 
-        const sharingWholeScreen = 'shareDisplayId' in options;
+        const { shareSourceId } = options as any;
+        delete (options as any).shareSourceId;
+
+        const [sourceType, sourceId, sourceTab] = shareSourceId.split(':');
+        const sourceIdNumber = parseInt(sourceId, 10);
 
         let failed = false;
+        let wrongInitialActiveWindow = false;
 
         const additionalOpts: any = {};
-        if (sharingWholeScreen) {
-          const displayId = parseInt(
-            (options as any).shareDisplayId as string,
-            10
-          );
-          delete (options as any).shareDisplayId;
-
+        if (sourceType === 'screen') {
           const sharedDisplay = screen
             .getAllDisplays()
-            .find((d) => d.id === displayId);
+            .find((d) => d.id === sourceIdNumber);
 
           additionalOpts.x = sharedDisplay?.bounds.x;
           additionalOpts.y = sharedDisplay?.bounds.y;
@@ -222,26 +221,55 @@ const createWindow = async () => {
             failed = true;
           }
 
+          if (id === sourceIdNumber) {
+            additionalOpts.x = bounds?.x;
+            additionalOpts.y = bounds?.y;
+            additionalOpts.width = bounds?.width;
+            additionalOpts.height = bounds?.height;
+          } else {
+            wrongInitialActiveWindow = true;
+          }
+
           if (!failed) {
             screenShareOverlayInterval = setInterval(() => {
               const startTime = Date.now();
               activeWin()
                 .then((result) => {
+                  if (screenShareOverlay == null) {
+                    return;
+                  }
+
                   const endTime = Date.now();
-                  console.log('TOOK', endTime - startTime, 'ms', id, result);
-                  if (result && result.id === id) {
-                    if (
-                      !_.isEqual(screenShareOverlay?.getBounds(), result.bounds)
-                    ) {
-                      screenShareOverlay?.setBounds(result.bounds);
+                  console.log(
+                    'TOOK',
+                    endTime - startTime,
+                    'ms',
+                    sourceIdNumber,
+                    result
+                  );
+                  if (result && result.id === sourceIdNumber) {
+                    if (!screenShareOverlay.isVisible()) {
+                      screenShareOverlay.show();
                     }
-                    if (!screenShareOverlay?.isAlwaysOnTop()) {
-                      screenShareOverlay?.setAlwaysOnTop(true, 'floating', -1);
+
+                    if (
+                      !_.isEqual(screenShareOverlay.getBounds(), result.bounds)
+                    ) {
+                      screenShareOverlay.setBounds(result.bounds);
+                    }
+                    if (!screenShareOverlay.isAlwaysOnTop()) {
+                      screenShareOverlay.setAlwaysOnTop(true, 'floating', -1);
                     }
                   } else {
-                    if (screenShareOverlay?.isAlwaysOnTop()) {
-                      screenShareOverlay?.setAlwaysOnTop(false);
-                      screenShareOverlay?.moveAbove(`window:${id}:0`);
+                    if (!screenShareOverlay.isVisible()) {
+                      return;
+                    }
+
+                    if (screenShareOverlay.isAlwaysOnTop()) {
+                      screenShareOverlay.setAlwaysOnTop(false);
+                      screenShareOverlay.moveAbove(
+                        `window:${sourceIdNumber}:0`
+                      );
                     }
                   }
                 })
@@ -252,10 +280,6 @@ const createWindow = async () => {
                   );
                 });
             }, 1000);
-            additionalOpts.x = bounds?.x;
-            additionalOpts.y = bounds?.y;
-            additionalOpts.width = bounds?.width;
-            additionalOpts.height = bounds?.height;
           }
         }
 
@@ -273,7 +297,7 @@ const createWindow = async () => {
         event.newGuest = screenShareOverlay;
 
         screenShareOverlay.setBackgroundColor('#00000000');
-        if (sharingWholeScreen) {
+        if (sourceType === 'screen') {
           screenShareOverlay.setSimpleFullScreen(true);
           screenShareOverlay.setAlwaysOnTop(true, 'screen-saver');
           screenShareOverlay.setVisibleOnAllWorkspaces(true, {
@@ -287,7 +311,7 @@ const createWindow = async () => {
         screenShareOverlay.setIgnoreMouseEvents(true);
         screenShareOverlay.setContentProtection(true);
 
-        if (!failed) {
+        if (!failed && !wrongInitialActiveWindow) {
           screenShareOverlay.once('ready-to-show', () => {
             screenShareOverlay?.show();
           });
