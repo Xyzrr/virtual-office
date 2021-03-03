@@ -59,6 +59,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
         antialias: !process.env.LOW_POWER,
         resolution: process.env.LOW_POWER ? 1 : window.devicePixelRatio,
         autoDensity: true,
+        backgroundColor: 0x191919,
       });
       app.stage.sortableChildren = true;
 
