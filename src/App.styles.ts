@@ -50,7 +50,7 @@ export const GlobalStyles = createGlobalStyle<{
 `;
 
 export const AppWrapper = styled.div`
-  height: 100vh;
+  height: calc(100vh - 40px);
   position: relative;
   overflow: hidden;
 `;
@@ -64,4 +64,10 @@ export const DraggableBar = styled.div`
   &:hover {
     background: rgba(255, 255, 255, 0.1);
   }
+`;
+
+export const TopBar = styled.div<{ focused: boolean }>`
+  height: 40px;
+  background: ${(props) => (props.focused ? '#262626' : '#222')};
+  -webkit-app-region: drag;
 `;

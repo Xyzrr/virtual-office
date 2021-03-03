@@ -516,7 +516,7 @@ const App: React.FC = () => {
       x = 0;
       y = 0;
       width = windowSize.width;
-      height = windowSize.height;
+      height = windowSize.height - 40;
     }
 
     if (colyseusRoom != null) {
@@ -563,7 +563,7 @@ const App: React.FC = () => {
         x = 0;
         y = 0;
         width = windowSize.width;
-        height = windowSize.height;
+        height = windowSize.height - 40;
       }
 
       panelElements.push(
@@ -668,7 +668,7 @@ const App: React.FC = () => {
         x = 0;
         y = 0;
         width = windowSize.width;
-        height = windowSize.height;
+        height = windowSize.height - 40;
       }
 
       let videoTrack: MediaStreamTrack | undefined;
@@ -755,7 +755,7 @@ const App: React.FC = () => {
         x = 0;
         y = 0;
         width = windowSize.width;
-        height = windowSize.height;
+        height = windowSize.height - 40;
       }
 
       let videoTrack: MediaStreamTrack | undefined;
@@ -1014,9 +1014,9 @@ const App: React.FC = () => {
         stopScreenShare,
       }}
     >
+      <S.TopBar focused={appFocused}></S.TopBar>
       <S.AppWrapper {...(minimized && dragProps)}>
         <S.GlobalStyles minimized={minimized} focused={appFocused} />
-        <S.DraggableBar {...(!minimized && dragProps)}></S.DraggableBar>
         {panelElements}
         <MainToolbar minimized={minimized} />
       </S.AppWrapper>
