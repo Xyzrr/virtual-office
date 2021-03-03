@@ -1,6 +1,7 @@
 import styled, { createGlobalStyle, css } from 'styled-components';
 import * as PanelWrapperStyles from './components/PanelWrapper.styles';
 import Icon from './components/Icon';
+import { LIGHT_BACKGROUND, DARK_BACKGROUND } from './components/constants';
 
 export const GlobalStyles = createGlobalStyle<{
   minimized?: boolean;
@@ -36,7 +37,7 @@ export const GlobalStyles = createGlobalStyle<{
               : 'drag'};
           }
           ${AppWrapper} {
-            background: black !important;
+            background: ${DARK_BACKGROUND.toString()} !important;
           }
         `}
       ${(props) =>
@@ -69,7 +70,8 @@ export const DraggableBar = styled.div`
 
 export const TopBar = styled.div<{ focused: boolean }>`
   height: 40px;
-  background: ${(props) => (props.focused ? '#262626' : '#222')};
+  background: ${(props) =>
+    props.focused ? LIGHT_BACKGROUND.toString() : '#222'};
   -webkit-app-region: drag;
   display: flex;
   justify-content: space-between;

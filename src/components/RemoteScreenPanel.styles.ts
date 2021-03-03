@@ -1,6 +1,7 @@
 import styled, { css } from 'styled-components';
 import Icon from './Icon';
 import CursorsOverlay from './CursorsOverlay';
+import { DARK_BACKGROUND } from './constants';
 
 export const Wrapper = styled.div<{ videoOpacity: number }>`
   position: relative;
@@ -10,7 +11,7 @@ export const Wrapper = styled.div<{ videoOpacity: number }>`
   box-shadow: 0 0 0 2px rgba(0, 255, 0, 0);
   width: 100%;
   height: 100%;
-  background: black;
+  background: ${DARK_BACKGROUND.toString()};
   video {
     display: block;
     width: 100%;

@@ -21,6 +21,7 @@ import { centerOnParent } from './util/electron-helpers';
 import ScreenSharePicker from './components/ScreenSharePicker';
 import activeWin from 'active-win';
 import * as _ from 'lodash';
+import { LIGHT_BACKGROUND } from './components/constants';
 
 export default class AppUpdater {
   constructor() {
@@ -89,6 +90,7 @@ const createWindow = async () => {
     // frame: false,
     // transparent: true,
     titleBarStyle: 'hiddenInset',
+    backgroundColor: LIGHT_BACKGROUND.toString(),
     webPreferences: {
       nodeIntegration: true,
       nativeWindowOpen: true,
