@@ -218,17 +218,11 @@ const App: React.FC = () => {
 
             draft[participant.user_name].sid = sid;
 
-            if (participant.videoTrack != null) {
-              draft[participant.user_name].videoSubscribed = true;
-            }
+            draft[participant.user_name].videoSubscribed = participant.video;
 
-            if (participant.audioTrack != null) {
-              draft[participant.user_name].audioSubscribed = true;
-            }
+            draft[participant.user_name].audioSubscribed = participant.audio;
 
-            if (participant.screenVideoTrack != null) {
-              draft[participant.user_name].screenSubscribed = true;
-            }
+            draft[participant.user_name].screenSubscribed = participant.screen;
           }
 
           for (const [id, ap] of Object.entries(draft)) {
@@ -286,6 +280,10 @@ const App: React.FC = () => {
       if (localParticipant == null) {
         return;
       }
+
+      setLocalAudioInputEnabled(localParticipant.audio);
+      setLocalVideoInputEnabled(localParticipant.video);
+      setLocalScreenShareEnabled(localParticipant.screen);
 
       setLocalAudioTrack(localParticipant.audioTrack);
       setLocalVideoTrack(localParticipant.videoTrack);
@@ -752,12 +750,11 @@ const App: React.FC = () => {
 
   const stopScreenShare = React.useCallback(() => {
     callObject?.stopScreenShare();
-    setLocalScreenShareEnabled(false);
 
     if (!wasMinimizedWhenStartedScreenSharing.current) {
       setMinimized(false);
     }
-  }, [twilioRoom]);
+  }, [callObject]);
 
   return (
     <CallObjectContext.Provider value={callObject}>
@@ -776,20 +773,16 @@ const App: React.FC = () => {
           localScreenShareEnabled,
           enableLocalVideoInput() {
             callObject?.setLocalVideo(true);
-            setLocalVideoInputEnabled(true);
           },
           disableLocalVideoInput() {
             callObject?.setLocalVideo(false);
-            setLocalVideoInputEnabled(false);
           },
           enableLocalAudioInput() {
             callObject?.setLocalAudio(true);
-            setLocalAudioInputEnabled(true);
             colyseusRoom?.send('setPlayerAudioEnabled', true);
           },
           disableLocalAudioInput() {
             callObject?.setLocalAudio(false);
-            setLocalAudioInputEnabled(false);
             colyseusRoom?.send('setPlayerAudioEnabled', false);
           },
           setLocalAudioOutputEnabled,
@@ -808,21 +801,8 @@ const App: React.FC = () => {
             callObject?.setInputDevices({ videoDeviceId: value });
           },
           async screenShare(id: string) {
-            const stream = await navigator.mediaDevices.getUserMedia({
-              audio: false,
-              video: {
-                mandatory: {
-                  chromeMediaSource: 'desktop',
-                  chromeMediaSourceId: id,
-                  maxFrameRate: 10,
-                  maxWidth: 1280,
-                },
-              },
-            } as any);
-
-            callObject?.startScreenShare({ mediaStream: stream });
+            callObject?.startScreenShare({ chromeMediaSourceId: id });
             setLocalScreenShareSourceId(id);
-            setLocalScreenShareEnabled(true);
           },
           stopScreenShare,
         }}

@@ -5,7 +5,7 @@ export const useVolume = (
   callback: (volume: number) => void
 ) => {
   React.useEffect(() => {
-    if (audioTrack == null) {
+    if (!audioTrack) {
       return;
     }
 
