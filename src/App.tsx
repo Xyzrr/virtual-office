@@ -14,6 +14,11 @@ import {
   LocalVideoTrack,
   LocalAudioTrack,
 } from 'twilio-video';
+import DailyIframe, {
+  DailyCallOptions,
+  DailyCall,
+  DailyEvent,
+} from '@daily-co/daily-js';
 import * as Colyseus from 'colyseus.js';
 import { useFakeMinimize } from './util/useFakeMinimize';
 import produce from 'immer';
@@ -29,6 +34,7 @@ import MainToolbar from './components/MainToolbar';
 import { MAX_INTERACTION_DISTANCE } from './components/constants';
 import { useWindowsDrag } from './util/windowsDrag';
 import { useAppTracker, AppInfo } from './util/app-tracker/useAppTracker';
+import CallObjectContext from './contexts/CallObjectContext';
 
 let host: string;
 if (process.env.LOCAL) {
@@ -51,6 +57,7 @@ export interface ActiveParticipant {
 
 const App: React.FC = () => {
   const [twilioRoom, setTwilioRoom] = React.useState<Room | null>(null);
+  const [appState, setAppState] = useState(STATE_IDLE);
 
   const [localAudioInputEnabled, setLocalAudioInputEnabled] = React.useState(
     true
@@ -88,6 +95,7 @@ const App: React.FC = () => {
   const [localScreenVideoTrack, setLocalScreenVideoTrack] = React.useState<
     MediaStreamTrack | undefined
   >();
+  const [callObject, setCallObject] = React.useState<DailyCall | null>(null);
 
   const wasMinimizedWhenStartedScreenSharing = React.useRef(false);
 
@@ -119,233 +127,84 @@ const App: React.FC = () => {
 
   React.useEffect(() => {
     const endpoint = `http${process.env.LOCAL ? '' : 's'}://${host}/token`;
-    const params = new window.URLSearchParams({
-      identity: localIdentity,
-      roomName: 'cool-room',
-    });
-    const headers = new window.Headers();
-    fetch(`${endpoint}?${params}`, { headers })
-      .then(async (res) => {
-        let token: string | undefined;
-        try {
-          token = await res.text();
-        } catch (e) {
-          console.log(e);
-        }
-
-        if (token == null) {
-          return;
-        }
-
-        console.log('Twilio access token:', token);
-
-        /** Initialize local tracks */
-
-        const localTracks: LocalTrack[] = [];
-
-        if (!process.env.NO_AUDIO) {
-          const localAudioTwilioTrack = await createLocalAudioTrack();
-          setLocalAudioTrack(localAudioTwilioTrack.mediaStreamTrack);
-          localTracks.push(localAudioTwilioTrack);
-
-          if (!localAudioInputEnabled) {
-            localAudioTwilioTrack.disable();
-          }
-        }
-
-        if (localVideoInputEnabled) {
-          const localVideoTwilioTrack = await createLocalVideoTrack(
-            createLocalVideoTrackOptions
-          );
-          setLocalVideoTrack(localVideoTwilioTrack.mediaStreamTrack);
-          localTracks.push(localVideoTwilioTrack);
-        }
-
-        /** Connect to Twilio */
-
-        let room: Room;
-        try {
-          room = await connect(token, {
-            name: 'cool-room',
-            tracks: localTracks,
-            preferredVideoCodecs: [{ codec: 'VP8', simulcast: true }],
-            networkQuality: { local: 1, remote: 1 },
-            bandwidthProfile: {
-              video: {
-                mode: 'collaboration',
-                renderDimensions: {
-                  high: { height: 1080, width: 1920 },
-                  standard: { height: 720, width: 1280 },
-                  low: { height: 135, width: 240 },
-                },
-              },
-            },
-          });
-        } catch (error) {
-          console.log(`Unable to connect to Twilio room: ${error.message}`);
-          return;
-        }
-
-        room.localParticipant.videoTracks.forEach((publication) => {
-          publication.setPriority('low');
-        });
-
-        window.addEventListener('beforeunload', () => {
-          room.disconnect();
-        });
-
-        console.log('Joined Twilio room', room);
-        setTwilioRoom(room);
-
-        const handleConnectedParticipant = (participant: RemoteParticipant) => {
-          setActiveParticipants((aps) =>
-            produce(aps, (draft) => {
-              if (draft[participant.identity] == null) {
-                draft[participant.identity] = {};
-              }
-              draft[participant.identity].sid = participant.sid;
-            })
-          );
-
-          const handleSubscribedTrack = (track: RemoteTrack) => {
-            if (track.kind === 'video') {
-              if (track.name.startsWith('camera')) {
-                setActiveParticipants((aps) =>
-                  produce(aps, (draft) => {
-                    draft[participant.identity].videoSubscribed = true;
-                  })
-                );
-              }
-              if (track.name.startsWith('screen')) {
-                setActiveParticipants((aps) =>
-                  produce(aps, (draft) => {
-                    draft[participant.identity].screenSubscribed = true;
-                  })
-                );
-              }
-            }
-            if (track.kind === 'audio') {
-              setActiveParticipants((aps) =>
-                produce(aps, (draft) => {
-                  draft[participant.identity].audioSubscribed = true;
-                })
-              );
-            }
-          };
-
-          const handleUnsubscribedTrack = (track: RemoteTrack) => {
-            if (track.kind === 'video') {
-              if (track.name.startsWith('camera')) {
-                setActiveParticipants((aps) =>
-                  produce(aps, (draft) => {
-                    draft[participant.identity].videoSubscribed = false;
-                  })
-                );
-              }
-              if (track.name.startsWith('screen')) {
-                setActiveParticipants((aps) =>
-                  produce(aps, (draft) => {
-                    draft[participant.identity].screenSubscribed = false;
-                  })
-                );
-              }
-            }
-            if (track.kind === 'audio') {
-              setActiveParticipants((aps) =>
-                produce(aps, (draft) => {
-                  draft[participant.identity].audioSubscribed = false;
-                })
-              );
-            }
-          };
-
-          participant.tracks.forEach((publication) => {
-            if (publication.isSubscribed && publication.track != null) {
-              console.log('Existing subscribed remote track.');
-              handleSubscribedTrack(publication.track);
-            }
-          });
-
-          participant.on('trackSubscribed', (track: RemoteTrack) => {
-            console.log('Remote track subscribed.');
-            handleSubscribedTrack(track);
-          });
-
-          participant.on('trackUnsubscribed', (track: RemoteTrack) => {
-            console.log('Remote track unsubscribed.');
-            handleUnsubscribedTrack(track);
-          });
-
-          participant.on('reconnecting', () => {
-            setActiveParticipants((aps) =>
-              produce(aps, (draft) => {
-                draft[participant.identity].reconnecting = true;
-              })
-            );
-          });
-
-          participant.on('reconnected', () => {
-            setActiveParticipants((aps) =>
-              produce(aps, (draft) => {
-                draft[participant.identity].reconnecting = false;
-              })
-            );
-          });
-
-          participant.on('networkQualityLevelChanged', (level) => {
-            console.log('network changed to level', level);
-            setActiveParticipants((aps) =>
-              produce(aps, (draft) => {
-                draft[participant.identity].networkQuality = level;
-              })
-            );
-          });
-        };
-
-        const handleDisconnectedParticipant = (
-          participant: RemoteParticipant
-        ) => {
-          setActiveParticipants((aps) =>
-            produce(aps, (draft) => {
-              delete draft[participant.identity];
-            })
-          );
-        };
-
-        room.on('reconnecting', (error) => {
-          console.log('Reconnecting:', error);
-        });
-
-        room.participants.forEach((participant) => {
-          console.log(`Existing remote Twilio participant: ${participant}`);
-          handleConnectedParticipant(participant);
-        });
-
-        room.on('participantConnected', (participant) => {
-          console.log(`Remote Twilio participant connected: ${participant}`);
-          handleConnectedParticipant(participant);
-        });
-
-        room.on('participantDisconnected', (participant) => {
-          console.log(`Remote Twilio participant disconnected: ${participant}`);
-          handleDisconnectedParticipant(participant);
-        });
-      })
-      .catch((error) => {
-        console.log('Failed to connect to', endpoint, error);
-      });
+    const newCallObject = DailyIframe.createCallObject();
+    setCallObject(newCallObject);
+    newCallObject.join({ url: 'harbor.daily.co/dev' });
   }, []);
 
+  /**
+   * Update app state based on reported meeting state changes.
+   *
+   * NOTE: Here we're showing how to completely clean up a call with destroy().
+   * This isn't strictly necessary between join()s, but is good practice when
+   * you know you'll be done with the call object for a while and you're no
+   * longer listening to its events.
+   */
   React.useEffect(() => {
-    if (twilioRoom == null) {
+    if (callObject == null) {
       return;
     }
 
-    return () => {
-      console.log('Disconnecting from Twilio room:', twilioRoom);
-      twilioRoom.disconnect();
+    const events: DailyEvent[] = ['joined-meeting', 'left-meeting', 'error'];
+
+    function handleNewMeetingState(event?: any) {
+      if (callObject == null) {
+        return;
+      }
+
+      switch (callObject.meetingState()) {
+        case 'joined-meeting':
+          setAppState('STATE_JOINED');
+          break;
+        case 'left-meeting':
+          callObject.destroy().then(() => {
+            setCallObject(null);
+            setAppState('STATE_IDLE');
+          });
+          break;
+        case 'error':
+          setAppState('STATE_ERROR');
+          break;
+        default:
+          break;
+      }
+    }
+
+    // Use initial state
+    handleNewMeetingState();
+
+    // Listen for changes in state
+    for (const event of events) {
+      callObject.on(event, handleNewMeetingState);
+    }
+
+    // Stop listening for changes in state
+    return function cleanup() {
+      for (const event of events) {
+        callObject.off(event, handleNewMeetingState);
+      }
     };
-  }, [twilioRoom]);
+  }, [callObject]);
+
+  /**
+   * Show the call UI if we're either joining, already joined, or are showing
+   * an error.
+   */
+  const showCall = ['STATE_JOINING', 'STATE_JOINED', 'STATE_ERROR'].includes(
+    appState
+  );
+
+  /**
+   * Only enable the call buttons (camera toggle, leave call, etc.) if we're joined
+   * or if we've errored out.
+   *
+   * !!!
+   * IMPORTANT: calling callObject.destroy() *before* we get the "joined-meeting"
+   * can result in unexpected behavior. Disabling the leave call button
+   * until then avoids this scenario.
+   * !!!
+   */
+  const enableCallButtons = ['STATE_JOINED', 'STATE_ERROR'].includes(appState);
 
   React.useEffect(() => {
     const client = new Colyseus.Client(`ws://${host}`);
@@ -857,182 +716,184 @@ const App: React.FC = () => {
   }, [twilioRoom]);
 
   return (
-    <LocalMediaContext.Provider
-      value={{
-        localVideoInputEnabled,
-        localAudioInputEnabled,
-        localAudioOutputEnabled,
-        localAudioTrack,
-        localVideoTrack,
-        localScreenVideoTrack,
-        localAudioInputDeviceId,
-        localAudioOutputDeviceId,
-        localVideoInputDeviceId,
-        localScreenShareSourceId,
-        localScreenShareEnabled,
-        enableLocalVideoInput() {
-          createLocalVideoTrack(createLocalVideoTrackOptions)
-            .then((track) => {
-              setLocalVideoTrack(track.mediaStreamTrack);
-              return twilioRoom?.localParticipant.publishTrack(track, {
+    <CallObjectContext.Provider value={callObject}>
+      <LocalMediaContext.Provider
+        value={{
+          localVideoInputEnabled,
+          localAudioInputEnabled,
+          localAudioOutputEnabled,
+          localAudioTrack,
+          localVideoTrack,
+          localScreenVideoTrack,
+          localAudioInputDeviceId,
+          localAudioOutputDeviceId,
+          localVideoInputDeviceId,
+          localScreenShareSourceId,
+          localScreenShareEnabled,
+          enableLocalVideoInput() {
+            createLocalVideoTrack(createLocalVideoTrackOptions)
+              .then((track) => {
+                setLocalVideoTrack(track.mediaStreamTrack);
+                return twilioRoom?.localParticipant.publishTrack(track, {
+                  priority: 'low',
+                });
+              })
+              .then((publication) => {
+                console.log('Successfully enabled your video:', publication);
+                setLocalVideoInputEnabled(true);
+                return publication;
+              })
+              .catch((error) => {
+                console.log('Failed to create local video track', error);
+              });
+          },
+          disableLocalVideoInput() {
+            twilioRoom?.localParticipant.videoTracks.forEach((publication) => {
+              if (publication.trackName.startsWith('camera')) {
+                publication.track.stop();
+                publication.unpublish();
+              }
+            });
+            setLocalVideoTrack(undefined);
+            setLocalVideoInputEnabled(false);
+          },
+          enableLocalAudioInput() {
+            twilioRoom?.localParticipant.audioTracks.forEach((publication) => {
+              console.log('enabling!');
+              publication.track.enable();
+            });
+            setLocalAudioInputEnabled(true);
+            colyseusRoom?.send('setPlayerAudioEnabled', true);
+          },
+          disableLocalAudioInput() {
+            twilioRoom?.localParticipant.audioTracks.forEach((publication) => {
+              publication.track.disable();
+            });
+            setLocalAudioInputEnabled(false);
+            colyseusRoom?.send('setPlayerAudioEnabled', false);
+          },
+          setLocalAudioOutputEnabled,
+          async setLocalAudioInputDeviceId(value: string) {
+            setLocalAudioInputDeviceId(value);
+
+            let track: LocalAudioTrack;
+            try {
+              track = await createLocalAudioTrack({ deviceId: value });
+            } catch (error) {
+              console.log('Failed to create local audio track', error);
+              return;
+            }
+
+            if (!localAudioInputEnabled) {
+              track.disable();
+            }
+
+            setLocalAudioTrack(track.mediaStreamTrack);
+            twilioRoom?.localParticipant.audioTracks.forEach((publication) => {
+              publication.track.stop();
+              publication.unpublish();
+            });
+
+            try {
+              await twilioRoom?.localParticipant.publishTrack(track);
+            } catch (error) {
+              console.log('Failed to publish local audio track', error);
+              return;
+            }
+
+            console.log('Published new audio track from device ID', value);
+            return track;
+          },
+          setLocalAudioOutputDeviceId,
+          async setLocalVideoInputDeviceId(value: string) {
+            setLocalVideoInputDeviceId(value);
+
+            if (!localVideoInputEnabled) {
+              return;
+            }
+
+            let track: LocalVideoTrack;
+            try {
+              track = await createLocalVideoTrack({
+                ...createLocalVideoTrackOptions,
+                deviceId: value,
+              });
+            } catch (error) {
+              console.log('Failed to create local video track', error);
+              return;
+            }
+
+            setLocalVideoTrack(track.mediaStreamTrack);
+            twilioRoom?.localParticipant.videoTracks.forEach((publication) => {
+              if (publication.trackName.startsWith('camera')) {
+                publication.track.stop();
+                publication.unpublish();
+              }
+            });
+
+            try {
+              await twilioRoom?.localParticipant.publishTrack(track, {
                 priority: 'low',
               });
-            })
-            .then((publication) => {
-              console.log('Successfully enabled your video:', publication);
-              setLocalVideoInputEnabled(true);
-              return publication;
-            })
-            .catch((error) => {
-              console.log('Failed to create local video track', error);
-            });
-        },
-        disableLocalVideoInput() {
-          twilioRoom?.localParticipant.videoTracks.forEach((publication) => {
-            if (publication.trackName.startsWith('camera')) {
-              publication.track.stop();
-              publication.unpublish();
+            } catch (error) {
+              console.log('Failed to publish local video track', error);
+              return;
             }
-          });
-          setLocalVideoTrack(undefined);
-          setLocalVideoInputEnabled(false);
-        },
-        enableLocalAudioInput() {
-          twilioRoom?.localParticipant.audioTracks.forEach((publication) => {
-            console.log('enabling!');
-            publication.track.enable();
-          });
-          setLocalAudioInputEnabled(true);
-          colyseusRoom?.send('setPlayerAudioEnabled', true);
-        },
-        disableLocalAudioInput() {
-          twilioRoom?.localParticipant.audioTracks.forEach((publication) => {
-            publication.track.disable();
-          });
-          setLocalAudioInputEnabled(false);
-          colyseusRoom?.send('setPlayerAudioEnabled', false);
-        },
-        setLocalAudioOutputEnabled,
-        async setLocalAudioInputDeviceId(value: string) {
-          setLocalAudioInputDeviceId(value);
 
-          let track: LocalAudioTrack;
-          try {
-            track = await createLocalAudioTrack({ deviceId: value });
-          } catch (error) {
-            console.log('Failed to create local audio track', error);
-            return;
-          }
-
-          if (!localAudioInputEnabled) {
-            track.disable();
-          }
-
-          setLocalAudioTrack(track.mediaStreamTrack);
-          twilioRoom?.localParticipant.audioTracks.forEach((publication) => {
-            publication.track.stop();
-            publication.unpublish();
-          });
-
-          try {
-            await twilioRoom?.localParticipant.publishTrack(track);
-          } catch (error) {
-            console.log('Failed to publish local audio track', error);
-            return;
-          }
-
-          console.log('Published new audio track from device ID', value);
-          return track;
-        },
-        setLocalAudioOutputDeviceId,
-        async setLocalVideoInputDeviceId(value: string) {
-          setLocalVideoInputDeviceId(value);
-
-          if (!localVideoInputEnabled) {
-            return;
-          }
-
-          let track: LocalVideoTrack;
-          try {
-            track = await createLocalVideoTrack({
-              ...createLocalVideoTrackOptions,
-              deviceId: value,
-            });
-          } catch (error) {
-            console.log('Failed to create local video track', error);
-            return;
-          }
-
-          setLocalVideoTrack(track.mediaStreamTrack);
-          twilioRoom?.localParticipant.videoTracks.forEach((publication) => {
-            if (publication.trackName.startsWith('camera')) {
-              publication.track.stop();
-              publication.unpublish();
-            }
-          });
-
-          try {
-            await twilioRoom?.localParticipant.publishTrack(track, {
-              priority: 'low',
-            });
-          } catch (error) {
-            console.log('Failed to publish local video track', error);
-            return;
-          }
-
-          console.log('Published new video track from device ID', value);
-          return track;
-        },
-        async screenShare(id: string) {
-          try {
-            const stream = await navigator.mediaDevices.getUserMedia({
-              audio: false,
-              video: {
-                mandatory: {
-                  chromeMediaSource: 'desktop',
-                  chromeMediaSourceId: id,
-                  maxFrameRate: 10,
-                  maxWidth: 1280,
+            console.log('Published new video track from device ID', value);
+            return track;
+          },
+          async screenShare(id: string) {
+            try {
+              const stream = await navigator.mediaDevices.getUserMedia({
+                audio: false,
+                video: {
+                  mandatory: {
+                    chromeMediaSource: 'desktop',
+                    chromeMediaSourceId: id,
+                    maxFrameRate: 10,
+                    maxWidth: 1280,
+                  },
                 },
-              },
-            } as any);
+              } as any);
 
-            const screenTrack = new LocalVideoTrack(stream.getTracks()[0], {
-              logLevel: 'debug',
-              name: `screen-${uuid()}`,
-            });
-            await twilioRoom?.localParticipant.publishTrack(screenTrack);
+              const screenTrack = new LocalVideoTrack(stream.getTracks()[0], {
+                logLevel: 'debug',
+                name: `screen-${uuid()}`,
+              });
+              await twilioRoom?.localParticipant.publishTrack(screenTrack);
 
-            setLocalScreenShareSourceId(id);
-            setLocalScreenShareEnabled(true);
-            wasMinimizedWhenStartedScreenSharing.current = minimized;
-            setMinimized(true);
-          } catch (e) {
-            console.log('Could not capture screen', e);
-          }
-        },
-        stopScreenShare,
-      }}
-    >
-      <S.AppWrapper {...(minimized && dragProps)}>
-        <S.GlobalStyles minimized={minimized} focused={appFocused} />
-        <S.DraggableBar {...(!minimized && dragProps)}></S.DraggableBar>
-        {panelElements}
-        <MainToolbar minimized={minimized} />
-      </S.AppWrapper>
-      <ScreenShareToolbar
-        open={localScreenShareEnabled}
-        onStop={stopScreenShare}
-      ></ScreenShareToolbar>
-      {colyseusRoom != null && localScreenShareSourceId != null && (
-        <ScreenShareOverlay
+              setLocalScreenShareSourceId(id);
+              setLocalScreenShareEnabled(true);
+              wasMinimizedWhenStartedScreenSharing.current = minimized;
+              setMinimized(true);
+            } catch (e) {
+              console.log('Could not capture screen', e);
+            }
+          },
+          stopScreenShare,
+        }}
+      >
+        <S.AppWrapper {...(minimized && dragProps)}>
+          <S.GlobalStyles minimized={minimized} focused={appFocused} />
+          <S.DraggableBar {...(!minimized && dragProps)}></S.DraggableBar>
+          {panelElements}
+          <MainToolbar minimized={minimized} />
+        </S.AppWrapper>
+        <ScreenShareToolbar
           open={localScreenShareEnabled}
-          colyseusRoom={colyseusRoom}
-          localIdentity={localIdentity}
-          sourceId={localScreenShareSourceId}
-        />
-      )}
-    </LocalMediaContext.Provider>
+          onStop={stopScreenShare}
+        ></ScreenShareToolbar>
+        {colyseusRoom != null && localScreenShareSourceId != null && (
+          <ScreenShareOverlay
+            open={localScreenShareEnabled}
+            colyseusRoom={colyseusRoom}
+            localIdentity={localIdentity}
+            sourceId={localScreenShareSourceId}
+          />
+        )}
+      </LocalMediaContext.Provider>
+    </CallObjectContext.Provider>
   );
 };
 
