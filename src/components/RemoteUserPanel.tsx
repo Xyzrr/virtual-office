@@ -72,7 +72,7 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = React.memo(
 
     React.useEffect(() => {
       const videoEl = videoRef.current;
-      if (videoEl == null || videoTrack == null) {
+      if (videoEl == null || !videoTrack) {
         return;
       }
 
@@ -88,7 +88,7 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = React.memo(
 
     React.useEffect(() => {
       const audioEl = audioRef.current;
-      if (audioEl == null || audioTrack == null) {
+      if (audioEl == null || !audioTrack) {
         return;
       }
 

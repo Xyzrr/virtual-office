@@ -53,7 +53,8 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = React.memo(
 
       const stream = new MediaStream();
 
-      if (localVideoTrack != null) {
+      if (localVideoTrack) {
+        console.log('attempting to add track', localVideoTrack);
         stream.addTrack(localVideoTrack);
       }
 

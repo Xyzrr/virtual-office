@@ -58,11 +58,13 @@ const RemoteScreenPanel: React.FC<RemoteScreenPanelProps> = React.memo(
 
     React.useEffect(() => {
       const videoEl = videoRef.current;
-      if (videoEl == null || videoTrack == null) {
+      if (videoEl == null || !videoTrack) {
         return;
       }
 
       const stream = new MediaStream();
+
+      console.log('attempting to add track', videoTrack);
       stream.addTrack(videoTrack);
       videoEl.srcObject = stream;
 

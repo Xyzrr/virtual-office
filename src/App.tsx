@@ -18,6 +18,7 @@ import DailyIframe, {
   DailyCallOptions,
   DailyCall,
   DailyEvent,
+  DailyEventObjectParticipant,
 } from '@daily-co/daily-js';
 import * as Colyseus from 'colyseus.js';
 import { useFakeMinimize } from './util/useFakeMinimize';
@@ -57,7 +58,7 @@ export interface ActiveParticipant {
 
 const App: React.FC = () => {
   const [twilioRoom, setTwilioRoom] = React.useState<Room | null>(null);
-  const [appState, setAppState] = useState(STATE_IDLE);
+  const [appState, setAppState] = React.useState<string>('STATE_IDLE');
 
   const [localAudioInputEnabled, setLocalAudioInputEnabled] = React.useState(
     true
@@ -95,7 +96,7 @@ const App: React.FC = () => {
   const [localScreenVideoTrack, setLocalScreenVideoTrack] = React.useState<
     MediaStreamTrack | undefined
   >();
-  const [callObject, setCallObject] = React.useState<DailyCall | null>(null);
+  const [callObject, setCallObject] = React.useState<DailyCall | undefined>();
 
   const wasMinimizedWhenStartedScreenSharing = React.useRef(false);
 
@@ -112,13 +113,6 @@ const App: React.FC = () => {
     null
   );
 
-  const createLocalVideoTrackOptions: CreateLocalTrackOptions = {
-    name: `camera-${uuid()}`,
-    width: process.env.LOW_POWER ? 16 : 1920,
-    height: process.env.LOW_POWER ? 9 : 1080,
-    deviceId: localVideoInputDeviceId,
-  };
-
   const localIdentity = React.useMemo(() => {
     const result = `cool-person-${uuid()}`;
     console.log('IDENTITY', result);
@@ -126,10 +120,12 @@ const App: React.FC = () => {
   }, []);
 
   React.useEffect(() => {
-    const endpoint = `http${process.env.LOCAL ? '' : 's'}://${host}/token`;
+    // const endpoint = `http${process.env.LOCAL ? '' : 's'}://${host}/token`;
     const newCallObject = DailyIframe.createCallObject();
     setCallObject(newCallObject);
-    newCallObject.join({ url: 'harbor.daily.co/dev' });
+    newCallObject.join({ url: 'http://harbor.daily.co/dev' }).then(() => {
+      newCallObject.setUserName(localIdentity, { thisMeetingOnly: false });
+    });
   }, []);
 
   /**
@@ -147,7 +143,7 @@ const App: React.FC = () => {
 
     const events: DailyEvent[] = ['joined-meeting', 'left-meeting', 'error'];
 
-    function handleNewMeetingState(event?: any) {
+    function handleNewMeetingState(event?: DailyEvent) {
       if (callObject == null) {
         return;
       }
@@ -158,7 +154,7 @@ const App: React.FC = () => {
           break;
         case 'left-meeting':
           callObject.destroy().then(() => {
-            setCallObject(null);
+            setCallObject(undefined);
             setAppState('STATE_IDLE');
           });
           break;
@@ -186,6 +182,77 @@ const App: React.FC = () => {
     };
   }, [callObject]);
 
+  console.log('RENDER PARTICIPANTS', callObject?.participants());
+
+  /**
+   * Start listening for participant changes, when the callObject is set.
+   */
+  React.useEffect(() => {
+    if (!callObject) return;
+
+    const events: DailyEvent[] = [
+      'participant-joined',
+      'participant-updated',
+      'participant-left',
+    ];
+
+    function handleNewParticipantsState(event: DailyEvent) {
+      if (callObject == null) {
+        return;
+      }
+
+      setActiveParticipants((aps) =>
+        produce(aps, (draft) => {
+          const participants = callObject.participants();
+
+          console.log('PARTICIAPNTS', participants);
+
+          for (const [sid, participant] of Object.entries(participants)) {
+            if (participant.user_name == null) {
+              continue;
+            }
+
+            if (draft[participant.user_name] == null) {
+              draft[participant.user_name] = {};
+            }
+
+            draft[participant.user_name].sid = sid;
+
+            if (participant.videoTrack != null) {
+              draft[participant.user_name].videoSubscribed = true;
+            }
+
+            if (participant.audioTrack != null) {
+              draft[participant.user_name].audioSubscribed = true;
+            }
+
+            if (participant.screenVideoTrack != null) {
+              draft[participant.user_name].screenSubscribed = true;
+            }
+          }
+
+          for (const [id, ap] of Object.entries(draft)) {
+            if (ap.sid != null && participants[ap.sid] == null) {
+              delete draft[id];
+            }
+          }
+        })
+      );
+    }
+
+    // Listen for changes in state
+    for (const event of events) {
+      callObject.on(event, handleNewParticipantsState);
+    }
+
+    // Stop listening for changes in state
+    return function cleanup() {
+      for (const event of events) {
+        callObject.off(event, handleNewParticipantsState);
+      }
+    };
+  }, [callObject]);
+
   /**
    * Show the call UI if we're either joining, already joined, or are showing
    * an error.
@@ -205,6 +272,36 @@ const App: React.FC = () => {
    * !!!
    */
   const enableCallButtons = ['STATE_JOINED', 'STATE_ERROR'].includes(appState);
+
+  React.useEffect(() => {
+    if (!callObject) return;
+
+    function handleNewParticipantsState(event?: DailyEventObjectParticipant) {
+      if (callObject == null) {
+        return;
+      }
+
+      const localParticipant = callObject.participants().local;
+
+      if (localParticipant == null) {
+        return;
+      }
+
+      setLocalAudioTrack(localParticipant.audioTrack);
+      setLocalVideoTrack(localParticipant.videoTrack);
+      setLocalScreenVideoTrack(localParticipant.screenVideoTrack);
+    }
+
+    handleNewParticipantsState();
+
+    // Listen for changes in state
+    callObject.on('participant-updated', handleNewParticipantsState);
+
+    // Stop listening for changes in state
+    return function cleanup() {
+      callObject.off('participant-updated', handleNewParticipantsState);
+    };
+  }, [callObject]);
 
   React.useEffect(() => {
     const client = new Colyseus.Client(`ws://${host}`);
@@ -488,13 +585,17 @@ const App: React.FC = () => {
   }, [activeParticipants]);
 
   Object.entries(activeParticipants).forEach(([identity, ap]) => {
+    if (identity == localIdentity) {
+      return;
+    }
+
     const { sid, distance, audioEnabled } = ap;
 
     if (sid == null || distance == null || audioEnabled == null) {
       return;
     }
 
-    const participant = twilioRoom?.participants.get(sid);
+    const participant = callObject?.participants()[sid];
 
     if (participant == null) {
       return;
@@ -530,23 +631,6 @@ const App: React.FC = () => {
         height = windowSize.height;
       }
 
-      let videoTrack: MediaStreamTrack | undefined;
-      let audioTrack: MediaStreamTrack | undefined;
-
-      participant.tracks.forEach((publication) => {
-        if (publication.isSubscribed) {
-          const { track } = publication;
-          if (track != null && track.kind === 'video') {
-            if (track.name.startsWith('camera')) {
-              videoTrack = track.mediaStreamTrack;
-            }
-          }
-          if (track != null && track.kind === 'audio') {
-            audioTrack = track.mediaStreamTrack;
-          }
-        }
-      });
-
       panelElements.push(
         <RemoteUserPanel
           key={key}
@@ -555,8 +639,8 @@ const App: React.FC = () => {
           width={width}
           height={height}
           minY={small && mapIsSmall ? 135 + 16 : undefined}
-          videoTrack={videoTrack}
-          audioTrack={audioTrack}
+          videoTrack={participant.videoTrack}
+          audioTrack={participant.audioTrack}
           audioEnabled={audioEnabled}
           distance={distance}
           reconnecting={ap.reconnecting}
@@ -569,20 +653,8 @@ const App: React.FC = () => {
                 setMinimized(false);
               }
 
-              participant.videoTracks.forEach((publication) => {
-                if (publication.trackName.startsWith('camera')) {
-                  publication.track?.setPriority('high');
-                }
-              });
-
               setExpandedPanels([key]);
             } else {
-              participant.videoTracks.forEach((publication) => {
-                if (publication.trackName.startsWith('camera')) {
-                  publication.track?.setPriority('low');
-                }
-              });
-
               setExpandedPanels(['map']);
             }
           }}
@@ -617,17 +689,6 @@ const App: React.FC = () => {
         height = windowSize.height;
       }
 
-      let videoTrack: MediaStreamTrack | undefined;
-
-      participant.videoTracks.forEach((publication) => {
-        if (
-          publication.isSubscribed &&
-          publication.trackName.startsWith('screen')
-        ) {
-          videoTrack = publication.track?.mediaStreamTrack;
-        }
-      });
-
       if (colyseusRoom != null) {
         panelElements.push(
           <RemoteScreenPanel
@@ -640,7 +701,7 @@ const App: React.FC = () => {
             ownerIdentity={identity}
             localIdentity={localIdentity}
             colyseusRoom={colyseusRoom}
-            videoTrack={videoTrack}
+            videoTrack={participant.screenVideoTrack}
             distance={distance}
             small={small}
             onSetExpanded={(value) => {
@@ -649,20 +710,8 @@ const App: React.FC = () => {
                   setMinimized(false);
                 }
 
-                participant.videoTracks.forEach((publication) => {
-                  if (publication.trackName.startsWith('screen')) {
-                    publication.track?.setPriority('high');
-                  }
-                });
-
                 setExpandedPanels([key]);
               } else {
-                participant.videoTracks.forEach((publication) => {
-                  if (publication.trackName.startsWith('screen')) {
-                    publication.track?.setPriority('low');
-                  }
-                });
-
                 setExpandedPanels(['map']);
               }
             }}
@@ -702,12 +751,7 @@ const App: React.FC = () => {
   }, [nextSmallPanelY]);
 
   const stopScreenShare = React.useCallback(() => {
-    twilioRoom?.localParticipant.videoTracks.forEach((publication) => {
-      if (publication.trackName.startsWith('screen')) {
-        publication.track.stop();
-        publication.unpublish();
-      }
-    });
+    callObject?.stopScreenShare();
     setLocalScreenShareEnabled(false);
 
     if (!wasMinimizedWhenStartedScreenSharing.current) {
@@ -731,78 +775,27 @@ const App: React.FC = () => {
           localScreenShareSourceId,
           localScreenShareEnabled,
           enableLocalVideoInput() {
-            createLocalVideoTrack(createLocalVideoTrackOptions)
-              .then((track) => {
-                setLocalVideoTrack(track.mediaStreamTrack);
-                return twilioRoom?.localParticipant.publishTrack(track, {
-                  priority: 'low',
-                });
-              })
-              .then((publication) => {
-                console.log('Successfully enabled your video:', publication);
-                setLocalVideoInputEnabled(true);
-                return publication;
-              })
-              .catch((error) => {
-                console.log('Failed to create local video track', error);
-              });
+            callObject?.setLocalVideo(true);
+            setLocalVideoInputEnabled(true);
           },
           disableLocalVideoInput() {
-            twilioRoom?.localParticipant.videoTracks.forEach((publication) => {
-              if (publication.trackName.startsWith('camera')) {
-                publication.track.stop();
-                publication.unpublish();
-              }
-            });
-            setLocalVideoTrack(undefined);
+            callObject?.setLocalVideo(false);
             setLocalVideoInputEnabled(false);
           },
           enableLocalAudioInput() {
-            twilioRoom?.localParticipant.audioTracks.forEach((publication) => {
-              console.log('enabling!');
-              publication.track.enable();
-            });
+            callObject?.setLocalAudio(true);
             setLocalAudioInputEnabled(true);
             colyseusRoom?.send('setPlayerAudioEnabled', true);
           },
           disableLocalAudioInput() {
-            twilioRoom?.localParticipant.audioTracks.forEach((publication) => {
-              publication.track.disable();
-            });
+            callObject?.setLocalAudio(false);
             setLocalAudioInputEnabled(false);
             colyseusRoom?.send('setPlayerAudioEnabled', false);
           },
           setLocalAudioOutputEnabled,
           async setLocalAudioInputDeviceId(value: string) {
             setLocalAudioInputDeviceId(value);
-
-            let track: LocalAudioTrack;
-            try {
-              track = await createLocalAudioTrack({ deviceId: value });
-            } catch (error) {
-              console.log('Failed to create local audio track', error);
-              return;
-            }
-
-            if (!localAudioInputEnabled) {
-              track.disable();
-            }
-
-            setLocalAudioTrack(track.mediaStreamTrack);
-            twilioRoom?.localParticipant.audioTracks.forEach((publication) => {
-              publication.track.stop();
-              publication.unpublish();
-            });
-
-            try {
-              await twilioRoom?.localParticipant.publishTrack(track);
-            } catch (error) {
-              console.log('Failed to publish local audio track', error);
-              return;
-            }
-
-            console.log('Published new audio track from device ID', value);
-            return track;
+            callObject?.setInputDevices({ audioDeviceId: value });
           },
           setLocalAudioOutputDeviceId,
           async setLocalVideoInputDeviceId(value: string) {
@@ -812,64 +805,24 @@ const App: React.FC = () => {
               return;
             }
 
-            let track: LocalVideoTrack;
-            try {
-              track = await createLocalVideoTrack({
-                ...createLocalVideoTrackOptions,
-                deviceId: value,
-              });
-            } catch (error) {
-              console.log('Failed to create local video track', error);
-              return;
-            }
-
-            setLocalVideoTrack(track.mediaStreamTrack);
-            twilioRoom?.localParticipant.videoTracks.forEach((publication) => {
-              if (publication.trackName.startsWith('camera')) {
-                publication.track.stop();
-                publication.unpublish();
-              }
-            });
-
-            try {
-              await twilioRoom?.localParticipant.publishTrack(track, {
-                priority: 'low',
-              });
-            } catch (error) {
-              console.log('Failed to publish local video track', error);
-              return;
-            }
-
-            console.log('Published new video track from device ID', value);
-            return track;
+            callObject?.setInputDevices({ videoDeviceId: value });
           },
           async screenShare(id: string) {
-            try {
-              const stream = await navigator.mediaDevices.getUserMedia({
-                audio: false,
-                video: {
-                  mandatory: {
-                    chromeMediaSource: 'desktop',
-                    chromeMediaSourceId: id,
-                    maxFrameRate: 10,
-                    maxWidth: 1280,
-                  },
+            const stream = await navigator.mediaDevices.getUserMedia({
+              audio: false,
+              video: {
+                mandatory: {
+                  chromeMediaSource: 'desktop',
+                  chromeMediaSourceId: id,
+                  maxFrameRate: 10,
+                  maxWidth: 1280,
                 },
-              } as any);
+              },
+            } as any);
 
-              const screenTrack = new LocalVideoTrack(stream.getTracks()[0], {
-                logLevel: 'debug',
-                name: `screen-${uuid()}`,
-              });
-              await twilioRoom?.localParticipant.publishTrack(screenTrack);
-
-              setLocalScreenShareSourceId(id);
-              setLocalScreenShareEnabled(true);
-              wasMinimizedWhenStartedScreenSharing.current = minimized;
-              setMinimized(true);
-            } catch (e) {
-              console.log('Could not capture screen', e);
-            }
+            callObject?.startScreenShare({ mediaStream: stream });
+            setLocalScreenShareSourceId(id);
+            setLocalScreenShareEnabled(true);
           },
           stopScreenShare,
         }}
