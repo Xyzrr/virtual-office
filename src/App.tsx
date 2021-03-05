@@ -352,10 +352,6 @@ const App: React.FC = () => {
 
               setActiveParticipants((aps) => {
                 return produce(aps, (draft) => {
-                  if (draft[id] == null) {
-                    return;
-                  }
-
                   draft[id].distance = dist;
                 });
               });
@@ -376,10 +372,6 @@ const App: React.FC = () => {
             ) {
               setActiveParticipants((aps) => {
                 return produce(aps, (draft) => {
-                  if (draft[identity] == null) {
-                    return;
-                  }
-
                   draft[identity].audioEnabled = player.audioEnabled;
                 });
               });
@@ -388,10 +380,6 @@ const App: React.FC = () => {
             if (changes.find((c) => (c as any).field === 'sharedApp') != null) {
               setActiveParticipants((aps) => {
                 return produce(aps, (draft) => {
-                  if (draft[identity] == null) {
-                    return;
-                  }
-
                   draft[identity].sharedApp = player.sharedApp;
                 });
               });
