@@ -1,6 +1,5 @@
 import styled, { css } from 'styled-components';
 import Icon from './Icon';
-import NetworkQualityIndicator from './NetworkQualityIndicator';
 import { DARK_BACKGROUND } from './constants';
 
 export const Wrapper = styled.div<{
@@ -39,26 +38,4 @@ export const StatusIcons = styled.div`
 export const StatusIcon = styled(Icon)`
   padding: 4px;
   color: red;
-`;
-
-export const ReconnectingIndicator = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.6);
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 14px;
-`;
-
-export const StyledNetworkQualityIndicator = styled(NetworkQualityIndicator)`
-  position: absolute;
-  bottom: 8px;
-  right: 32px;
-  color: white;
 `;

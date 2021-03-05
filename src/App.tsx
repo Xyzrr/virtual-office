@@ -40,8 +40,6 @@ export interface ActiveParticipant {
   videoSubscribed?: boolean;
   screenSubscribed?: boolean;
   audioEnabled?: boolean;
-  reconnecting?: boolean;
-  networkQuality?: number;
   sharedApp?: AppInfo;
 
   dailyConnected?: boolean;
@@ -667,8 +665,6 @@ const App: React.FC = () => {
           audioTrack={participant.audioTrack}
           audioEnabled={audioEnabled}
           distance={distance}
-          reconnecting={ap.reconnecting}
-          networkQuality={ap.networkQuality}
           sharedApp={ap.sharedApp}
           small={small}
           onSetExpanded={(value) => {

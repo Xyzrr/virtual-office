@@ -5,7 +5,6 @@ import React, { useContext } from 'react';
 import { useVolume } from '../util/useVolume';
 import { LocalMediaContext } from '../contexts/LocalMediaContext';
 import HoverMenu from './HoverMenu';
-import NetworkQualityIndicator from './NetworkQualityIndicator';
 import { useMouseIsIdle } from '../util/useMouseIsIdle';
 import { MAX_INTERACTION_DISTANCE } from './constants';
 import PanelWrapper from './PanelWrapper';
@@ -25,8 +24,6 @@ export interface RemoteUserPanelProps {
   audioTrack?: MediaStreamTrack;
   audioEnabled: boolean;
   distance: number;
-  reconnecting?: boolean;
-  networkQuality?: number;
   sharedApp?: AppInfo;
 
   small?: boolean;
@@ -45,8 +42,6 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = React.memo(
     audioTrack,
     audioEnabled,
     distance,
-    reconnecting,
-    networkQuality,
     sharedApp,
     small,
     onSetExpanded,
@@ -165,12 +160,6 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = React.memo(
         >
           <video ref={videoRef} autoPlay></video>
           <audio ref={audioRef} autoPlay></audio>
-          {reconnecting && (
-            <S.ReconnectingIndicator>Reconnecting...</S.ReconnectingIndicator>
-          )}
-          {networkQuality != null && (
-            <S.StyledNetworkQualityIndicator networkQuality={networkQuality} />
-          )}
           <S.StatusIcons>
             {!audioEnabled && <S.StatusIcon name="mic_off"></S.StatusIcon>}
           </S.StatusIcons>
