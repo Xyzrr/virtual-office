@@ -111,6 +111,7 @@ const App: React.FC = () => {
   React.useEffect(() => {
     (async () => {
       const newCallObject = DailyIframe.createCallObject({
+        subscribeToTracksAutomatically: false,
         dailyConfig: {
           experimentalChromeVideoMuteLightOff: true,
         },
@@ -128,7 +129,7 @@ const App: React.FC = () => {
 
       if (process.env.LOW_POWER) {
         newCallObject.setBandwidth({
-          trackConstraints: { width: 16, height: 9 },
+          trackConstraints: { width: 32, height: 18 },
         });
       }
 
@@ -213,6 +214,8 @@ const App: React.FC = () => {
         produce(aps, (draft) => {
           const participants = callObject.participants();
 
+          console.log('PARTICIPANTS', participants);
+
           for (const [sid, participant] of Object.entries(participants)) {
             if (draft[participant.user_name] == null) {
               draft[participant.user_name] = {};
@@ -273,6 +276,8 @@ const App: React.FC = () => {
     if (!callObject) return;
 
     function handleNewParticipantsState(event?: DailyEventObjectParticipant) {
+      console.log('updated partci');
+
       if (callObject == null) {
         return;
       }
@@ -554,8 +559,24 @@ const App: React.FC = () => {
       let cameraKey = `remote-user:${identity}`;
       let screenKey = `remote-screen:${identity}`;
 
-      if (distance != null && distance > MAX_INTERACTION_DISTANCE) {
-        // callObject?.subs
+      if (
+        distance != null &&
+        distance <= MAX_INTERACTION_DISTANCE &&
+        ap.sid != null
+      ) {
+        callObject?.updateParticipant(ap.sid, {
+          setSubscribedTracks: true,
+        });
+      }
+
+      if (
+        distance != null &&
+        distance > MAX_INTERACTION_DISTANCE &&
+        ap.sid != null
+      ) {
+        callObject?.updateParticipant(ap.sid, {
+          setSubscribedTracks: false,
+        });
       }
 
       if (
