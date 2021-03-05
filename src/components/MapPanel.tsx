@@ -319,10 +319,18 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
       w: 'up',
       a: 'left',
       s: 'down',
+      D: 'right',
+      W: 'up',
+      A: 'left',
+      S: 'down',
     };
 
     const onKeyDown = React.useCallback(
       (e: KeyboardEvent) => {
+        if (e.metaKey) {
+          return;
+        }
+
         const localPlayer = localPlayerRef.current;
         if (localPlayer == null) {
           return;
