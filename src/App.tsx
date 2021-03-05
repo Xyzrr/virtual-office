@@ -834,7 +834,6 @@ const App: React.FC = () => {
           async screenShare(id: string) {
             callObject?.startScreenShare({ chromeMediaSourceId: id });
             setLocalScreenShareSourceId(id);
-            setLocalScreenShareEnabled(true);
             wasMinimizedWhenStartedScreenSharing.current = minimized;
             setMinimized(true);
           },

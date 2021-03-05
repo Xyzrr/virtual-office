@@ -94,6 +94,7 @@ export const TabIcon = styled(Icon)`
 `;
 
 export const Tab = styled.div<{ selected?: boolean; iconOnly?: boolean }>`
+  -webkit-app-region: no-drag;
   padding: 6px 12px;
   margin: 2px;
   color: #ccc;
