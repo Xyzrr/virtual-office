@@ -1,5 +1,4 @@
 import styled, { createGlobalStyle, css } from 'styled-components';
-import * as PanelWrapperStyles from './components/PanelWrapper.styles';
 import Icon from './components/Icon';
 import { LIGHT_BACKGROUND, DARK_BACKGROUND } from './components/constants';
 
@@ -16,26 +15,16 @@ export const GlobalStyles = createGlobalStyle<{
   ${(props) =>
     props.minimized
       ? css`
-          ${AppWrapper}, ${PanelWrapperStyles.Wrapper} {
+          ${AppWrapper} {
             -webkit-app-region: ${process.platform === 'win32'
               ? 'no-drag'
-              : 'drag'} !important;
-          }
-          ${AppWrapper} {
+              : 'drag'};
             &:hover {
               background: rgba(80, 80, 80, 0.25);
             }
           }
-          ${DraggableBar} {
-            display: none;
-          }
         `
       : css`
-          ${DraggableBar} {
-            -webkit-app-region: ${process.platform === 'win32'
-              ? 'no-drag'
-              : 'drag'};
-          }
           ${AppWrapper} {
             background: ${DARK_BACKGROUND.toString()} !important;
           }
@@ -63,17 +52,6 @@ export const AppContents = styled.div`
   position: relative;
   height: 0;
   flex-grow: 1;
-`;
-
-export const DraggableBar = styled.div`
-  position: absolute;
-  top: 0;
-  width: 100%;
-  height: 40px;
-  z-index: 1;
-  &:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
 `;
 
 export const TopBar = styled.div<{ focused: boolean }>`

@@ -447,7 +447,7 @@ const App: React.FC = () => {
     };
   });
 
-  const dragProps = useWindowsDrag();
+  const dragWindowsProps = useWindowsDrag();
 
   const localApp = useAppTracker(colyseusRoom);
 
@@ -841,7 +841,7 @@ const App: React.FC = () => {
         }}
       >
         <S.GlobalStyles minimized={minimized} focused={appFocused} />
-        <S.AppWrapper {...(minimized && dragProps)}>
+        <S.AppWrapper {...(minimized && dragWindowsProps)}>
           {!minimized && (
             <S.TopBar focused={appFocused}>
               <S.LeftButtons>
