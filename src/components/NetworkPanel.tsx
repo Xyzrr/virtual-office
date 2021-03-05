@@ -38,16 +38,17 @@ const NetworkPanel: React.FC<NetworkPanelProps> = ({ className }) => {
       return;
     }
 
-    const onNetworkQualityChange = async () => {
+    const updateNetworkStats = async () => {
       const s = await callObject.getNetworkStats();
       setStats(s);
-      console.log('STATS', s);
     };
 
-    callObject.on('network-quality-change', onNetworkQualityChange);
+    callObject.on('network-quality-change', updateNetworkStats);
+    const interval = window.setInterval(updateNetworkStats, 2000);
 
     return () => {
-      callObject.off('network-quality-change', onNetworkQualityChange);
+      callObject.off('network-quality-change', updateNetworkStats);
+      window.clearInterval(interval);
     };
   }, [callObject]);
 
