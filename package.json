@@ -281,6 +281,7 @@
     "regenerator-runtime": "^0.13.5",
     "source-map-support": "^0.5.19",
     "styled-components": "^5.2.1",
+    "use-immer": "^0.4.2",
     "use-resize-observer": "^7.0.0",
     "uuid": "^8.3.2"
   },

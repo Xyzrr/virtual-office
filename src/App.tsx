@@ -24,6 +24,7 @@ import { MAX_INTERACTION_DISTANCE } from './components/constants';
 import { useWindowsDrag } from './util/windowsDrag';
 import { useAppTracker, AppInfo } from './util/app-tracker/useAppTracker';
 import CallObjectContext from './contexts/CallObjectContext';
+import { useImmer } from 'use-immer';
 
 let host: string;
 if (process.env.LOCAL) {
@@ -90,7 +91,7 @@ const App: React.FC = () => {
 
   const wasMinimizedWhenStartedScreenSharing = React.useRef(false);
 
-  const [activeParticipants, setActiveParticipants] = React.useState<{
+  const [activeParticipants, setActiveParticipants] = useImmer<{
     [identity: string]: ActiveParticipant;
   }>({});
   const [expandedPanels, setExpandedPanels] = React.useState<string[]>(['map']);
@@ -213,37 +214,35 @@ const App: React.FC = () => {
         return;
       }
 
-      setActiveParticipants((aps) =>
-        produce(aps, (draft) => {
-          const participants = callObject.participants();
+      setActiveParticipants((draft) => {
+        const participants = callObject.participants();
 
-          console.log('PARTICIPANTS', participants);
+        console.log('PARTICIPANTS', participants);
 
-          for (const [sid, participant] of Object.entries(participants)) {
-            if (draft[participant.user_name] == null) {
-              draft[participant.user_name] = { dailyConnected: true };
-            }
-
-            draft[participant.user_name].sid = sid;
-
-            draft[participant.user_name].videoSubscribed = participant.video;
-
-            draft[participant.user_name].audioSubscribed = participant.audio;
-
-            draft[participant.user_name].screenSubscribed = participant.screen;
+        for (const [sid, participant] of Object.entries(participants)) {
+          if (draft[participant.user_name] == null) {
+            draft[participant.user_name] = { dailyConnected: true };
           }
 
-          for (const [id, ap] of Object.entries(draft)) {
-            if (ap.sid != null && participants[ap.sid] == null) {
-              draft[id].dailyConnected = false;
+          draft[participant.user_name].sid = sid;
 
-              if (!draft[id].colyseusConnected) {
-                delete draft[id];
-              }
+          draft[participant.user_name].videoSubscribed = participant.video;
+
+          draft[participant.user_name].audioSubscribed = participant.audio;
+
+          draft[participant.user_name].screenSubscribed = participant.screen;
+        }
+
+        for (const [id, ap] of Object.entries(draft)) {
+          if (ap.sid != null && participants[ap.sid] == null) {
+            draft[id].dailyConnected = false;
+
+            if (!draft[id].colyseusConnected) {
+              delete draft[id];
             }
           }
-        })
-      );
+        }
+      });
     }
 
     // Listen for changes in state
@@ -330,13 +329,11 @@ const App: React.FC = () => {
         room.state.players.onAdd = (player: any, identity: string) => {
           console.log('Colyseus player added:', identity);
 
-          setActiveParticipants((aps) => {
-            return produce(aps, (draft) => {
-              if (draft[identity] == null) {
-                draft[identity] = { colyseusConnected: true };
-              }
-              draft[identity].audioEnabled = player.audioEnabled;
-            });
+          setActiveParticipants((draft) => {
+            if (draft[identity] == null) {
+              draft[identity] = { colyseusConnected: true };
+            }
+            draft[identity].audioEnabled = player.audioEnabled;
           });
 
           player.onChange = (changes: Colyseus.DataChange[]) => {
@@ -350,10 +347,8 @@ const App: React.FC = () => {
                   (player.y - localPlayer.y) ** 2
               );
 
-              setActiveParticipants((aps) => {
-                return produce(aps, (draft) => {
-                  draft[id].distance = dist;
-                });
+              setActiveParticipants((draft) => {
+                draft[id].distance = dist;
               });
             };
 
@@ -370,32 +365,26 @@ const App: React.FC = () => {
             if (
               changes.find((c) => (c as any).field === 'audioEnabled') != null
             ) {
-              setActiveParticipants((aps) => {
-                return produce(aps, (draft) => {
-                  draft[identity].audioEnabled = player.audioEnabled;
-                });
+              setActiveParticipants((draft) => {
+                draft[identity].audioEnabled = player.audioEnabled;
               });
             }
 
             if (changes.find((c) => (c as any).field === 'sharedApp') != null) {
-              setActiveParticipants((aps) => {
-                return produce(aps, (draft) => {
-                  draft[identity].sharedApp = player.sharedApp;
-                });
+              setActiveParticipants((draft) => {
+                draft[identity].sharedApp = player.sharedApp;
               });
             }
           };
         };
 
         room.state.players.onRemove = (player: any, identity: string) => {
-          setActiveParticipants((aps) => {
-            return produce(aps, (draft) => {
-              draft[identity].colyseusConnected = false;
+          setActiveParticipants((draft) => {
+            draft[identity].colyseusConnected = false;
 
-              if (!draft[identity].dailyConnected) {
-                delete draft[identity];
-              }
-            });
+            if (!draft[identity].dailyConnected) {
+              delete draft[identity];
+            }
           });
         };
       });
