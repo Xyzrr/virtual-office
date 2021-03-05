@@ -475,7 +475,7 @@ const App: React.FC = () => {
       nextSmallPanelY += height + 8;
     } else {
       x = 0;
-      y = 0;
+      y = contentYOffset;
       width = windowSize.width;
       height = availableHeight;
     }
@@ -522,7 +522,7 @@ const App: React.FC = () => {
         nextSmallPanelY += height + 8;
       } else {
         x = 0;
-        y = 0;
+        y = contentYOffset;
         width = windowSize.width;
         height = availableHeight;
       }
@@ -651,7 +651,7 @@ const App: React.FC = () => {
         nextSmallPanelY += height + 8;
       } else {
         x = 0;
-        y = 0;
+        y = contentYOffset;
         width = windowSize.width;
         height = availableHeight;
       }
@@ -707,7 +707,7 @@ const App: React.FC = () => {
         nextSmallPanelY += height + 8;
       } else {
         x = 0;
-        y = 0;
+        y = contentYOffset;
         width = windowSize.width;
         height = availableHeight;
       }
