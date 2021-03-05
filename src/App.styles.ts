@@ -85,6 +85,7 @@ export const TopBar = styled.div<{ focused: boolean }>`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  z-index: 3;
 `;
 
 export const TabIcon = styled(Icon)`

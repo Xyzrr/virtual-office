@@ -453,9 +453,8 @@ const App: React.FC = () => {
 
   const [minimized, setMinimized] = useFakeMinimize();
 
-  const availableHeight = minimized
-    ? windowSize.height
-    : windowSize.height - 40;
+  const contentYOffset = minimized ? 0 : 40;
+  const availableHeight = windowSize.height - contentYOffset;
 
   let nextSmallPanelY = 8;
   const panelElements: React.ReactNode[] = [];
@@ -521,7 +520,7 @@ const App: React.FC = () => {
       if (small) {
         width = 240;
         x = 8;
-        height = 135;
+        height = 1235;
         y = nextSmallPanelY - smallPanelsScrollY;
         nextSmallPanelY += height + 8;
       } else {
@@ -650,7 +649,7 @@ const App: React.FC = () => {
       if (small) {
         width = Math.floor(240 * scale);
         x = 8;
-        height = Math.floor(135 * scale);
+        height = Math.floor(1235 * scale);
         y = nextSmallPanelY - smallPanelsScrollY;
         nextSmallPanelY += height + 8;
       } else {
@@ -763,12 +762,13 @@ const App: React.FC = () => {
 
   React.useEffect(() => {
     const onWheel = (e: WheelEvent) => {
-      if (e.x > window.innerWidth - 256 && e.x < window.innerWidth) {
+      if (
+        e.x > window.innerWidth - 256 &&
+        e.x < window.innerWidth &&
+        e.y > contentYOffset
+      ) {
         setSmallPanelsScrollY((y) =>
-          Math.max(
-            0,
-            Math.min(nextSmallPanelY - window.innerHeight, y + e.deltaY)
-          )
+          Math.max(0, Math.min(nextSmallPanelY - availableHeight, y + e.deltaY))
         );
       }
     };
@@ -777,7 +777,7 @@ const App: React.FC = () => {
     return () => {
       window.removeEventListener('wheel', onWheel);
     };
-  }, [nextSmallPanelY]);
+  }, [nextSmallPanelY, contentYOffset, availableHeight]);
 
   const stopScreenShare = React.useCallback(() => {
     callObject?.stopScreenShare();
