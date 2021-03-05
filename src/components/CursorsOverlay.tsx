@@ -81,7 +81,6 @@ const CursorsOverlay: React.FC<CursorsOverlayProps> = ({
     };
 
     colyseusRoom.onMessage('cursorMouseDown', (cursorData: any) => {
-      console.log('RECEIVED MOUSE DOWN', cursorData);
       flash(
         `${cursorData.x * 100}%`,
         `${cursorData.y * 100}%`,
