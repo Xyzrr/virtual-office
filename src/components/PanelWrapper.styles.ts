@@ -4,7 +4,7 @@ export const Wrapper = styled.div<{
   z?: number;
   xDirection: 'left' | 'right';
 }>`
-  transition: width 0.2s, height 0.2s, transform 0.2s, z-index 0.2s;
+  // transition: width 0.2s, height 0.2s, transform 0.2s, z-index 0.2s;
 
   position: absolute;
   z-index: ${(props) => props.z || 0};
