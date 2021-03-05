@@ -6,6 +6,7 @@ import DailyIframe, {
   DailyCall,
   DailyEvent,
   DailyEventObjectParticipant,
+  DailyCallOptions,
 } from '@daily-co/daily-js';
 import * as Colyseus from 'colyseus.js';
 import { useFakeMinimize } from './util/useFakeMinimize';
@@ -112,11 +113,14 @@ const App: React.FC = () => {
       });
       setCallObject(newCallObject);
 
-      const participantObject = await newCallObject.join({
+      const options: DailyCallOptions = {
         url: 'http://harbor.daily.co/dev',
-      });
+      };
 
-      newCallObject.setUserName(localIdentity);
+      // missing userName property in type definition
+      (options as any).userName = localIdentity;
+
+      const participantObject = await newCallObject.join(options);
 
       console.log('Joined Daily room', participantObject);
     })();
