@@ -87,8 +87,8 @@ const createWindow = async () => {
     minWidth: 800,
     minHeight: 450,
     icon: getAssetPath('icon.png'),
-    // frame: false,
-    // transparent: true,
+    frame: false,
+    transparent: true,
     titleBarStyle: 'hiddenInset',
     backgroundColor: LIGHT_BACKGROUND.toString(),
     webPreferences: {
