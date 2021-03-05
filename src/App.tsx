@@ -25,6 +25,7 @@ import { useWindowsDrag } from './util/windowsDrag';
 import { useAppTracker, AppInfo } from './util/app-tracker/useAppTracker';
 import CallObjectContext from './contexts/CallObjectContext';
 import { useImmer } from 'use-immer';
+import NetworkPanel, { useNetworkPanel } from './components/NetworkPanel';
 
 let host: string;
 if (process.env.LOCAL) {
@@ -255,6 +256,8 @@ const App: React.FC = () => {
       }
     };
   }, [callObject]);
+
+  const showNetworkPanel = useNetworkPanel();
 
   /**
    * Show the call UI if we're either joining, already joined, or are showing
@@ -875,6 +878,7 @@ const App: React.FC = () => {
           <S.AppContents>
             {panelElements}
             <MainToolbar minimized={minimized} />
+            {showNetworkPanel && <NetworkPanel />}
           </S.AppContents>
         </S.AppWrapper>
         <ScreenShareToolbar
