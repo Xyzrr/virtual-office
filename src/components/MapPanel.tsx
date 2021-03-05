@@ -224,7 +224,10 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
         }
       };
 
+      const { onRemove } = colyseusRoom.state.players;
       colyseusRoom.state.players.onRemove = (player: any, identity: any) => {
+        onRemove(player, identity);
+
         console.log('Colyseus player removed', player);
         pixiApp?.stage.removeChild(playerGraphics[identity]);
         delete playerGraphics[identity];

@@ -42,6 +42,9 @@ export interface ActiveParticipant {
   reconnecting?: boolean;
   networkQuality?: number;
   sharedApp?: AppInfo;
+
+  dailyConnected?: boolean;
+  colyseusConnected?: boolean;
 }
 
 const App: React.FC = () => {
@@ -218,7 +221,7 @@ const App: React.FC = () => {
 
           for (const [sid, participant] of Object.entries(participants)) {
             if (draft[participant.user_name] == null) {
-              draft[participant.user_name] = {};
+              draft[participant.user_name] = { dailyConnected: true };
             }
 
             draft[participant.user_name].sid = sid;
@@ -232,7 +235,11 @@ const App: React.FC = () => {
 
           for (const [id, ap] of Object.entries(draft)) {
             if (ap.sid != null && participants[ap.sid] == null) {
-              delete draft[id];
+              draft[id].dailyConnected = false;
+
+              if (!draft[id].colyseusConnected) {
+                delete draft[id];
+              }
             }
           }
         })
@@ -326,7 +333,7 @@ const App: React.FC = () => {
           setActiveParticipants((aps) => {
             return produce(aps, (draft) => {
               if (draft[identity] == null) {
-                draft[identity] = {};
+                draft[identity] = { colyseusConnected: true };
               }
               draft[identity].audioEnabled = player.audioEnabled;
             });
@@ -390,6 +397,18 @@ const App: React.FC = () => {
               });
             }
           };
+        };
+
+        room.state.players.onRemove = (player: any, identity: string) => {
+          setActiveParticipants((aps) => {
+            return produce(aps, (draft) => {
+              draft[identity].colyseusConnected = false;
+
+              if (!draft[identity].dailyConnected) {
+                delete draft[identity];
+              }
+            });
+          });
         };
       });
   }, []);
