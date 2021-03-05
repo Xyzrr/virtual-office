@@ -456,7 +456,7 @@ const App: React.FC = () => {
   const contentYOffset = minimized ? 0 : 40;
   const availableHeight = windowSize.height - contentYOffset;
 
-  let nextSmallPanelY = 8;
+  let nextSmallPanelY = 8 + contentYOffset;
   const panelElements: React.ReactNode[] = [];
 
   let mapIsSmall: boolean;

@@ -6,7 +6,7 @@ const flash = keyframes`
       transform: scale(0.2);
   }
   50%  {
-      opacity: 0.6;
+      opacity: 1;
   }
   100% {
       opacity: 0;
@@ -27,7 +27,6 @@ export const Wrapper = styled.div`
     pointer-events: none;
     animation: 0.6s ease-out 0s ${flash};
     opacity: 0;
-    z-index: 10000;
     margin-left: -20px;
     margin-top: -20px;
     width: 40px;

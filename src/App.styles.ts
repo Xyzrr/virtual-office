@@ -49,7 +49,6 @@ export const AppWrapper = styled.div`
 `;
 
 export const AppContents = styled.div`
-  position: relative;
   height: 0;
   flex-grow: 1;
 `;
