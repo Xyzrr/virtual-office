@@ -147,7 +147,7 @@ export const useAppTracker = (colyseusRoom: Colyseus.Room | null) => {
           }
         }
       });
-    }, 5000);
+    }, 2000);
 
     return () => {
       window.clearInterval(interval);
