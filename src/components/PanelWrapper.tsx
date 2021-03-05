@@ -10,6 +10,7 @@ export interface PanelWrapperProps {
   height: number;
   xDirection: 'left' | 'right';
   minY?: number;
+  floating?: boolean;
 }
 
 const PanelWrapper: React.FC<PanelWrapperProps> = ({
@@ -22,6 +23,7 @@ const PanelWrapper: React.FC<PanelWrapperProps> = ({
   xDirection,
   minY,
   children,
+  floating,
 }) => {
   return (
     <S.Wrapper
@@ -44,6 +46,7 @@ const PanelWrapper: React.FC<PanelWrapperProps> = ({
       }}
       z={z}
       xDirection={xDirection}
+      floating={floating}
     >
       <S.InnerWrapper className={className}>{children}</S.InnerWrapper>
     </S.Wrapper>

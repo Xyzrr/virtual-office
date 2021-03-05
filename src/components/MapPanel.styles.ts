@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { DARK_BACKGROUND } from './constants';
 
 export const Wrapper = styled.div<{
   small: boolean;
@@ -10,5 +11,6 @@ export const Wrapper = styled.div<{
   background: rgba(255, 255, 255, 0.2);
   canvas {
     display: block;
+    background: ${DARK_BACKGROUND.toString()};
   }
 `;

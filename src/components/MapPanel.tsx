@@ -11,6 +11,7 @@ import * as TWEEN from '@tweenjs/tween.js';
 import HoverMenu from './HoverMenu';
 import { useMouseIsIdle } from '../util/useMouseIsIdle';
 import PanelWrapper from './PanelWrapper';
+import { DARK_BACKGROUND } from './constants';
 
 export interface MapPanelProps {
   className?: string;
@@ -59,6 +60,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
         antialias: !process.env.LOW_POWER,
         resolution: process.env.LOW_POWER ? 1 : window.devicePixelRatio,
         autoDensity: true,
+        backgroundColor: DARK_BACKGROUND.rgbNumber(),
       });
       app.stage.sortableChildren = true;
 
@@ -407,6 +409,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
         width={width}
         height={height}
         xDirection="left"
+        floating={small}
       >
         <S.Wrapper className={className} ref={wrapperRef} small={small}>
           {small && (

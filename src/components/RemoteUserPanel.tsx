@@ -155,6 +155,7 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = React.memo(
         height={height}
         xDirection="left"
         minY={minY}
+        floating={small}
       >
         <S.Wrapper
           className={className}

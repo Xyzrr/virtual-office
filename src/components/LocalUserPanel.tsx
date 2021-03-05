@@ -94,6 +94,7 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = React.memo(
         height={height}
         xDirection="left"
         minY={minY}
+        floating={small}
       >
         <S.Wrapper
           className={className}
