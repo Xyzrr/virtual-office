@@ -100,6 +100,8 @@ const App: React.FC = () => {
     null
   );
 
+  console.log('rtcpeers', (window as any).rtcpeers);
+
   const localIdentity = React.useMemo(() => {
     const result = `cool-person-${uuid()}`;
     console.log('Local identity:', result);
@@ -109,7 +111,9 @@ const App: React.FC = () => {
   React.useEffect(() => {
     (async () => {
       const newCallObject = DailyIframe.createCallObject({
-        dailyConfig: { experimentalChromeVideoMuteLightOff: true },
+        dailyConfig: {
+          experimentalChromeVideoMuteLightOff: true,
+        },
       });
       setCallObject(newCallObject);
 
@@ -121,6 +125,12 @@ const App: React.FC = () => {
       (options as any).userName = localIdentity;
 
       const participantObject = await newCallObject.join(options);
+
+      if (process.env.LOW_POWER) {
+        newCallObject.setBandwidth({
+          trackConstraints: { width: 16, height: 9 },
+        });
+      }
 
       console.log('Joined Daily room', participantObject);
     })();
@@ -543,6 +553,10 @@ const App: React.FC = () => {
       const { distance } = ap;
       let cameraKey = `remote-user:${identity}`;
       let screenKey = `remote-screen:${identity}`;
+
+      if (distance != null && distance > MAX_INTERACTION_DISTANCE) {
+        // callObject?.subs
+      }
 
       if (
         distance != null &&
