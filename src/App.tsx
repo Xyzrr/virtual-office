@@ -2,20 +2,7 @@ import * as S from './App.styles';
 
 import { v4 as uuid } from 'uuid';
 import React from 'react';
-import {
-  connect,
-  Room,
-  createLocalVideoTrack,
-  RemoteParticipant,
-  RemoteTrack,
-  createLocalAudioTrack,
-  LocalTrack,
-  CreateLocalTrackOptions,
-  LocalVideoTrack,
-  LocalAudioTrack,
-} from 'twilio-video';
 import DailyIframe, {
-  DailyCallOptions,
   DailyCall,
   DailyEvent,
   DailyEventObjectParticipant,
@@ -57,7 +44,6 @@ export interface ActiveParticipant {
 }
 
 const App: React.FC = () => {
-  const [twilioRoom, setTwilioRoom] = React.useState<Room | null>(null);
   const [appState, setAppState] = React.useState<string>('STATE_IDLE');
 
   const [localAudioInputEnabled, setLocalAudioInputEnabled] = React.useState(
@@ -115,17 +101,25 @@ const App: React.FC = () => {
 
   const localIdentity = React.useMemo(() => {
     const result = `cool-person-${uuid()}`;
-    console.log('IDENTITY', result);
+    console.log('Local identity:', result);
     return result;
   }, []);
 
   React.useEffect(() => {
-    // const endpoint = `http${process.env.LOCAL ? '' : 's'}://${host}/token`;
-    const newCallObject = DailyIframe.createCallObject();
-    setCallObject(newCallObject);
-    newCallObject.join({ url: 'http://harbor.daily.co/dev' }).then(() => {
-      newCallObject.setUserName(localIdentity, { thisMeetingOnly: false });
-    });
+    (async () => {
+      const newCallObject = DailyIframe.createCallObject({
+        dailyConfig: { experimentalChromeVideoMuteLightOff: true },
+      });
+      setCallObject(newCallObject);
+
+      const participantObject = await newCallObject.join({
+        url: 'http://harbor.daily.co/dev',
+      });
+
+      newCallObject.setUserName(localIdentity);
+
+      console.log('Joined Daily room', participantObject);
+    })();
   }, []);
 
   /**
