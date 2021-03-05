@@ -203,13 +203,7 @@ const App: React.FC = () => {
         produce(aps, (draft) => {
           const participants = callObject.participants();
 
-          console.log('PARTICIAPNTS', participants);
-
           for (const [sid, participant] of Object.entries(participants)) {
-            if (participant.user_name == null) {
-              continue;
-            }
-
             if (draft[participant.user_name] == null) {
               draft[participant.user_name] = {};
             }
