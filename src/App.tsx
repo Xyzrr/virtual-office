@@ -23,7 +23,6 @@ import MainToolbar from './components/MainToolbar';
 import { MAX_INTERACTION_DISTANCE } from './components/constants';
 import { useWindowsDrag } from './util/windowsDrag';
 import { useAppTracker, AppInfo } from './util/app-tracker/useAppTracker';
-import CallObjectContext from './contexts/CallObjectContext';
 import { useImmer } from 'use-immer';
 import NetworkPanel, { useNetworkPanel } from './components/NetworkPanel';
 import { ColyseusContext, ColyseusEvent } from './contexts/ColyseusContext';

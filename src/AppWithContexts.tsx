@@ -1,5 +1,6 @@
 import React from 'react';
 import { ColyseusContextProvider } from './contexts/ColyseusContext';
+import { LocalMediaContextProvider } from './contexts/LocalMediaContext';
 import App from './App';
 
 export interface AppWithContextsProps {}
@@ -7,7 +8,9 @@ export interface AppWithContextsProps {}
 const AppWithContexts: React.FC<AppWithContextsProps> = () => {
   return (
     <ColyseusContextProvider>
-      <App></App>
+      <LocalMediaContextProvider>
+        <App></App>
+      </LocalMediaContextProvider>
     </ColyseusContextProvider>
   );
 };
