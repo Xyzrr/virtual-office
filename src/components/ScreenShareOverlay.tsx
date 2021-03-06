@@ -1,7 +1,6 @@
 import * as S from './ScreenShareOverlay.styles';
 import React from 'react';
 import NewWindow from './NewWindow';
-import * as Colyseus from 'colyseus.js';
 import CursorsOverlay from './CursorsOverlay';
 import { ColyseusContext } from '../contexts/ColyseusContext';
 import { LocalMediaContext2 } from '../contexts/LocalMediaContext';

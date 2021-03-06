@@ -2,15 +2,8 @@ import * as S from './App.styles';
 
 import { v4 as uuid } from 'uuid';
 import React from 'react';
-import DailyIframe, {
-  DailyCall,
-  DailyEvent,
-  DailyEventObjectParticipant,
-  DailyCallOptions,
-} from '@daily-co/daily-js';
-import * as Colyseus from 'colyseus.js';
+import { DailyEvent } from '@daily-co/daily-js';
 import { useFakeMinimize } from './util/useFakeMinimize';
-import produce from 'immer';
 import RemoteUserPanel from './components/RemoteUserPanel';
 import MapPanel from './components/MapPanel';
 import * as electron from 'electron';
