@@ -1,6 +1,5 @@
 import React from 'react';
 import activeWin from 'active-win';
-import * as Colyseus from 'colyseus.js';
 
 import iconFigma from './app-icons/figma.ico';
 import iconNotion from './app-icons/notion.ico';
@@ -33,6 +32,7 @@ import iconSlack from './app-icons/slack.png';
 import iconSpotify from './app-icons/spotify.png';
 import iconExpensify from './app-icons/expensify.png';
 import iconITerm2 from './app-icons/iterm2.png';
+import { ColyseusContext } from '../../contexts/ColyseusContext';
 
 export const APPS = [
   { name: 'VS Code', nameMatch: 'Code', icon: iconVSCode },
@@ -111,20 +111,20 @@ export interface AppInfo {
   url?: string;
 }
 
-export const useAppTracker = (colyseusRoom: Colyseus.Room | null) => {
+export const useAppTracker = () => {
   const [localApp, setLocalApp] = React.useState<AppInfo | undefined>(
     undefined
   );
 
+  const { room: colyseusRoom } = React.useContext(ColyseusContext);
+
   React.useEffect(() => {
-    if (colyseusRoom == null) {
+    if (!colyseusRoom) {
       return;
     }
 
     const interval = window.setInterval(() => {
       activeWin().then((result) => {
-        console.log('APP IS', result);
-
         if (result == null) {
           return;
         }

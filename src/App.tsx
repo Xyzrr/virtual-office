@@ -26,6 +26,7 @@ import { useAppTracker, AppInfo } from './util/app-tracker/useAppTracker';
 import CallObjectContext from './contexts/CallObjectContext';
 import { useImmer } from 'use-immer';
 import NetworkPanel, { useNetworkPanel } from './components/NetworkPanel';
+import { ColyseusContext, ColyseusEvent } from './contexts/ColyseusContext';
 
 let host: string;
 if (process.env.LOCAL) {
@@ -99,9 +100,6 @@ const App: React.FC = () => {
     width: window.innerWidth,
     height: window.innerHeight,
   });
-  const [colyseusRoom, setColyseusRoom] = React.useState<Colyseus.Room | null>(
-    null
-  );
 
   console.log('rtcpeers', (window as any).rtcpeers);
 
@@ -193,8 +191,6 @@ const App: React.FC = () => {
       }
     };
   }, [callObject]);
-
-  console.log('RENDER PARTICIPANTS', callObject?.participants());
 
   /**
    * Start listening for participant changes, when the callObject is set.
@@ -315,92 +311,91 @@ const App: React.FC = () => {
     };
   }, [callObject]);
 
-  React.useEffect(() => {
-    const client = new Colyseus.Client(`ws://${host}`);
-
-    client
-      .joinOrCreate('main', {
-        identity: localIdentity,
-        audioEnabled: localAudioInputEnabled,
-      })
-      .then((room: Colyseus.Room<any>) => {
-        console.log('Joined or created Colyseus room:', room);
-        setColyseusRoom(room);
-
-        room.state.players.onAdd = (player: any, identity: string) => {
-          console.log('Colyseus player added:', identity);
-
-          setActiveParticipants((draft) => {
-            if (draft[identity] == null) {
-              draft[identity] = { colyseusConnected: true };
-            }
-            draft[identity].audioEnabled = player.audioEnabled;
-          });
-
-          player.onChange = (changes: Colyseus.DataChange[]) => {
-            console.log('Player changed:', changes);
-
-            const localPlayer = room.state.players.get(localIdentity);
-
-            const updateDistanceToPlayer = (id: string, player: any) => {
-              const dist = Math.sqrt(
-                (player.x - localPlayer.x) ** 2 +
-                  (player.y - localPlayer.y) ** 2
-              );
-
-              setActiveParticipants((draft) => {
-                draft[id].distance = dist;
-              });
-            };
-
-            if (localPlayer != null) {
-              if (identity === localIdentity) {
-                for (const [id, p] of room.state.players.entries()) {
-                  updateDistanceToPlayer(id, p);
-                }
-              } else {
-                updateDistanceToPlayer(identity, player);
-              }
-            }
-
-            if (
-              changes.find((c) => (c as any).field === 'audioEnabled') != null
-            ) {
-              setActiveParticipants((draft) => {
-                draft[identity].audioEnabled = player.audioEnabled;
-              });
-            }
-
-            if (changes.find((c) => (c as any).field === 'sharedApp') != null) {
-              setActiveParticipants((draft) => {
-                draft[identity].sharedApp = player.sharedApp;
-              });
-            }
-          };
-        };
-
-        room.state.players.onRemove = (player: any, identity: string) => {
-          setActiveParticipants((draft) => {
-            draft[identity].colyseusConnected = false;
-
-            if (!draft[identity].dailyConnected) {
-              delete draft[identity];
-            }
-          });
-        };
-      });
-  }, []);
+  const {
+    room: colyseusRoom,
+    join: joinColyseus,
+    leave: leaveColyseus,
+    addListener: addColyseusListener,
+    removeListener: removeColyseusListener,
+  } = React.useContext(ColyseusContext);
 
   React.useEffect(() => {
-    if (colyseusRoom == null) {
+    joinColyseus('main', localIdentity);
+  }, [joinColyseus]);
+
+  React.useEffect(() => {
+    return () => {
+      leaveColyseus();
+    };
+  }, [leaveColyseus]);
+
+  React.useEffect(() => {
+    if (!colyseusRoom) {
       return;
     }
 
-    return () => {
-      console.log('Leaving Colyseus room');
-      colyseusRoom.leave();
+    const events: ColyseusEvent[] = [
+      'participant-added',
+      'participant-updated',
+      'participant-removed',
+    ];
+
+    const onParticipantsUpdated = () => {
+      setActiveParticipants((draft) => {
+        const localPlayer = colyseusRoom.state.players.get(localIdentity);
+
+        const updateDistanceToPlayer = (id: string, player: any) => {
+          const dist = Math.sqrt(
+            (player.x - localPlayer.x) ** 2 + (player.y - localPlayer.y) ** 2
+          );
+
+          draft[id].distance = dist;
+        };
+
+        for (const [identity, player] of colyseusRoom.state.players.entries()) {
+          if (identity === localIdentity) {
+            if (localPlayer != null) {
+              for (const [id, p] of colyseusRoom.state.players.entries()) {
+                if (draft[id]) {
+                  updateDistanceToPlayer(id, p);
+                }
+              }
+            }
+          } else {
+            if (draft[identity] == null) {
+              draft[identity] = { colyseusConnected: true };
+            }
+
+            updateDistanceToPlayer(identity, player);
+            draft[identity].audioEnabled = player.audioEnabled;
+            draft[identity].sharedApp = player.sharedApp;
+          }
+        }
+
+        for (const [id, ap] of Object.entries(draft)) {
+          if (colyseusRoom.state.players.get(id) == null) {
+            draft[id].colyseusConnected = false;
+
+            if (!draft[id].dailyConnected) {
+              delete draft[id];
+            }
+          }
+        }
+      });
     };
-  }, [colyseusRoom]);
+
+    onParticipantsUpdated();
+
+    for (const event of events) {
+      addColyseusListener(event, onParticipantsUpdated);
+    }
+
+    return () => {
+      for (const event of events) {
+        removeColyseusListener(event, onParticipantsUpdated);
+      }
+    };
+  }, [colyseusRoom, addColyseusListener, removeColyseusListener]);
 
   const [appFocused, setAppFocused] = React.useState(true);
   React.useEffect(() => {
@@ -446,7 +441,7 @@ const App: React.FC = () => {
 
   const dragWindowsProps = useWindowsDrag();
 
-  const localApp = useAppTracker(colyseusRoom);
+  const localApp = useAppTracker();
 
   const [minimized, setMinimized] = useFakeMinimize();
 

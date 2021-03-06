@@ -12,6 +12,7 @@ import HoverMenu from './HoverMenu';
 import { useMouseIsIdle } from '../util/useMouseIsIdle';
 import PanelWrapper from './PanelWrapper';
 import { DARK_BACKGROUND } from './constants';
+import { ColyseusContext, ColyseusEvent } from '../contexts/ColyseusContext';
 
 export interface MapPanelProps {
   className?: string;
@@ -22,7 +23,6 @@ export interface MapPanelProps {
   height: number;
 
   localPlayerIdentity: string;
-  colyseusRoom: Colyseus.Room;
   small: boolean;
   onSetExpanded(value: boolean): void;
 }
@@ -35,21 +35,26 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
     width,
     height,
     localPlayerIdentity,
-    colyseusRoom,
     small,
     onSetExpanded,
   }) => {
+    const {
+      room: colyseusRoom,
+      addListener: addColyseusListener,
+      removeListener: removeColyseusListener,
+    } = React.useContext(ColyseusContext);
+
+    const playerGraphicsRef = React.useRef<{
+      [identity: string]: PIXI.Graphics;
+    }>({});
+    const worldObjectGraphicsRef = React.useRef(
+      new WeakMap<any, PIXI.Graphics>()
+    );
     const wrapperRef = React.useRef<HTMLDivElement>(null);
     const windowSize = React.useRef<{ width: number; height: number }>({
       width: window.innerWidth,
       height: window.innerHeight,
     });
-    const localPlayerRef = React.useRef<{
-      x: number;
-      y: number;
-      dir: number;
-      speed: number;
-    } | null>(null);
 
     const scaleRef = React.useRef(1);
 
@@ -98,10 +103,15 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
         if (size.width != null && size.height != null) {
           windowSize.current = { width: size.width, height: size.height };
           pixiApp.renderer.resize(size.width, size.height);
-          if (localPlayerRef.current != null) {
+
+          const localPlayer = colyseusRoom?.state.players.get(
+            localPlayerIdentity
+          );
+
+          if (localPlayer != null) {
             const [mappedX, mappedY] = mapWorldCoordToPixiCoord(
-              localPlayerRef.current.x,
-              localPlayerRef.current.y
+              localPlayer.x,
+              localPlayer.y
             );
 
             centerCameraAround(mappedX, mappedY);
@@ -111,18 +121,16 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
     });
 
     React.useEffect(() => {
-      const playerGraphics: {
-        [identity: string]: PIXI.Graphics;
-      } = {};
-
-      const worldObjectGraphics = new WeakMap<any, PIXI.Graphics>();
+      if (!colyseusRoom) {
+        return;
+      }
 
       let lastFrameTime = Date.now();
       const animate = (time: number) => {
         const delta = (time - lastFrameTime) / 1000;
         lastFrameTime = time;
 
-        const localPlayer = localPlayerRef.current;
+        const localPlayer = colyseusRoom.state.players.get(localPlayerIdentity);
 
         if (localPlayer != null) {
           localPlayer.x +=
@@ -161,8 +169,8 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
             localPlayer.x,
             localPlayer.y
           );
-          playerGraphics[localPlayerIdentity].x = mappedX;
-          playerGraphics[localPlayerIdentity].y = mappedY;
+          playerGraphicsRef.current[localPlayerIdentity].x = mappedX;
+          playerGraphicsRef.current[localPlayerIdentity].y = mappedY;
 
           centerCameraAround(mappedX, mappedY);
 
@@ -177,61 +185,63 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
         requestAnimationFrame(animate);
       };
       requestAnimationFrame(animate);
+    }, [colyseusRoom, pixiApp, centerCameraAround]);
 
-      console.log('PLAYERS', colyseusRoom.state.players);
+    React.useEffect(() => {
+      if (!colyseusRoom) {
+        return;
+      }
 
-      const { onAdd } = colyseusRoom.state.players;
-      colyseusRoom.state.players.onAdd = (player: any, identity: string) => {
-        onAdd?.(player, identity);
+      const events: ColyseusEvent[] = [
+        'participant-added',
+        'participant-updated',
+        'participant-removed',
+      ];
 
-        const graphic = new PIXI.Graphics();
-        graphic.beginFill(player.color);
-        graphic.drawCircle(0, 0, 16);
-        graphic.endFill();
-        pixiApp.stage.addChild(graphic);
+      const onParticipantsUpdated = () => {
+        for (const [identity, player] of colyseusRoom.state.players.entries()) {
+          if (!playerGraphicsRef.current[identity]) {
+            playerGraphicsRef.current[identity] = new PIXI.Graphics()
+              .beginFill(player.color)
+              .drawCircle(0, 0, 16)
+              .endFill();
+            pixiApp.stage.addChild(playerGraphicsRef.current[identity]);
+          }
 
-        const [mappedX, mappedY] = mapWorldCoordToPixiCoord(player.x, player.y);
-        graphic.x = mappedX;
-        graphic.y = mappedY;
-
-        playerGraphics[identity] = graphic;
-
-        if (identity === localPlayerIdentity) {
-          console.log('Got initial local player state', player);
-          localPlayerRef.current = {
-            x: player.x,
-            y: player.y,
-            dir: player.dir,
-            speed: player.speed,
-          };
-        } else {
-          const { onChange } = player;
-          player.onChange = (changes: Colyseus.DataChange[]) => {
-            onChange?.(changes);
+          if (identity !== localPlayerIdentity) {
+            const graphic = playerGraphicsRef.current[identity];
 
             const [mappedX, mappedY] = mapWorldCoordToPixiCoord(
               player.x,
               player.y
             );
 
-            new TWEEN.Tween(graphic)
-              .to({ x: mappedX, y: mappedY }, 80)
-              .easing(TWEEN.Easing.Linear.None)
-              .start();
+            if (mappedX !== graphic.x || mappedY != graphic.y) {
+              new TWEEN.Tween(graphic)
+                .to({ x: mappedX, y: mappedY }, 80)
+                .easing(TWEEN.Easing.Linear.None)
+                .start();
 
-            console.log('Remote player changed', Date.now(), player);
-          };
+              console.log('Remote player changed', Date.now(), player);
+            }
+          }
+        }
+
+        for (const [identity, graphic] of Object.entries(
+          playerGraphicsRef.current
+        )) {
+          if (!colyseusRoom.state.players.has(identity)) {
+            pixiApp?.stage.removeChild(playerGraphicsRef.current[identity]);
+            delete playerGraphicsRef.current[identity];
+          }
         }
       };
 
-      const { onRemove } = colyseusRoom.state.players;
-      colyseusRoom.state.players.onRemove = (player: any, identity: any) => {
-        onRemove(player, identity);
+      onParticipantsUpdated();
 
-        console.log('Colyseus player removed', player);
-        pixiApp?.stage.removeChild(playerGraphics[identity]);
-        delete playerGraphics[identity];
-      };
+      for (const event of events) {
+        addColyseusListener(event, onParticipantsUpdated);
+      }
 
       colyseusRoom.state.worldObjects.onAdd = (worldObject: any) => {
         const graphic = new PIXI.Graphics();
@@ -250,17 +260,23 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
 
         pixiApp.stage.addChild(graphic);
 
-        worldObjectGraphics.set(worldObject, graphic);
+        worldObjectGraphicsRef.current.set(worldObject, graphic);
       };
 
       colyseusRoom.state.worldObjects.onRemove = (worldObject: any) => {
-        const graphic = worldObjectGraphics.get(worldObject);
+        const graphic = worldObjectGraphicsRef.current.get(worldObject);
         if (graphic != null) {
           pixiApp?.stage.removeChild(graphic);
-          worldObjectGraphics.delete(worldObject);
+          worldObjectGraphicsRef.current.delete(worldObject);
         }
       };
-    }, [colyseusRoom, pixiApp, centerCameraAround]);
+
+      return () => {
+        for (const event of events) {
+          removeColyseusListener(event, onParticipantsUpdated);
+        }
+      };
+    }, [colyseusRoom, pixiApp]);
 
     React.useEffect(() => {
       wrapperRef.current?.appendChild(pixiApp.view);
@@ -327,11 +343,15 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
 
     const onKeyDown = React.useCallback(
       (e: KeyboardEvent) => {
+        if (!colyseusRoom) {
+          return;
+        }
+
         if (e.metaKey) {
           return;
         }
 
-        const localPlayer = localPlayerRef.current;
+        const localPlayer = colyseusRoom.state.players.get(localPlayerIdentity);
         if (localPlayer == null) {
           return;
         }
@@ -362,12 +382,16 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
           localPlayer.speed = speed;
         }
       },
-      [colyseusRoom]
+      [colyseusRoom, localPlayerIdentity]
     );
 
     const onKeyUp = React.useCallback(
       (e: KeyboardEvent) => {
-        const localPlayer = localPlayerRef.current;
+        if (!colyseusRoom) {
+          return;
+        }
+
+        const localPlayer = colyseusRoom.state.players.get(localPlayerIdentity);
         if (localPlayer == null) {
           return;
         }
@@ -398,7 +422,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
           localPlayer.speed = speed;
         }
       },
-      [colyseusRoom]
+      [colyseusRoom, localPlayerIdentity]
     );
 
     React.useEffect(() => {

@@ -23,7 +23,6 @@ export const useFakeMinimize = (opts?: {
 
   const onKeyDown = React.useCallback(
     (e: KeyboardEvent) => {
-      console.log('pressed key', e);
       if (isHotkey('mod+m', e)) {
         e.preventDefault();
 

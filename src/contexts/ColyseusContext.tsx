@@ -6,78 +6,94 @@ interface ColyseusContextValue {
   room?: Colyseus.Room;
   addListener(type: ColyseusEvent, listener: Listener): void;
   removeListener(type: ColyseusEvent, listener: Listener): void;
-  join(roomName: string): void;
+  join(roomName: string, identity: string): Promise<void>;
+  leave(): void;
 }
 
 export const ColyseusContext = React.createContext<ColyseusContextValue>(null!);
 
 type Listener = () => void;
 
-interface ColyseusContextProviderProps {
-  identity: string;
-}
+interface ColyseusContextProviderProps {}
 
-type ColyseusEvent =
+export type ColyseusEvent =
   | 'participant-added'
   | 'participant-updated'
-  | 'particpant-removed';
+  | 'participant-removed';
 
 export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = ({
-  identity,
+  children,
 }) => {
   const [room, setRoom] = React.useState<Colyseus.Room | undefined>();
 
   const listeners = React.useRef(new Map<ColyseusEvent, Set<Listener>>());
 
-  const join = React.useCallback(
-    async (roomName: string) => {
-      let host: string;
-      if (process.env.LOCAL) {
-        host = 'localhost:5000';
-      } else {
-        host = 'virtual-office-server.herokuapp.com';
+  const join = React.useCallback(async (roomName: string, identity: string) => {
+    let host: string;
+    if (process.env.LOCAL) {
+      host = 'localhost:5000';
+    } else {
+      host = 'virtual-office-server.herokuapp.com';
+    }
+
+    const client = new Colyseus.Client(`ws://${host}`);
+
+    const r: Colyseus.Room<any> = await client.joinOrCreate(roomName, {
+      identity,
+    });
+
+    console.log('Joined or created Colyseus room:', r);
+
+    setRoom(r);
+  }, []);
+
+  React.useEffect(() => {
+    if (!room) {
+      return;
+    }
+
+    room.state.players.onAdd = (player: any, identity: string) => {
+      console.log('Colyseus player added:', identity);
+
+      const addListeners = listeners.current.get('participant-added');
+
+      if (addListeners) {
+        addListeners.forEach((l) => l());
       }
 
-      const client = new Colyseus.Client(`ws://${host}`);
+      player.onChange = () => {
+        const updateListeners = listeners.current.get('participant-updated');
 
-      const room: Colyseus.Room<any> = await client.joinOrCreate(roomName, {
-        identity,
-      });
-
-      console.log('Joined or created Colyseus room:', room);
-
-      setRoom(room);
-
-      room.state.players.onAdd = (player: any, identity: string) => {
-        console.log('Colyseus player added:', identity);
-
-        const addListeners = listeners.current.get('participant-added');
-
-        if (addListeners) {
-          addListeners.forEach((l) => l());
-        }
-
-        player.onChange = () => {
-          const updateListeners = listeners.current.get('participant-updated');
-
-          if (updateListeners) {
-            updateListeners.forEach((l) => l());
-          }
-        };
-      };
-
-      room.state.players.onRemove = (player: any, identity: string) => {
-        console.log('Colyseus player removed:', identity);
-
-        const removeListeners = listeners.current.get('particpant-removed');
-
-        if (removeListeners) {
-          removeListeners.forEach((l) => l());
+        if (updateListeners) {
+          updateListeners.forEach((l) => l());
         }
       };
-    },
-    [identity]
-  );
+    };
+
+    room.state.players.onRemove = (player: any, identity: string) => {
+      console.log('Colyseus player removed:', identity);
+
+      const removeListeners = listeners.current.get('participant-removed');
+
+      if (removeListeners) {
+        removeListeners.forEach((l) => l());
+      }
+    };
+
+    return () => {
+      room.removeAllListeners();
+    };
+  }, [room]);
+
+  const leave = React.useCallback(() => {
+    if (!room) {
+      return;
+    }
+
+    console.log('Leaving Colyseus room');
+
+    room.leave();
+  }, [room]);
 
   const addListener = React.useCallback(
     (type: ColyseusEvent, listener: Listener) => {
@@ -103,7 +119,9 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
 
   return (
     <ColyseusContext.Provider
-      value={{ room, addListener, removeListener, join }}
-    ></ColyseusContext.Provider>
+      value={{ room, addListener, removeListener, join, leave }}
+    >
+      {children}
+    </ColyseusContext.Provider>
   );
 };
