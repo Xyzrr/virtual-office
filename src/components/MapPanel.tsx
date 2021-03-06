@@ -199,12 +199,12 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
       }
 
       const events: ColyseusEvent[] = [
-        'participant-added',
-        'participant-updated',
-        'participant-removed',
+        'player-added',
+        'player-updated',
+        'player-removed',
       ];
 
-      const onParticipantsUpdated = () => {
+      const onPlayersUpdated = () => {
         for (const [identity, player] of colyseusRoom.state.players.entries()) {
           if (!playerGraphicsRef.current[identity]) {
             if (identity === localPlayerIdentity) {
@@ -260,10 +260,10 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
         }
       };
 
-      onParticipantsUpdated();
+      onPlayersUpdated();
 
       for (const event of events) {
-        addColyseusListener(event, onParticipantsUpdated);
+        addColyseusListener(event, onPlayersUpdated);
       }
 
       colyseusRoom.state.worldObjects.onAdd = (worldObject: any) => {
@@ -296,7 +296,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
 
       return () => {
         for (const event of events) {
-          removeColyseusListener(event, onParticipantsUpdated);
+          removeColyseusListener(event, onPlayersUpdated);
         }
       };
     }, [colyseusRoom, pixiApp]);

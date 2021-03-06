@@ -163,12 +163,12 @@ const App: React.FC = () => {
     }
 
     const events: ColyseusEvent[] = [
-      'participant-added',
-      'participant-updated',
-      'participant-removed',
+      'player-added',
+      'player-updated',
+      'player-removed',
     ];
 
-    const onParticipantsUpdated = () => {
+    const onPlayersUpdated = () => {
       setActiveParticipants((draft) => {
         const localPlayer = colyseusRoom.state.players.get(localIdentity);
 
@@ -205,15 +205,15 @@ const App: React.FC = () => {
       });
     };
 
-    onParticipantsUpdated();
+    onPlayersUpdated();
 
     for (const event of events) {
-      addColyseusListener(event, onParticipantsUpdated);
+      addColyseusListener(event, onPlayersUpdated);
     }
 
     return () => {
       for (const event of events) {
-        removeColyseusListener(event, onParticipantsUpdated);
+        removeColyseusListener(event, onPlayersUpdated);
       }
     };
   }, [
