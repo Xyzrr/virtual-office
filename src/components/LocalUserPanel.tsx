@@ -51,19 +51,17 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = React.memo(
         return;
       }
 
-      const stream = new MediaStream();
-
-      if (localVideoTrack) {
-        console.log('attempting to add track', localVideoTrack);
-        stream.addTrack(localVideoTrack);
+      if (!localVideoTrack) {
+        return;
       }
+
+      const stream = new MediaStream();
+      stream.addTrack(localVideoTrack);
 
       videoRef.current.srcObject = stream;
 
       return () => {
-        if (localVideoTrack != null) {
-          stream.removeTrack(localVideoTrack);
-        }
+        stream.removeTrack(localVideoTrack);
       };
     }, [localVideoTrack]);
 
