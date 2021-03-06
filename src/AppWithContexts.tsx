@@ -8,13 +8,13 @@ export interface AppWithContextsProps {}
 
 const AppWithContexts: React.FC<AppWithContextsProps> = () => {
   return (
-    <ColyseusContextProvider>
-      <LocalMediaContextProvider>
+    <LocalMediaContextProvider>
+      <ColyseusContextProvider>
         <CallObjectContextProvider>
           <App></App>
         </CallObjectContextProvider>
-      </LocalMediaContextProvider>
-    </ColyseusContextProvider>
+      </ColyseusContextProvider>
+    </LocalMediaContextProvider>
   );
 };
 

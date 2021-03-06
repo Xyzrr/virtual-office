@@ -1,16 +1,13 @@
 import React from 'react';
 
 import * as Colyseus from 'colyseus.js';
+import { LocalMediaContext2 } from './LocalMediaContext';
 
 interface ColyseusContextValue {
   room?: Colyseus.Room;
   addListener(type: ColyseusEvent, listener: Listener): void;
   removeListener(type: ColyseusEvent, listener: Listener): void;
-  join(
-    roomName: string,
-    identity: string,
-    audioEnabled: boolean
-  ): Promise<void>;
+  join(roomName: string, identity: string): Promise<void>;
   leave(): void;
 }
 
@@ -30,60 +27,76 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
 }) => {
   const [room, setRoom] = React.useState<Colyseus.Room | undefined>();
 
+  const {
+    localAudioInputOn,
+    localVideoInputOn,
+    localScreenShareOn,
+  } = React.useContext(LocalMediaContext2);
+
+  React.useEffect(() => {
+    room?.send('updatePlayer', { audioInputOn: localAudioInputOn });
+  }, [localAudioInputOn]);
+
+  React.useEffect(() => {
+    room?.send('updatePlayer', { videoInputOn: localVideoInputOn });
+  }, [localVideoInputOn]);
+
+  React.useEffect(() => {
+    room?.send('updatePlayer', { screenShareOn: localScreenShareOn });
+  }, [localScreenShareOn]);
+
   const listeners = React.useRef(new Map<ColyseusEvent, Set<Listener>>());
 
-  const join = React.useCallback(
-    async (roomName: string, identity: string, audioEnabled: boolean) => {
-      let host: string;
-      if (process.env.LOCAL) {
-        host = 'localhost:5000';
-      } else {
-        host = 'virtual-office-server.herokuapp.com';
+  const join = React.useCallback(async (roomName: string, identity: string) => {
+    let host: string;
+    if (process.env.LOCAL) {
+      host = 'localhost:5000';
+    } else {
+      host = 'virtual-office-server.herokuapp.com';
+    }
+
+    const client = new Colyseus.Client(`ws://${host}`);
+
+    const r: Colyseus.Room<any> = await client.joinOrCreate(roomName, {
+      identity,
+      audioInputOn: localAudioInputOn,
+      videoInputOn: localVideoInputOn,
+    });
+
+    console.log('Joined or created Colyseus room:', r);
+
+    setRoom(r);
+
+    r.state.players.onAdd = (player: any, identity: string) => {
+      console.log('Colyseus player added:', identity);
+
+      const addListeners = listeners.current.get('participant-added');
+
+      if (addListeners) {
+        addListeners.forEach((l) => l());
       }
 
-      const client = new Colyseus.Client(`ws://${host}`);
+      player.onChange = (changes: Colyseus.DataChange[]) => {
+        console.log('Colyseus player updated:', identity, changes);
 
-      const r: Colyseus.Room<any> = await client.joinOrCreate(roomName, {
-        identity,
-        audioEnabled,
-      });
+        const updateListeners = listeners.current.get('participant-updated');
 
-      console.log('Joined or created Colyseus room:', r);
-
-      setRoom(r);
-
-      r.state.players.onAdd = (player: any, identity: string) => {
-        console.log('Colyseus player added:', identity);
-
-        const addListeners = listeners.current.get('participant-added');
-
-        if (addListeners) {
-          addListeners.forEach((l) => l());
-        }
-
-        player.onChange = (changes: Colyseus.DataChange[]) => {
-          console.log('Colyseus player updated:', identity, changes);
-
-          const updateListeners = listeners.current.get('participant-updated');
-
-          if (updateListeners) {
-            updateListeners.forEach((l) => l());
-          }
-        };
-      };
-
-      r.state.players.onRemove = (player: any, identity: string) => {
-        console.log('Colyseus player removed:', identity);
-
-        const removeListeners = listeners.current.get('participant-removed');
-
-        if (removeListeners) {
-          removeListeners.forEach((l) => l());
+        if (updateListeners) {
+          updateListeners.forEach((l) => l());
         }
       };
-    },
-    []
-  );
+    };
+
+    r.state.players.onRemove = (player: any, identity: string) => {
+      console.log('Colyseus player removed:', identity);
+
+      const removeListeners = listeners.current.get('participant-removed');
+
+      if (removeListeners) {
+        removeListeners.forEach((l) => l());
+      }
+    };
+  }, []);
 
   React.useEffect(() => {
     if (!room) {
