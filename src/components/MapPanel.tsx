@@ -216,11 +216,19 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
               };
             }
 
-            playerGraphicsRef.current[identity] = new PIXI.Graphics()
+            const graphic = new PIXI.Graphics()
               .beginFill(player.color)
               .drawCircle(0, 0, 16)
               .endFill();
-            pixiApp.stage.addChild(playerGraphicsRef.current[identity]);
+            playerGraphicsRef.current[identity] = graphic;
+            pixiApp.stage.addChild(graphic);
+
+            const [mappedX, mappedY] = mapWorldCoordToPixiCoord(
+              player.x,
+              player.y
+            );
+            graphic.x = mappedX;
+            graphic.y = mappedY;
           }
 
           if (identity !== localPlayerIdentity) {
