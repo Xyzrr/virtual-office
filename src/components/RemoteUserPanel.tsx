@@ -22,7 +22,8 @@ export interface RemoteUserPanelProps {
 
   videoTrack?: MediaStreamTrack;
   audioTrack?: MediaStreamTrack;
-  audioEnabled: boolean;
+  audioInputOn?: boolean;
+  videoInputOn?: boolean;
   distance: number;
   sharedApp?: AppInfo;
 
@@ -40,7 +41,8 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = React.memo(
     minY,
     videoTrack,
     audioTrack,
-    audioEnabled,
+    audioInputOn,
+    videoInputOn,
     distance,
     sharedApp,
     small,
@@ -161,7 +163,7 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = React.memo(
           <video ref={videoRef} autoPlay></video>
           <audio ref={audioRef} autoPlay></audio>
           <S.StatusIcons>
-            {!audioEnabled && <S.StatusIcon name="mic_off"></S.StatusIcon>}
+            {!audioInputOn && <S.StatusIcon name="mic_off"></S.StatusIcon>}
           </S.StatusIcons>
           <HoverMenu hidden={mouseIsIdle}>
             <HoverMenuStyles.MenuItem

@@ -34,7 +34,8 @@ export interface ActiveParticipant {
   audioSubscribed?: boolean;
   videoSubscribed?: boolean;
   screenSubscribed?: boolean;
-  audioEnabled?: boolean;
+  audioInputOn?: boolean;
+  videoInputOn?: boolean;
   sharedApp?: AppInfo;
 
   dailyConnected?: boolean;
@@ -147,7 +148,7 @@ const App: React.FC = () => {
   } = React.useContext(ColyseusContext);
 
   React.useEffect(() => {
-    joinColyseus('main', localIdentity, localAudioInputOn);
+    joinColyseus('main', localIdentity);
   }, [joinColyseus]);
 
   React.useEffect(() => {
@@ -197,7 +198,8 @@ const App: React.FC = () => {
             }
 
             updateDistanceToPlayer(identity, player);
-            draft[identity].audioEnabled = player.audioEnabled;
+            draft[identity].audioInputOn = player.audioInputOn;
+            draft[identity].videoInput = player.videoInput;
             draft[identity].sharedApp = player.sharedApp;
           }
         }
@@ -443,10 +445,10 @@ const App: React.FC = () => {
       return;
     }
 
-    const { sid, distance, audioEnabled } = ap;
+    const { sid, distance, audioInputOn, videoInputOn } = ap;
     console.log('should have remote 3');
 
-    if (sid == null || distance == null || audioEnabled == null) {
+    if (sid == null || distance == null) {
       return;
     }
 
@@ -501,7 +503,8 @@ const App: React.FC = () => {
           minY={small && mapIsSmall ? 135 + 16 : undefined}
           videoTrack={participant.videoTrack}
           audioTrack={participant.audioTrack}
-          audioEnabled={audioEnabled}
+          audioInputOn={audioInputOn}
+          videoInputOn={videoInputOn}
           distance={distance}
           sharedApp={ap.sharedApp}
           small={small}
