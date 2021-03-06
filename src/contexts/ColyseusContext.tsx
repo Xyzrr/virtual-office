@@ -3,24 +3,54 @@ import React from 'react';
 import * as Colyseus from 'colyseus.js';
 import { LocalMediaContext } from './LocalMediaContext';
 
+interface ParticipantAddedEvent {
+  identity: string;
+  participant: any;
+}
+
+interface ParticipantUpdatedEvent {
+  identity: string;
+  participant: any;
+  changes: Colyseus.DataChange[];
+}
+
+interface ParticipantRemovedEvent {
+  identity: string;
+  participant: any;
+}
+
+interface ColyseusEventMap {
+  'participant-added': ParticipantAddedEvent;
+  'participant-updated': ParticipantUpdatedEvent;
+  'participant-removed': ParticipantRemovedEvent;
+}
+
+export type ColyseusEvent =
+  | 'participant-added'
+  | 'participant-updated'
+  | 'participant-removed';
+
+type ColyseusListener<T extends ColyseusEvent> = (
+  ev: ColyseusEventMap[T]
+) => void;
+
 interface ColyseusContextValue {
   room?: Colyseus.Room;
-  addListener(type: ColyseusEvent, listener: Listener): void;
-  removeListener(type: ColyseusEvent, listener: Listener): void;
+  addListener<T extends ColyseusEvent>(
+    type: T,
+    listener: ColyseusListener<T>
+  ): void;
+  removeListener<T extends ColyseusEvent>(
+    type: T,
+    listener: ColyseusListener<T>
+  ): void;
   join(roomName: string, identity: string): Promise<void>;
   leave(): void;
 }
 
 export const ColyseusContext = React.createContext<ColyseusContextValue>(null!);
 
-type Listener = () => void;
-
 interface ColyseusContextProviderProps {}
-
-export type ColyseusEvent =
-  | 'participant-added'
-  | 'participant-updated'
-  | 'participant-removed';
 
 export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = ({
   children,
@@ -33,7 +63,11 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
     localScreenShareOn,
   } = React.useContext(LocalMediaContext);
 
-  const listeners = React.useRef(new Map<ColyseusEvent, Set<Listener>>());
+  const listeners = React.useRef<
+    {
+      [key in ColyseusEvent]?: Set<ColyseusListener<key>>;
+    }
+  >();
 
   const join = React.useCallback(async (roomName: string, identity: string) => {
     let host: string;
@@ -55,33 +89,33 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
 
     setRoom(r);
 
-    r.state.players.onAdd = (player: any, identity: string) => {
-      console.log('Colyseus player added:', identity);
+    r.state.participants.onAdd = (participant: any, identity: string) => {
+      console.log('Colyseus participant added:', identity);
 
-      const addListeners = listeners.current.get('participant-added');
+      const addListeners = listeners.current?.['participant-added'];
 
       if (addListeners) {
-        addListeners.forEach((l) => l());
+        addListeners.forEach((l) => l({ identity, participant }));
       }
 
-      player.onChange = (changes: Colyseus.DataChange[]) => {
-        console.log('Colyseus player updated:', identity, changes);
+      participant.onChange = (changes: Colyseus.DataChange[]) => {
+        console.log('Colyseus participant updated:', identity, changes);
 
-        const updateListeners = listeners.current.get('participant-updated');
+        const updateListeners = listeners.current?.['participant-updated'];
 
         if (updateListeners) {
-          updateListeners.forEach((l) => l());
+          updateListeners.forEach((l) => l({ identity, participant, changes }));
         }
       };
     };
 
-    r.state.players.onRemove = (player: any, identity: string) => {
-      console.log('Colyseus player removed:', identity);
+    r.state.participants.onRemove = (participant: any, identity: string) => {
+      console.log('Colyseus participant removed:', identity);
 
-      const removeListeners = listeners.current.get('participant-removed');
+      const removeListeners = listeners.current?.['participant-removed'];
 
       if (removeListeners) {
-        removeListeners.forEach((l) => l());
+        removeListeners.forEach((l) => l({ identity, participant }));
       }
     };
   }, []);
@@ -106,38 +140,41 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
     room.leave();
   }, [room]);
 
-  const addListener = React.useCallback(
-    (type: ColyseusEvent, listener: Listener) => {
-      if (!listeners.current.has(type)) {
-        listeners.current.set(type, new Set());
+  const addListener = React.useCallback<ColyseusContextValue['addListener']>(
+    (type, listener) => {
+      if (!listeners.current) {
+        listeners.current = {};
       }
 
-      const set = listeners.current.get(type)!;
+      if (!listeners.current[type]) {
+        (listeners.current as any)[type] = new Set();
+      }
 
-      set.add(listener);
+      const set = listeners.current[type]!;
+
+      set.add(listener as any);
     },
     []
   );
 
-  const removeListener = React.useCallback(
-    (type: ColyseusEvent, listener: Listener) => {
-      const set = listeners.current.get(type)!;
+  const removeListener = React.useCallback<
+    ColyseusContextValue['removeListener']
+  >((type, listener) => {
+    const set = (listeners.current as any).get(type)!;
 
-      set.delete(listener);
-    },
-    []
-  );
+    set.delete(listener);
+  }, []);
 
   React.useEffect(() => {
-    room?.send('updatePlayer', { audioInputOn: localAudioInputOn });
+    room?.send('updateParticipant', { audioInputOn: localAudioInputOn });
   }, [localAudioInputOn]);
 
   React.useEffect(() => {
-    room?.send('updatePlayer', { videoInputOn: localVideoInputOn });
+    room?.send('updateParticipant', { videoInputOn: localVideoInputOn });
   }, [localVideoInputOn]);
 
   React.useEffect(() => {
-    room?.send('updatePlayer', { screenShareOn: localScreenShareOn });
+    room?.send('updateParticipant', { screenShareOn: localScreenShareOn });
   }, [localScreenShareOn]);
 
   return (
