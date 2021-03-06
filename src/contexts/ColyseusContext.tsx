@@ -6,7 +6,11 @@ interface ColyseusContextValue {
   room?: Colyseus.Room;
   addListener(type: ColyseusEvent, listener: Listener): void;
   removeListener(type: ColyseusEvent, listener: Listener): void;
-  join(roomName: string, identity: string): Promise<void>;
+  join(
+    roomName: string,
+    identity: string,
+    audioEnabled: boolean
+  ): Promise<void>;
   leave(): void;
 }
 
@@ -28,24 +32,28 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
 
   const listeners = React.useRef(new Map<ColyseusEvent, Set<Listener>>());
 
-  const join = React.useCallback(async (roomName: string, identity: string) => {
-    let host: string;
-    if (process.env.LOCAL) {
-      host = 'localhost:5000';
-    } else {
-      host = 'virtual-office-server.herokuapp.com';
-    }
+  const join = React.useCallback(
+    async (roomName: string, identity: string, audioEnabled: boolean) => {
+      let host: string;
+      if (process.env.LOCAL) {
+        host = 'localhost:5000';
+      } else {
+        host = 'virtual-office-server.herokuapp.com';
+      }
 
-    const client = new Colyseus.Client(`ws://${host}`);
+      const client = new Colyseus.Client(`ws://${host}`);
 
-    const r: Colyseus.Room<any> = await client.joinOrCreate(roomName, {
-      identity,
-    });
+      const r: Colyseus.Room<any> = await client.joinOrCreate(roomName, {
+        identity,
+        audioEnabled,
+      });
 
-    console.log('Joined or created Colyseus room:', r);
+      console.log('Joined or created Colyseus room:', r);
 
-    setRoom(r);
-  }, []);
+      setRoom(r);
+    },
+    []
+  );
 
   React.useEffect(() => {
     if (!room) {

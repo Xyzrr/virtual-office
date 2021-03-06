@@ -151,6 +151,8 @@ const App: React.FC = () => {
 
     return () => {
       window.removeEventListener('beforeunload', beforeUnload);
+
+      callObject.leave();
     };
   }, [callObject]);
 
@@ -336,7 +338,7 @@ const App: React.FC = () => {
   } = React.useContext(ColyseusContext);
 
   React.useEffect(() => {
-    joinColyseus('main', localIdentity);
+    joinColyseus('main', localIdentity, localAudioInputEnabled);
   }, [joinColyseus]);
 
   React.useEffect(() => {
@@ -625,16 +627,20 @@ const App: React.FC = () => {
     }
 
     const { sid, distance, audioEnabled } = ap;
+    console.log('should have remote 3');
 
     if (sid == null || distance == null || audioEnabled == null) {
       return;
     }
 
     const participant = callObject?.participants()[sid];
+    console.log('should have remote 2');
 
     if (participant == null) {
       return;
     }
+
+    console.log('should have remote 1');
 
     if (distance > MAX_INTERACTION_DISTANCE) {
       return;
@@ -665,6 +671,8 @@ const App: React.FC = () => {
         width = windowSize.width;
         height = availableHeight;
       }
+
+      console.log('should have remote');
 
       panelElements.push(
         <RemoteUserPanel
