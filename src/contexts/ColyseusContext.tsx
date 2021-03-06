@@ -33,18 +33,6 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
     localScreenShareOn,
   } = React.useContext(LocalMediaContext);
 
-  React.useEffect(() => {
-    room?.send('updatePlayer', { audioInputOn: localAudioInputOn });
-  }, [localAudioInputOn]);
-
-  React.useEffect(() => {
-    room?.send('updatePlayer', { videoInputOn: localVideoInputOn });
-  }, [localVideoInputOn]);
-
-  React.useEffect(() => {
-    room?.send('updatePlayer', { screenShareOn: localScreenShareOn });
-  }, [localScreenShareOn]);
-
   const listeners = React.useRef(new Map<ColyseusEvent, Set<Listener>>());
 
   const join = React.useCallback(async (roomName: string, identity: string) => {
@@ -139,6 +127,18 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
     },
     []
   );
+
+  React.useEffect(() => {
+    room?.send('updatePlayer', { audioInputOn: localAudioInputOn });
+  }, [localAudioInputOn]);
+
+  React.useEffect(() => {
+    room?.send('updatePlayer', { videoInputOn: localVideoInputOn });
+  }, [localVideoInputOn]);
+
+  React.useEffect(() => {
+    room?.send('updatePlayer', { screenShareOn: localScreenShareOn });
+  }, [localScreenShareOn]);
 
   return (
     <ColyseusContext.Provider
