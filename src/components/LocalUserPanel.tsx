@@ -4,7 +4,7 @@ import * as HoverMenuStyles from './HoverMenu.styles';
 import React, { useContext } from 'react';
 import { useVolume } from '../util/useVolume';
 import HoverMenu from './HoverMenu';
-import { LocalMediaContext } from '../contexts/LocalMediaContext';
+import { LocalMediaContext2 } from '../contexts/LocalMediaContext';
 import { useMouseIsIdle } from '../util/useMouseIsIdle';
 import PanelWrapper, { PanelWrapperProps } from './PanelWrapper';
 import * as Colyseus from 'colyseus.js';
@@ -43,7 +43,7 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = React.memo(
     const recentlyLoudTimerRef = React.useRef<number | null>(null);
 
     const { localAudioTrack, localVideoTrack } = React.useContext(
-      LocalMediaContext
+      LocalMediaContext2
     );
 
     React.useEffect(() => {

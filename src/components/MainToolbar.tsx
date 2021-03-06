@@ -1,7 +1,7 @@
 import * as S from './MainToolbar.styles';
 import React from 'react';
 
-import { LocalMediaContext } from '../contexts/LocalMediaContext';
+import { LocalMediaContext2 } from '../contexts/LocalMediaContext';
 import { useVolume } from '../util/useVolume';
 import ScreenSharePicker from './ScreenSharePicker';
 import HiddenSelect from './HiddenSelect';
@@ -21,26 +21,25 @@ const MainToolbar: React.FC<MainToolbarProps> = React.memo(
     );
 
     const {
-      localVideoInputEnabled,
-      localAudioInputEnabled,
-      localAudioOutputEnabled,
-      localScreenShareEnabled,
-      localAudioTrack,
-      localVideoTrack,
-      localAudioInputDeviceId,
-      localAudioOutputDeviceId,
+      localVideoInputOn,
+      setLocalVideoInputOn,
       localVideoInputDeviceId,
-      enableLocalVideoInput,
-      disableLocalVideoInput,
-      enableLocalAudioInput,
-      disableLocalAudioInput,
-      setLocalAudioOutputEnabled,
-      setLocalAudioInputDeviceId,
-      setLocalAudioOutputDeviceId,
       setLocalVideoInputDeviceId,
-      screenShare,
-      stopScreenShare,
-    } = React.useContext(LocalMediaContext);
+      localVideoTrack,
+      localAudioInputOn,
+      setLocalAudioInputOn,
+      localAudioTrack,
+      localAudioOutputDeviceId,
+      setLocalAudioOutputDeviceId,
+      localAudioOutputOn,
+      setLocalAudioOutputOn,
+      localAudioInputDeviceId,
+      setLocalAudioInputDeviceId,
+      localScreenShareOn,
+      setLocalScreenShareOn,
+      localScreenShareSourceId,
+      setLocalScreenShareSourceId,
+    } = React.useContext(LocalMediaContext2);
 
     const recentlyLoudTimerRef = React.useRef<number | null>(null);
     const [recentlyLoud, setRecentlyLoud] = React.useState(false);
@@ -93,18 +92,14 @@ const MainToolbar: React.FC<MainToolbarProps> = React.memo(
         minimized={minimized}
         hidden={mouseIsIdle}
       >
-        <S.IconButton color={localAudioInputEnabled ? undefined : 'danger'}>
+        <S.IconButton color={localAudioInputOn ? undefined : 'danger'}>
           <S.IconButtonBackground
             mask={minimized ? undefined : circleButtonWithOptions}
             onClick={() => {
-              if (localAudioInputEnabled) {
-                disableLocalAudioInput();
-              } else {
-                enableLocalAudioInput();
-              }
+              setLocalAudioInputOn(!localAudioInputOn);
             }}
           />
-          {localAudioInputEnabled ? (
+          {localAudioInputOn ? (
             <VolumeIndicator volume={volume}></VolumeIndicator>
           ) : (
             <S.IconButtonIcon name="mic_off"></S.IconButtonIcon>
@@ -136,19 +131,15 @@ const MainToolbar: React.FC<MainToolbarProps> = React.memo(
           )}
         </S.IconButton>
 
-        <S.IconButton color={localVideoInputEnabled ? undefined : 'danger'}>
+        <S.IconButton color={localVideoInputOn ? undefined : 'danger'}>
           <S.IconButtonBackground
             mask={minimized ? undefined : circleButtonWithOptions}
             onClick={() => {
-              if (localVideoInputEnabled) {
-                disableLocalVideoInput();
-              } else {
-                enableLocalVideoInput();
-              }
+              setLocalVideoInputOn(!localVideoInputOn);
             }}
           />
           <S.IconButtonIcon
-            name={localVideoInputEnabled ? 'videocam' : 'videocam_off'}
+            name={localVideoInputOn ? 'videocam' : 'videocam_off'}
           ></S.IconButtonIcon>
           {!minimized && (
             <S.CaretButtonWrapper>
@@ -176,15 +167,15 @@ const MainToolbar: React.FC<MainToolbarProps> = React.memo(
             </S.CaretButtonWrapper>
           )}
         </S.IconButton>
-        <S.IconButton color={localAudioOutputEnabled ? undefined : 'danger'}>
+        <S.IconButton color={localAudioOutputOn ? undefined : 'danger'}>
           <S.IconButtonBackground
             mask={minimized ? undefined : circleButtonWithOptions}
             onClick={() => {
-              setLocalAudioOutputEnabled(!localAudioOutputEnabled);
+              setLocalAudioOutputOn(!localAudioOutputOn);
             }}
           />
           <S.IconButtonIcon
-            name={localAudioOutputEnabled ? 'volume_up' : 'volume_off'}
+            name={localAudioOutputOn ? 'volume_up' : 'volume_off'}
           ></S.IconButtonIcon>
           {!minimized && (
             <S.CaretButtonWrapper>
@@ -209,20 +200,18 @@ const MainToolbar: React.FC<MainToolbarProps> = React.memo(
             </S.CaretButtonWrapper>
           )}
         </S.IconButton>
-        <S.IconButton color={localScreenShareEnabled ? 'good' : undefined}>
+        <S.IconButton color={localScreenShareOn ? 'good' : undefined}>
           <S.IconButtonBackground
             onClick={() => {
-              if (localScreenShareEnabled) {
-                stopScreenShare();
+              if (localScreenShareOn) {
+                setLocalScreenShareOn(false);
                 return;
               }
               setScreenSharePickerOpen((o) => !o);
             }}
           ></S.IconButtonBackground>
           <S.IconButtonIcon
-            name={
-              localScreenShareEnabled ? 'stop_screen_share' : 'screen_share'
-            }
+            name={localScreenShareOn ? 'stop_screen_share' : 'screen_share'}
           ></S.IconButtonIcon>
         </S.IconButton>
         <ScreenSharePicker

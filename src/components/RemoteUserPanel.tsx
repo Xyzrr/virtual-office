@@ -3,7 +3,7 @@ import * as HoverMenuStyles from './HoverMenu.styles';
 
 import React, { useContext } from 'react';
 import { useVolume } from '../util/useVolume';
-import { LocalMediaContext } from '../contexts/LocalMediaContext';
+import { LocalMediaContext2 } from '../contexts/LocalMediaContext';
 import HoverMenu from './HoverMenu';
 import { useMouseIsIdle } from '../util/useMouseIsIdle';
 import { MAX_INTERACTION_DISTANCE } from './constants';
@@ -52,8 +52,8 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = React.memo(
     const [recentlyLoud, setRecentlyLoud] = React.useState(false);
     const recentlyLoudTimerRef = React.useRef<number | null>(null);
 
-    const { localAudioOutputDeviceId, localAudioOutputEnabled } = useContext(
-      LocalMediaContext
+    const { localAudioOutputDeviceId, localAudioOutputOn } = useContext(
+      LocalMediaContext2
     );
 
     const scale = Math.min(1, MAX_INTERACTION_DISTANCE / 2 / (distance + 0.1));
@@ -136,8 +136,8 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = React.memo(
         return;
       }
 
-      audioEl.volume = localAudioOutputEnabled ? volumeMultiplier : 0;
-    }, [volumeMultiplier, localAudioOutputEnabled]);
+      audioEl.volume = localAudioOutputOn ? volumeMultiplier : 0;
+    }, [volumeMultiplier, localAudioOutputOn]);
 
     const mouseIsIdle = useMouseIsIdle({ containerRef: wrapperRef });
 

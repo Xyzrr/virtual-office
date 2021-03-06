@@ -15,7 +15,7 @@ import RemoteUserPanel from './components/RemoteUserPanel';
 import MapPanel from './components/MapPanel';
 import * as electron from 'electron';
 import LocalUserPanel from './components/LocalUserPanel';
-import { LocalMediaContext } from './contexts/LocalMediaContext';
+import { LocalMediaContext2 } from './contexts/LocalMediaContext';
 import RemoteScreenPanel from './components/RemoteScreenPanel';
 import ScreenShareToolbar from './components/ScreenShareToolbar';
 import ScreenShareOverlay from './components/ScreenShareOverlay';
@@ -26,6 +26,7 @@ import { useAppTracker, AppInfo } from './util/app-tracker/useAppTracker';
 import { useImmer } from 'use-immer';
 import NetworkPanel, { useNetworkPanel } from './components/NetworkPanel';
 import { ColyseusContext, ColyseusEvent } from './contexts/ColyseusContext';
+import { CallObjectContext } from './contexts/CallObjectContext';
 
 let host: string;
 if (process.env.LOCAL) {
@@ -48,46 +49,6 @@ export interface ActiveParticipant {
 }
 
 const App: React.FC = () => {
-  const [appState, setAppState] = React.useState<string>('STATE_IDLE');
-
-  const [localAudioInputEnabled, setLocalAudioInputEnabled] = React.useState(
-    true
-  );
-  const [localVideoInputEnabled, setLocalVideoInputEnabled] = React.useState(
-    true
-  );
-  const [localAudioOutputEnabled, setLocalAudioOutputEnabled] = React.useState(
-    true
-  );
-  const [localScreenShareEnabled, setLocalScreenShareEnabled] = React.useState(
-    false
-  );
-  const [
-    localScreenShareSourceId,
-    setLocalScreenShareSourceId,
-  ] = React.useState<string | undefined>();
-  const [localAudioInputDeviceId, setLocalAudioInputDeviceId] = React.useState<
-    string | undefined
-  >();
-  const [
-    localAudioOutputDeviceId,
-    setLocalAudioOutputDeviceId,
-  ] = React.useState('default');
-  const [localVideoInputDeviceId, setLocalVideoInputDeviceId] = React.useState<
-    string | undefined
-  >();
-
-  const [localAudioTrack, setLocalAudioTrack] = React.useState<
-    MediaStreamTrack | undefined
-  >();
-  const [localVideoTrack, setLocalVideoTrack] = React.useState<
-    MediaStreamTrack | undefined
-  >();
-  const [localScreenVideoTrack, setLocalScreenVideoTrack] = React.useState<
-    MediaStreamTrack | undefined
-  >();
-  const [callObject, setCallObject] = React.useState<DailyCall | undefined>();
-
   const wasMinimizedWhenStartedScreenSharing = React.useRef(false);
 
   const [activeParticipants, setActiveParticipants] = useImmer<{
@@ -100,121 +61,40 @@ const App: React.FC = () => {
     height: window.innerHeight,
   });
 
-  console.log('rtcpeers', (window as any).rtcpeers);
-
   const localIdentity = React.useMemo(() => {
     const result = `cool-person-${uuid()}`;
     console.log('Local identity:', result);
     return result;
   }, []);
 
-  React.useEffect(() => {
-    (async () => {
-      const newCallObject = DailyIframe.createCallObject({
-        subscribeToTracksAutomatically: false,
-        dailyConfig: {
-          experimentalChromeVideoMuteLightOff: true,
-        },
-      });
-      setCallObject(newCallObject);
+  const { callObject, join: joinDaily, leave: leaveDaily } = React.useContext(
+    CallObjectContext
+  );
 
-      const options: DailyCallOptions = {
-        url: 'http://harbor.daily.co/dev',
-      };
-
-      // missing userName property in type definition
-      (options as any).userName = localIdentity;
-
-      const participantObject = await newCallObject.join(options);
-
-      if (process.env.LOW_POWER) {
-        newCallObject.setBandwidth({
-          trackConstraints: { width: 32, height: 18 },
-        });
-      }
-
-      console.log('Joined Daily room', participantObject);
-    })();
-  }, []);
+  const { localAudioInputOn, localScreenShareOn } = React.useContext(
+    LocalMediaContext2
+  );
 
   React.useEffect(() => {
-    if (!callObject) {
-      return;
-    }
-
-    const beforeUnload = () => {
-      callObject.leave();
-    };
-
-    window.addEventListener('beforeunload', beforeUnload);
+    joinDaily('dev', localIdentity);
 
     return () => {
-      window.removeEventListener('beforeunload', beforeUnload);
-
-      callObject.leave();
+      leaveDaily();
     };
-  }, [callObject]);
+  }, [joinDaily]);
 
-  /**
-   * Update app state based on reported meeting state changes.
-   *
-   * NOTE: Here we're showing how to completely clean up a call with destroy().
-   * This isn't strictly necessary between join()s, but is good practice when
-   * you know you'll be done with the call object for a while and you're no
-   * longer listening to its events.
-   */
   React.useEffect(() => {
-    if (callObject == null) {
-      return;
-    }
+    window.addEventListener('beforeunload', leaveDaily);
 
-    const events: DailyEvent[] = ['joined-meeting', 'left-meeting', 'error'];
-
-    function handleNewMeetingState(event?: DailyEvent) {
-      if (callObject == null) {
-        return;
-      }
-
-      switch (callObject.meetingState()) {
-        case 'joined-meeting':
-          setAppState('STATE_JOINED');
-          break;
-        case 'left-meeting':
-          callObject.destroy().then(() => {
-            setCallObject(undefined);
-            setAppState('STATE_IDLE');
-          });
-          break;
-        case 'error':
-          setAppState('STATE_ERROR');
-          break;
-        default:
-          break;
-      }
-    }
-
-    // Use initial state
-    handleNewMeetingState();
-
-    // Listen for changes in state
-    for (const event of events) {
-      callObject.on(event, handleNewMeetingState);
-    }
-
-    // Stop listening for changes in state
-    return function cleanup() {
-      for (const event of events) {
-        callObject.off(event, handleNewMeetingState);
-      }
+    return () => {
+      window.removeEventListener('beforeunload', leaveDaily);
     };
-  }, [callObject]);
+  }, [leaveDaily]);
 
   /**
    * Start listening for participant changes, when the callObject is set.
    */
   React.useEffect(() => {
-    if (!callObject) return;
-
     const events: DailyEvent[] = [
       'participant-joined',
       'participant-updated',
@@ -222,10 +102,6 @@ const App: React.FC = () => {
     ];
 
     function handleNewParticipantsState(event: DailyEvent) {
-      if (callObject == null) {
-        return;
-      }
-
       setActiveParticipants((draft) => {
         const participants = callObject.participants();
 
@@ -237,11 +113,8 @@ const App: React.FC = () => {
           }
 
           draft[participant.user_name].sid = sid;
-
           draft[participant.user_name].videoSubscribed = participant.video;
-
           draft[participant.user_name].audioSubscribed = participant.audio;
-
           draft[participant.user_name].screenSubscribed = participant.screen;
         }
 
@@ -272,62 +145,6 @@ const App: React.FC = () => {
 
   const showNetworkPanel = useNetworkPanel();
 
-  /**
-   * Show the call UI if we're either joining, already joined, or are showing
-   * an error.
-   */
-  const showCall = ['STATE_JOINING', 'STATE_JOINED', 'STATE_ERROR'].includes(
-    appState
-  );
-
-  /**
-   * Only enable the call buttons (camera toggle, leave call, etc.) if we're joined
-   * or if we've errored out.
-   *
-   * !!!
-   * IMPORTANT: calling callObject.destroy() *before* we get the "joined-meeting"
-   * can result in unexpected behavior. Disabling the leave call button
-   * until then avoids this scenario.
-   * !!!
-   */
-  const enableCallButtons = ['STATE_JOINED', 'STATE_ERROR'].includes(appState);
-
-  React.useEffect(() => {
-    if (!callObject) return;
-
-    function handleNewParticipantsState(event?: DailyEventObjectParticipant) {
-      console.log('updated partci');
-
-      if (callObject == null) {
-        return;
-      }
-
-      const localParticipant = callObject.participants().local;
-
-      if (localParticipant == null) {
-        return;
-      }
-
-      setLocalAudioInputEnabled(localParticipant.audio);
-      setLocalVideoInputEnabled(localParticipant.video);
-      setLocalScreenShareEnabled(localParticipant.screen);
-
-      setLocalAudioTrack(localParticipant.audioTrack);
-      setLocalVideoTrack(localParticipant.videoTrack);
-      setLocalScreenVideoTrack(localParticipant.screenVideoTrack);
-    }
-
-    handleNewParticipantsState();
-
-    // Listen for changes in state
-    callObject.on('participant-updated', handleNewParticipantsState);
-
-    // Stop listening for changes in state
-    return function cleanup() {
-      callObject.off('participant-updated', handleNewParticipantsState);
-    };
-  }, [callObject]);
-
   const {
     room: colyseusRoom,
     join: joinColyseus,
@@ -337,7 +154,7 @@ const App: React.FC = () => {
   } = React.useContext(ColyseusContext);
 
   React.useEffect(() => {
-    joinColyseus('main', localIdentity, localAudioInputEnabled);
+    joinColyseus('main', localIdentity, localAudioInputOn);
   }, [joinColyseus]);
 
   React.useEffect(() => {
@@ -523,7 +340,7 @@ const App: React.FC = () => {
   })();
 
   (() => {
-    if (!minimized && localVideoTrack != null) {
+    if (!minimized) {
       let x: number;
       let y: number;
       let width: number;
@@ -799,127 +616,71 @@ const App: React.FC = () => {
     };
   }, [nextSmallPanelY, contentYOffset, availableHeight]);
 
-  const stopScreenShare = React.useCallback(() => {
-    callObject?.stopScreenShare();
-
-    if (!wasMinimizedWhenStartedScreenSharing.current) {
-      setMinimized(false);
+  React.useEffect(() => {
+    if (localScreenShareOn) {
+      wasMinimizedWhenStartedScreenSharing.current = minimized;
+      setMinimized(true);
+    } else {
+      if (!wasMinimizedWhenStartedScreenSharing.current) {
+        setMinimized(false);
+      }
     }
-  }, [callObject]);
+  }, [localScreenShareOn]);
 
   return (
-    <CallObjectContext.Provider value={callObject}>
-      <LocalMediaContext.Provider
-        value={{
-          localVideoInputEnabled,
-          localAudioInputEnabled,
-          localAudioOutputEnabled,
-          localAudioTrack,
-          localVideoTrack,
-          localScreenVideoTrack,
-          localAudioInputDeviceId,
-          localAudioOutputDeviceId,
-          localVideoInputDeviceId,
-          localScreenShareSourceId,
-          localScreenShareEnabled,
-          enableLocalVideoInput() {
-            callObject?.setLocalVideo(true);
-          },
-          disableLocalVideoInput() {
-            callObject?.setLocalVideo(false);
-          },
-          enableLocalAudioInput() {
-            callObject?.setLocalAudio(true);
-            colyseusRoom?.send('setPlayerAudioEnabled', true);
-          },
-          disableLocalAudioInput() {
-            callObject?.setLocalAudio(false);
-            colyseusRoom?.send('setPlayerAudioEnabled', false);
-          },
-          setLocalAudioOutputEnabled,
-          async setLocalAudioInputDeviceId(value: string) {
-            setLocalAudioInputDeviceId(value);
-            callObject?.setInputDevices({ audioDeviceId: value });
-          },
-          setLocalAudioOutputDeviceId,
-          async setLocalVideoInputDeviceId(value: string) {
-            setLocalVideoInputDeviceId(value);
-
-            if (!localVideoInputEnabled) {
-              return;
-            }
-
-            callObject?.setInputDevices({ videoDeviceId: value });
-          },
-          async screenShare(id: string) {
-            callObject?.startScreenShare({ chromeMediaSourceId: id });
-            setLocalScreenShareSourceId(id);
-            wasMinimizedWhenStartedScreenSharing.current = minimized;
-            setMinimized(true);
-          },
-          stopScreenShare,
-        }}
-      >
-        <S.GlobalStyles minimized={minimized} focused={appFocused} />
-        <S.AppWrapper {...(minimized && dragWindowsProps)}>
-          {!minimized && (
-            <S.TopBar focused={appFocused}>
-              <S.LeftButtons>
-                {/* <S.ExitButton name="logout"></S.ExitButton> */}
-              </S.LeftButtons>
-              <S.MiddleButtons>
-                <S.Tab
-                  selected={minimized}
-                  onClick={() => {
-                    setMinimized(true);
-                  }}
-                >
-                  <S.TabIcon name="splitscreen"></S.TabIcon>Floating
-                </S.Tab>
-                <S.Tab
-                  selected={!minimized}
-                  onClick={() => {
-                    setMinimized(false);
-                  }}
-                >
-                  <S.TabIcon name="view_sidebar"></S.TabIcon>
-                  Focused
-                </S.Tab>
-                {/* <S.Tab>
+    <>
+      <S.GlobalStyles minimized={minimized} focused={appFocused} />
+      <S.AppWrapper {...(minimized && dragWindowsProps)}>
+        {!minimized && (
+          <S.TopBar focused={appFocused}>
+            <S.LeftButtons>
+              {/* <S.ExitButton name="logout"></S.ExitButton> */}
+            </S.LeftButtons>
+            <S.MiddleButtons>
+              <S.Tab
+                selected={minimized}
+                onClick={() => {
+                  setMinimized(true);
+                }}
+              >
+                <S.TabIcon name="splitscreen"></S.TabIcon>Floating
+              </S.Tab>
+              <S.Tab
+                selected={!minimized}
+                onClick={() => {
+                  setMinimized(false);
+                }}
+              >
+                <S.TabIcon name="view_sidebar"></S.TabIcon>
+                Focused
+              </S.Tab>
+              {/* <S.Tab>
               <S.TabIcon name="grid_view"></S.TabIcon>
               Grid
             </S.Tab> */}
-              </S.MiddleButtons>
-              <S.RightButtons>
-                <S.Tab>
-                  <S.TabIcon name="link"></S.TabIcon>Copy invite link
-                </S.Tab>
-                {/* <S.Tab iconOnly>
+            </S.MiddleButtons>
+            <S.RightButtons>
+              <S.Tab>
+                <S.TabIcon name="link"></S.TabIcon>Copy invite link
+              </S.Tab>
+              {/* <S.Tab iconOnly>
               <S.TabIcon name="settings"></S.TabIcon>
             </S.Tab> */}
-              </S.RightButtons>
-            </S.TopBar>
-          )}
-          <S.AppContents>
-            {panelElements}
-            <MainToolbar minimized={minimized} />
-            {showNetworkPanel && <NetworkPanel />}
-          </S.AppContents>
-        </S.AppWrapper>
-        <ScreenShareToolbar
-          open={localScreenShareEnabled}
-          onStop={stopScreenShare}
-        ></ScreenShareToolbar>
-        {colyseusRoom != null && localScreenShareSourceId != null && (
-          <ScreenShareOverlay
-            open={localScreenShareEnabled}
-            colyseusRoom={colyseusRoom}
-            localIdentity={localIdentity}
-            sourceId={localScreenShareSourceId}
-          />
+            </S.RightButtons>
+          </S.TopBar>
         )}
-      </LocalMediaContext.Provider>
-    </CallObjectContext.Provider>
+        <S.AppContents>
+          {panelElements}
+          <MainToolbar minimized={minimized} />
+          {showNetworkPanel && <NetworkPanel />}
+        </S.AppContents>
+      </S.AppWrapper>
+      <ScreenShareToolbar open={localScreenShareOn}></ScreenShareToolbar>
+      <ScreenShareOverlay
+        open={localScreenShareOn}
+        localIdentity={localIdentity}
+      />
+    </>
   );
 };
 

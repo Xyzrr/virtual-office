@@ -1,7 +1,7 @@
 import * as S from './NetworkPanel.styles';
 import React, { useContext } from 'react';
 import isHotkey from 'is-hotkey';
-import CallObjectContext from '../contexts/CallObjectContext';
+import { CallObjectContext } from '../contexts/CallObjectContext';
 import { DailyNetworkStats } from '@daily-co/daily-js';
 
 export const useNetworkPanel = () => {
@@ -29,7 +29,7 @@ export interface NetworkPanelProps {
 }
 
 const NetworkPanel: React.FC<NetworkPanelProps> = ({ className }) => {
-  const callObject = useContext(CallObjectContext);
+  const { callObject } = useContext(CallObjectContext);
 
   const [stats, setStats] = React.useState<DailyNetworkStats | null>(null);
 

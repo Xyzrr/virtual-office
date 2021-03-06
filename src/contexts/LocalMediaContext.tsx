@@ -1,42 +1,16 @@
 import React from 'react';
 
-interface LocalMediaContextValue {
-  localVideoInputEnabled: boolean;
-  localAudioInputEnabled: boolean;
-  localAudioOutputEnabled: boolean;
-  localScreenShareEnabled: boolean;
-  localAudioTrack?: MediaStreamTrack;
-  localVideoTrack?: MediaStreamTrack;
-  localScreenVideoTrack?: MediaStreamTrack;
-  localAudioInputDeviceId?: string;
-  localAudioOutputDeviceId: string;
-  localVideoInputDeviceId?: string;
-  localScreenShareSourceId?: string;
-  enableLocalVideoInput(): void;
-  disableLocalVideoInput(): void;
-  enableLocalAudioInput(): void;
-  disableLocalAudioInput(): void;
-  setLocalAudioOutputEnabled(enabled: boolean): void;
-  setLocalAudioInputDeviceId(id: string): void;
-  setLocalAudioOutputDeviceId(id: string): void;
-  setLocalVideoInputDeviceId(id: string): void;
-  screenShare(id: string): void;
-  stopScreenShare(): void;
-}
-
-export const LocalMediaContext = React.createContext<LocalMediaContextValue>(
-  null!
-);
-
 interface LocalMediaContextValue2 {
   localVideoInputOn: boolean;
   setLocalVideoInputOn(on: boolean): void;
   localVideoInputDeviceId?: string;
   setLocalVideoInputDeviceId(id: string): void;
+  localVideoTrack?: MediaStreamTrack;
   localAudioInputOn: boolean;
   setLocalAudioInputOn(on: boolean): void;
   localAudioInputDeviceId?: string;
   setLocalAudioInputDeviceId(id: string): void;
+  localAudioTrack?: MediaStreamTrack;
   localAudioOutputOn: boolean;
   setLocalAudioOutputOn(on: boolean): void;
   localAudioOutputDeviceId: string;
@@ -56,10 +30,18 @@ export const LocalMediaContextProvider: React.FC = ({ children }) => {
   const [localVideoInputDeviceId, setLocalVideoInputDeviceId] = React.useState<
     string | undefined
   >();
+  const [localVideoTrack, setLocalVideoTrack] = React.useState<
+    MediaStreamTrack | undefined
+  >();
+
   const [localAudioInputOn, setLocalAudioInputOn] = React.useState(true);
   const [localAudioInputDeviceId, setLocalAudioInputDeviceId] = React.useState<
     string | undefined
   >();
+  const [localAudioTrack, setLocalAudioTrack] = React.useState<
+    MediaStreamTrack | undefined
+  >();
+
   const [localAudioOutputOn, setLocalAudioOutputOn] = React.useState(true);
   const [
     localAudioOutputDeviceId,
@@ -79,8 +61,10 @@ export const LocalMediaContextProvider: React.FC = ({ children }) => {
         setLocalVideoInputOn,
         localVideoInputDeviceId,
         setLocalVideoInputDeviceId,
+        localVideoTrack,
         localAudioInputOn,
         setLocalAudioInputOn,
+        localAudioTrack,
         localAudioOutputDeviceId,
         setLocalAudioOutputDeviceId,
         localAudioOutputOn,

@@ -12,6 +12,7 @@ interface CallObjectContextValue {
   callObject: DailyCall;
   meetingState: DailyMeetingState;
   join(roomName: string, identity: string): Promise<void>;
+  leave(): void;
 }
 
 export const CallObjectContext = React.createContext<CallObjectContextValue>(
@@ -55,17 +56,8 @@ export const CallObjectContextProvider: React.FC = ({ children }) => {
     [callObject]
   );
 
-  React.useEffect(() => {
-    const beforeUnload = () => {
-      callObject.leave();
-    };
-
-    window.addEventListener('beforeunload', beforeUnload);
-
-    return () => {
-      window.removeEventListener('beforeunload', beforeUnload);
-      callObject.leave();
-    };
+  const leave = React.useCallback(() => {
+    callObject.leave();
   }, [callObject]);
 
   React.useEffect(() => {
@@ -97,7 +89,9 @@ export const CallObjectContextProvider: React.FC = ({ children }) => {
 
   const {
     localVideoInputOn,
+    localVideoInputDeviceId,
     localAudioInputOn,
+    localAudioInputDeviceId,
     localScreenShareOn,
     localScreenShareSourceId,
   } = React.useContext(LocalMediaContext2);
@@ -107,18 +101,32 @@ export const CallObjectContextProvider: React.FC = ({ children }) => {
   }, [callObject, localVideoInputOn]);
 
   React.useEffect(() => {
+    callObject.setInputDevicesAsync({ videoDeviceId: localVideoInputDeviceId });
+  }, [callObject, localVideoInputDeviceId]);
+
+  React.useEffect(() => {
     callObject.setLocalAudio(localAudioInputOn);
   }, [callObject, localAudioInputOn]);
 
   React.useEffect(() => {
-    callObject.startScreenShare({
-      chromeMediaSourceId: localScreenShareSourceId,
-    });
-  }, [callObject, localScreenShareOn]);
+    callObject.setInputDevicesAsync({ audioDeviceId: localAudioInputDeviceId });
+  }, [callObject, localAudioInputDeviceId]);
+
+  React.useEffect(() => {
+    if (localScreenShareOn) {
+      callObject.startScreenShare({
+        chromeMediaSourceId: localScreenShareSourceId,
+      });
+    } else {
+      callObject.stopScreenShare();
+    }
+  }, [callObject, localScreenShareOn, localScreenShareSourceId]);
 
   return (
     <CallObjectContext.Provider
-      value={{ callObject, join, meetingState }}
-    ></CallObjectContext.Provider>
+      value={{ callObject, join, meetingState, leave }}
+    >
+      {children}
+    </CallObjectContext.Provider>
   );
 };
