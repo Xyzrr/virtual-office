@@ -152,7 +152,7 @@ const App: React.FC = () => {
     return () => {
       window.removeEventListener('beforeunload', beforeUnload);
     };
-  });
+  }, [callObject]);
 
   /**
    * Update app state based on reported meeting state changes.
