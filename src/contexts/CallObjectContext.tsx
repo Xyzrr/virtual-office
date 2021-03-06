@@ -11,6 +11,7 @@ import { LocalMediaContext2 } from './LocalMediaContext';
 interface CallObjectContextValue {
   callObject: DailyCall;
   meetingState: DailyMeetingState;
+  localScreenShareTrulyOn: boolean;
   join(roomName: string, identity: string): Promise<void>;
   leave(): void;
 }
@@ -32,6 +33,10 @@ export const CallObjectContextProvider: React.FC = ({ children }) => {
   );
   const [meetingState, setMeetingState] = React.useState<DailyMeetingState>(
     'new'
+  );
+
+  const [localScreenShareTrulyOn, setLocalScreenShareTrulyOn] = React.useState(
+    false
   );
 
   const join = React.useCallback(
@@ -87,6 +92,28 @@ export const CallObjectContextProvider: React.FC = ({ children }) => {
     };
   }, [callObject]);
 
+  React.useEffect(() => {
+    function handleNewParticipantsState(event?: DailyEventObjectParticipant) {
+      const localParticipant = callObject.participants().local;
+
+      if (localParticipant == null) {
+        return;
+      }
+
+      setLocalScreenShareTrulyOn(localParticipant.screen);
+    }
+
+    handleNewParticipantsState();
+
+    // Listen for changes in state
+    callObject.on('participant-updated', handleNewParticipantsState);
+
+    // Stop listening for changes in state
+    return function cleanup() {
+      callObject.off('participant-updated', handleNewParticipantsState);
+    };
+  }, [callObject]);
+
   const {
     localVideoInputOn,
     localVideoInputDeviceId,
@@ -124,7 +151,7 @@ export const CallObjectContextProvider: React.FC = ({ children }) => {
 
   return (
     <CallObjectContext.Provider
-      value={{ callObject, join, meetingState, leave }}
+      value={{ callObject, join, meetingState, leave, localScreenShareTrulyOn }}
     >
       {children}
     </CallObjectContext.Provider>

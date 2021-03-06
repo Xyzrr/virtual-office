@@ -675,11 +675,8 @@ const App: React.FC = () => {
           {showNetworkPanel && <NetworkPanel />}
         </S.AppContents>
       </S.AppWrapper>
-      <ScreenShareToolbar open={localScreenShareOn}></ScreenShareToolbar>
-      <ScreenShareOverlay
-        open={localScreenShareOn}
-        localIdentity={localIdentity}
-      />
+      <ScreenShareToolbar></ScreenShareToolbar>
+      <ScreenShareOverlay localIdentity={localIdentity} />
     </>
   );
 };
