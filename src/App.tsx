@@ -138,6 +138,22 @@ const App: React.FC = () => {
     })();
   }, []);
 
+  React.useEffect(() => {
+    if (!callObject) {
+      return;
+    }
+
+    const beforeUnload = () => {
+      callObject.leave();
+    };
+
+    window.addEventListener('beforeunload', beforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', beforeUnload);
+    };
+  });
+
   /**
    * Update app state based on reported meeting state changes.
    *
@@ -475,29 +491,26 @@ const App: React.FC = () => {
       height = availableHeight;
     }
 
-    if (colyseusRoom != null) {
-      panelElements.push(
-        <MapPanel
-          key={key}
-          x={x}
-          y={y}
-          width={width}
-          height={height}
-          localPlayerIdentity={localIdentity}
-          colyseusRoom={colyseusRoom}
-          small={small}
-          onSetExpanded={(value) => {
-            if (value) {
-              if (minimized) {
-                setMinimized(false);
-              }
-
-              setExpandedPanels([key]);
+    panelElements.push(
+      <MapPanel
+        key={key}
+        x={x}
+        y={y}
+        width={width}
+        height={height}
+        localPlayerIdentity={localIdentity}
+        small={small}
+        onSetExpanded={(value) => {
+          if (value) {
+            if (minimized) {
+              setMinimized(false);
             }
-          }}
-        />
-      );
-    }
+
+            setExpandedPanels([key]);
+          }
+        }}
+      />
+    );
   })();
 
   (() => {
@@ -547,6 +560,8 @@ const App: React.FC = () => {
       );
     }
   })();
+
+  console.log('activeparts', activeParticipants);
 
   React.useEffect(() => {
     Object.entries(activeParticipants).forEach(([identity, ap]) => {
