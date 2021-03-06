@@ -11,7 +11,7 @@ interface ColyseusContextValue {
 
 export const ColyseusContext = React.createContext<ColyseusContextValue>(null!);
 
-type Listener = (type: string) => void;
+type Listener = () => void;
 
 interface ColyseusContextProviderProps {
   identity: string;
@@ -40,13 +40,41 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
 
       const client = new Colyseus.Client(`ws://${host}`);
 
-      const room = await client.joinOrCreate(roomName, {
+      const room: Colyseus.Room<any> = await client.joinOrCreate(roomName, {
         identity,
       });
 
       console.log('Joined or created Colyseus room:', room);
 
       setRoom(room);
+
+      room.state.players.onAdd = (player: any, identity: string) => {
+        console.log('Colyseus player added:', identity);
+
+        const addListeners = listeners.current.get('participant-added');
+
+        if (addListeners) {
+          addListeners.forEach((l) => l());
+        }
+
+        player.onChange = () => {
+          const updateListeners = listeners.current.get('participant-updated');
+
+          if (updateListeners) {
+            updateListeners.forEach((l) => l());
+          }
+        };
+      };
+
+      room.state.players.onRemove = (player: any, identity: string) => {
+        console.log('Colyseus player removed:', identity);
+
+        const removeListeners = listeners.current.get('particpant-removed');
+
+        if (removeListeners) {
+          removeListeners.forEach((l) => l());
+        }
+      };
     },
     [identity]
   );
