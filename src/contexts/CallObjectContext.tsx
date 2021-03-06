@@ -31,6 +31,7 @@ export const CallObjectContextProvider: React.FC = ({ children }) => {
       }),
     []
   );
+
   const [meetingState, setMeetingState] = React.useState<DailyMeetingState>(
     'new'
   );
@@ -39,10 +40,20 @@ export const CallObjectContextProvider: React.FC = ({ children }) => {
     false
   );
 
+  const {
+    localVideoInputOn,
+    localVideoInputDeviceId,
+    localAudioInputOn,
+    localAudioInputDeviceId,
+    localScreenShareOn,
+    localScreenShareSourceId,
+  } = React.useContext(LocalMediaContext);
+
   const join = React.useCallback(
     async (roomName: string, identity: string) => {
       const options: DailyCallOptions = {
         url: `http://harbor.daily.co/${roomName}`,
+        showLocalVideo: localVideoInputOn,
       };
 
       // missing userName property in type definition
@@ -51,6 +62,10 @@ export const CallObjectContextProvider: React.FC = ({ children }) => {
       const participantObject = await callObject.join(options);
 
       console.log('Joined Daily room', participantObject);
+
+      if (!localAudioInputOn) {
+        callObject.setLocalAudio(false);
+      }
 
       if (process.env.LOW_POWER) {
         callObject.setBandwidth({
@@ -113,15 +128,6 @@ export const CallObjectContextProvider: React.FC = ({ children }) => {
       callObject.off('participant-updated', handleNewParticipantsState);
     };
   }, [callObject]);
-
-  const {
-    localVideoInputOn,
-    localVideoInputDeviceId,
-    localAudioInputOn,
-    localAudioInputDeviceId,
-    localScreenShareOn,
-    localScreenShareSourceId,
-  } = React.useContext(LocalMediaContext);
 
   React.useEffect(() => {
     callObject.setLocalVideo(localVideoInputOn);

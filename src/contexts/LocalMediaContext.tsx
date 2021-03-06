@@ -58,10 +58,18 @@ export const LocalMediaContextProvider: React.FC = ({ children }) => {
 
   React.useEffect(() => {
     if (localVideoInputOn) {
+      if (localVideoTrack) {
+        localVideoTrack.stop();
+      }
+
       window.navigator.mediaDevices
         .getUserMedia({
           audio: false,
-          video: { width: 1920, height: 1080 },
+          video: {
+            width: 1920,
+            height: 1080,
+            deviceId: localVideoInputDeviceId,
+          },
         })
         .then((mediaStream) => {
           setLocalVideoTrack(mediaStream.getVideoTracks()[0]);
@@ -72,13 +80,17 @@ export const LocalMediaContextProvider: React.FC = ({ children }) => {
         setLocalVideoTrack(undefined);
       }
     }
-  }, [localVideoInputOn]);
+  }, [localVideoInputOn, localVideoInputDeviceId]);
 
   React.useEffect(() => {
     if (localAudioInputOn) {
+      if (localAudioTrack) {
+        localAudioTrack.stop();
+      }
+
       window.navigator.mediaDevices
         .getUserMedia({
-          audio: true,
+          audio: { deviceId: localAudioInputDeviceId },
           video: false,
         })
         .then((mediaStream) => {
@@ -90,7 +102,7 @@ export const LocalMediaContextProvider: React.FC = ({ children }) => {
         setLocalAudioTrack(undefined);
       }
     }
-  }, [localAudioInputOn]);
+  }, [localAudioInputOn, localAudioInputDeviceId]);
 
   return (
     <LocalMediaContext.Provider
