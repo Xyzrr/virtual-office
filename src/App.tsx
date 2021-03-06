@@ -199,7 +199,7 @@ const App: React.FC = () => {
 
             updateDistanceToPlayer(identity, player);
             draft[identity].audioInputOn = player.audioInputOn;
-            draft[identity].videoInput = player.videoInput;
+            draft[identity].videoInputOn = player.videoInputOn;
             draft[identity].sharedApp = player.sharedApp;
           }
         }
