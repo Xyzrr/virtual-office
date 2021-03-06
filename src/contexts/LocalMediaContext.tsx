@@ -54,6 +54,42 @@ export const LocalMediaContextProvider: React.FC = ({ children }) => {
     setLocalScreenShareSourceId,
   ] = React.useState<string | undefined>();
 
+  React.useEffect(() => {
+    if (localVideoInputOn) {
+      window.navigator.mediaDevices
+        .getUserMedia({
+          audio: false,
+          video: { width: 1920, height: 1080 },
+        })
+        .then((mediaStream) => {
+          setLocalVideoTrack(mediaStream.getVideoTracks()[0]);
+        });
+    } else {
+      if (localVideoTrack) {
+        localVideoTrack.stop();
+        setLocalVideoTrack(undefined);
+      }
+    }
+  }, [localVideoInputOn]);
+
+  React.useEffect(() => {
+    if (localAudioInputOn) {
+      window.navigator.mediaDevices
+        .getUserMedia({
+          audio: true,
+          video: false,
+        })
+        .then((mediaStream) => {
+          setLocalAudioTrack(mediaStream.getAudioTracks()[0]);
+        });
+    } else {
+      if (localAudioTrack) {
+        localAudioTrack.stop();
+        setLocalAudioTrack(undefined);
+      }
+    }
+  }, [localAudioInputOn]);
+
   return (
     <LocalMediaContext2.Provider
       value={{
