@@ -8,7 +8,7 @@ import RemoteUserPanel from './components/RemoteUserPanel';
 import MapPanel from './components/MapPanel';
 import * as electron from 'electron';
 import LocalUserPanel from './components/LocalUserPanel';
-import { LocalMediaContext2 } from './contexts/LocalMediaContext';
+import { LocalMediaContext } from './contexts/LocalMediaContext';
 import RemoteScreenPanel from './components/RemoteScreenPanel';
 import ScreenShareToolbar from './components/ScreenShareToolbar';
 import ScreenShareOverlay from './components/ScreenShareOverlay';
@@ -66,7 +66,7 @@ const App: React.FC = () => {
   );
 
   const { localAudioInputOn, localScreenShareOn } = React.useContext(
-    LocalMediaContext2
+    LocalMediaContext
   );
 
   React.useEffect(() => {

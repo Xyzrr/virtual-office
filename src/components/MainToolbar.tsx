@@ -1,7 +1,7 @@
 import * as S from './MainToolbar.styles';
 import React from 'react';
 
-import { LocalMediaContext2 } from '../contexts/LocalMediaContext';
+import { LocalMediaContext } from '../contexts/LocalMediaContext';
 import { useVolume } from '../util/useVolume';
 import ScreenSharePicker from './ScreenSharePicker';
 import HiddenSelect from './HiddenSelect';
@@ -39,7 +39,7 @@ const MainToolbar: React.FC<MainToolbarProps> = React.memo(
       setLocalScreenShareOn,
       localScreenShareSourceId,
       setLocalScreenShareSourceId,
-    } = React.useContext(LocalMediaContext2);
+    } = React.useContext(LocalMediaContext);
 
     const recentlyLoudTimerRef = React.useRef<number | null>(null);
     const [recentlyLoud, setRecentlyLoud] = React.useState(false);

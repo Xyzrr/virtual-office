@@ -3,7 +3,7 @@ import React from 'react';
 import NewWindow from './NewWindow';
 import CursorsOverlay from './CursorsOverlay';
 import { ColyseusContext } from '../contexts/ColyseusContext';
-import { LocalMediaContext2 } from '../contexts/LocalMediaContext';
+import { LocalMediaContext } from '../contexts/LocalMediaContext';
 import { CallObjectContext } from '../contexts/CallObjectContext';
 
 export interface ScreenShareOverlayProps {
@@ -14,7 +14,7 @@ export interface ScreenShareOverlayProps {
 const ScreenShareOverlay: React.FC<ScreenShareOverlayProps> = React.memo(
   ({ className, localIdentity }) => {
     const { room: colyseusRoom } = React.useContext(ColyseusContext);
-    const { localScreenShareSourceId } = React.useContext(LocalMediaContext2);
+    const { localScreenShareSourceId } = React.useContext(LocalMediaContext);
     const { localScreenShareTrulyOn } = React.useContext(CallObjectContext);
 
     if (colyseusRoom == null) {

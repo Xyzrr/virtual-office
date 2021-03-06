@@ -1,6 +1,6 @@
 import React from 'react';
 
-interface LocalMediaContextValue2 {
+interface LocalMediaContextValue {
   localVideoInputOn: boolean;
   setLocalVideoInputOn(on: boolean): void;
   localVideoInputDeviceId?: string;
@@ -21,7 +21,7 @@ interface LocalMediaContextValue2 {
   setLocalScreenShareSourceId(id: string): void;
 }
 
-export const LocalMediaContext2 = React.createContext<LocalMediaContextValue2>(
+export const LocalMediaContext = React.createContext<LocalMediaContextValue>(
   null!
 );
 
@@ -93,7 +93,7 @@ export const LocalMediaContextProvider: React.FC = ({ children }) => {
   }, [localAudioInputOn]);
 
   return (
-    <LocalMediaContext2.Provider
+    <LocalMediaContext.Provider
       value={{
         localVideoInputOn,
         setLocalVideoInputOn,
@@ -116,6 +116,6 @@ export const LocalMediaContextProvider: React.FC = ({ children }) => {
       }}
     >
       {children}
-    </LocalMediaContext2.Provider>
+    </LocalMediaContext.Provider>
   );
 };

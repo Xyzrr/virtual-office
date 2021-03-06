@@ -6,7 +6,7 @@ import DailyIframe, {
   DailyCallOptions,
   DailyMeetingState,
 } from '@daily-co/daily-js';
-import { LocalMediaContext2 } from './LocalMediaContext';
+import { LocalMediaContext } from './LocalMediaContext';
 
 interface CallObjectContextValue {
   callObject: DailyCall;
@@ -121,7 +121,7 @@ export const CallObjectContextProvider: React.FC = ({ children }) => {
     localAudioInputDeviceId,
     localScreenShareOn,
     localScreenShareSourceId,
-  } = React.useContext(LocalMediaContext2);
+  } = React.useContext(LocalMediaContext);
 
   React.useEffect(() => {
     callObject.setLocalVideo(localVideoInputOn);

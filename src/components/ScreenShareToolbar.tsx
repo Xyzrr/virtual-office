@@ -1,7 +1,7 @@
 import * as S from './ScreenShareToolbar.styles';
 import React from 'react';
 import NewWindow from './NewWindow';
-import { LocalMediaContext2 } from '../contexts/LocalMediaContext';
+import { LocalMediaContext } from '../contexts/LocalMediaContext';
 import { CallObjectContext } from '../contexts/CallObjectContext';
 
 export interface ScreenShareToolbarProps {
@@ -10,7 +10,7 @@ export interface ScreenShareToolbarProps {
 
 const ScreenShareToolbar: React.FC<ScreenShareToolbarProps> = React.memo(
   ({ className }) => {
-    const { setLocalScreenShareOn } = React.useContext(LocalMediaContext2);
+    const { setLocalScreenShareOn } = React.useContext(LocalMediaContext);
     const { localScreenShareTrulyOn } = React.useContext(CallObjectContext);
 
     return (

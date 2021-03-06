@@ -1,7 +1,7 @@
 import React from 'react';
 
 import * as Colyseus from 'colyseus.js';
-import { LocalMediaContext2 } from './LocalMediaContext';
+import { LocalMediaContext } from './LocalMediaContext';
 
 interface ColyseusContextValue {
   room?: Colyseus.Room;
@@ -31,7 +31,7 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
     localAudioInputOn,
     localVideoInputOn,
     localScreenShareOn,
-  } = React.useContext(LocalMediaContext2);
+  } = React.useContext(LocalMediaContext);
 
   React.useEffect(() => {
     room?.send('updatePlayer', { audioInputOn: localAudioInputOn });
