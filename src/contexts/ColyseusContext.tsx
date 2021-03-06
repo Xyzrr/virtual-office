@@ -51,6 +51,36 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
       console.log('Joined or created Colyseus room:', r);
 
       setRoom(r);
+
+      r.state.players.onAdd = (player: any, identity: string) => {
+        console.log('Colyseus player added:', identity);
+
+        const addListeners = listeners.current.get('participant-added');
+
+        if (addListeners) {
+          addListeners.forEach((l) => l());
+        }
+
+        player.onChange = (changes: Colyseus.DataChange[]) => {
+          console.log('Colyseus player updated:', identity, changes);
+
+          const updateListeners = listeners.current.get('participant-updated');
+
+          if (updateListeners) {
+            updateListeners.forEach((l) => l());
+          }
+        };
+      };
+
+      r.state.players.onRemove = (player: any, identity: string) => {
+        console.log('Colyseus player removed:', identity);
+
+        const removeListeners = listeners.current.get('participant-removed');
+
+        if (removeListeners) {
+          removeListeners.forEach((l) => l());
+        }
+      };
     },
     []
   );
@@ -59,34 +89,6 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
     if (!room) {
       return;
     }
-
-    room.state.players.onAdd = (player: any, identity: string) => {
-      console.log('Colyseus player added:', identity);
-
-      const addListeners = listeners.current.get('participant-added');
-
-      if (addListeners) {
-        addListeners.forEach((l) => l());
-      }
-
-      player.onChange = () => {
-        const updateListeners = listeners.current.get('participant-updated');
-
-        if (updateListeners) {
-          updateListeners.forEach((l) => l());
-        }
-      };
-    };
-
-    room.state.players.onRemove = (player: any, identity: string) => {
-      console.log('Colyseus player removed:', identity);
-
-      const removeListeners = listeners.current.get('participant-removed');
-
-      if (removeListeners) {
-        removeListeners.forEach((l) => l());
-      }
-    };
 
     return () => {
       room.removeAllListeners();

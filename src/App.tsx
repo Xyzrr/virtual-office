@@ -360,6 +360,7 @@ const App: React.FC = () => {
 
     const onParticipantsUpdated = () => {
       setActiveParticipants((draft) => {
+        console.log('should be updating 2');
         const localPlayer = colyseusRoom.state.players.get(localIdentity);
 
         const updateDistanceToPlayer = (id: string, player: any) => {
@@ -372,9 +373,11 @@ const App: React.FC = () => {
 
         for (const [identity, player] of colyseusRoom.state.players.entries()) {
           if (identity === localIdentity) {
+            console.log('should be updating 1');
             if (localPlayer != null) {
               for (const [id, p] of colyseusRoom.state.players.entries()) {
                 if (draft[id]) {
+                  console.log('should be updating');
                   updateDistanceToPlayer(id, p);
                 }
               }
@@ -413,7 +416,12 @@ const App: React.FC = () => {
         removeColyseusListener(event, onParticipantsUpdated);
       }
     };
-  }, [colyseusRoom, addColyseusListener, removeColyseusListener]);
+  }, [
+    colyseusRoom,
+    addColyseusListener,
+    removeColyseusListener,
+    localIdentity,
+  ]);
 
   const [appFocused, setAppFocused] = React.useState(true);
   React.useEffect(() => {
