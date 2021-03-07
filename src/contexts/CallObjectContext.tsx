@@ -53,7 +53,6 @@ export const CallObjectContextProvider: React.FC = ({ children }) => {
     async (roomName: string, identity: string) => {
       const options: DailyCallOptions = {
         url: `http://harbor.daily.co/${roomName}`,
-        showLocalVideo: localVideoInputOn,
       };
 
       // missing userName property in type definition
