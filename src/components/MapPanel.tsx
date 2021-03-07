@@ -179,7 +179,6 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
 
           centerCameraAround(mappedX, mappedY);
 
-          console.log('sending');
           colyseusRoom.send('setPlayerPosition', {
             x: localPlayer.x,
             y: localPlayer.y,

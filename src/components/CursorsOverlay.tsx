@@ -45,8 +45,6 @@ const CursorsOverlay: React.FC<CursorsOverlayProps> = ({
     ColyseusContext
   );
 
-  console.log('CURSORS', cursors);
-
   React.useEffect(() => {
     if (!room) {
       return;

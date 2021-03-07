@@ -371,8 +371,6 @@ const App: React.FC = () => {
     }
   })();
 
-  console.log('activeparts', activeParticipants);
-
   React.useEffect(() => {
     Object.entries(activeParticipants).forEach(([identity, ap]) => {
       const { distance } = ap;
@@ -435,20 +433,16 @@ const App: React.FC = () => {
     }
 
     const { sid, distance, audioInputOn, videoInputOn } = ap;
-    console.log('should have remote 3');
 
     if (sid == null || distance == null) {
       return;
     }
 
     const participant = callObject?.participants()[sid];
-    console.log('should have remote 2');
 
     if (participant == null) {
       return;
     }
-
-    console.log('should have remote 1');
 
     if (distance > MAX_INTERACTION_DISTANCE) {
       return;
@@ -479,8 +473,6 @@ const App: React.FC = () => {
         width = windowSize.width;
         height = availableHeight;
       }
-
-      console.log('should have remote');
 
       panelElements.push(
         <RemoteUserPanel
