@@ -376,6 +376,13 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
           return;
         }
 
+        if (
+          document.activeElement &&
+          document.activeElement.tagName === 'INPUT'
+        ) {
+          return;
+        }
+
         if (e.metaKey) {
           return;
         }

@@ -46,6 +46,7 @@ const WelcomePanel: React.FC<WelcomePanelProps> = ({
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const { localVideoTrack } = React.useContext(LocalMediaContext);
   const [playerCount, setPlayerCount] = React.useState(0);
+  const [name, setName] = React.useState('');
 
   const [selectedColor, setSelectedColor] = React.useState<number>();
 
@@ -115,7 +116,12 @@ const WelcomePanel: React.FC<WelcomePanelProps> = ({
         ))}
       </S.ColorOptions>
       <S.Label>Your name</S.Label>
-      <S.Input></S.Input>
+      <S.Input
+        value={name}
+        onChange={(e) => {
+          setName(e.target.value);
+        }}
+      ></S.Input>
       <S.Buttons>
         <S.StyledButton color="primary" variant="contained" onClick={onJoin}>
           Join now
