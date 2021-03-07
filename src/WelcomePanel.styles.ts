@@ -1,13 +1,96 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
+import { HIGHLIGHT } from './components/constants';
+import Button from './components/Button';
 
-export const Wrapper = styled.div``;
+export const Wrapper = styled.div<{ hide?: boolean }>`
+  position: absolute;
+  top: 0;
+  left: 0px;
+  width: 400px;
+  height: 100%;
+  background: #2f2f2f;
+  padding: 32px;
+  video {
+    width: 100%;
+    border-radius: 4px;
+    margin-bottom: 32px;
+  }
+  transition: left 0.2s;
+  ${(props) =>
+    props.hide &&
+    css`
+      left: -400px;
+    `}
+`;
 
-export const Title = styled.h1`
+export const Title = styled.div`
   color: white;
   font-size: 32px;
+  margin-top: 32px;
+  margin-bottom: 4px;
+`;
+
+export const GreenDot = styled.div`
+  background: ${HIGHLIGHT.toString()};
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 8px;
+  margin-left: 8px;
+`;
+
+export const Subtitle = styled.div`
+  font-size: 14px;
+  color: #ccc;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
 `;
 
 export const Label = styled.div`
-  font-size: 18px;
-  color: #ddd;
+  font-size: 14px;
+  color: #ccc;
+  margin-bottom: 12px;
+`;
+
+export const ColorOptions = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+`;
+
+export const ColorOption = styled.div<{ color: string; selected?: boolean }>`
+  width: 20px;
+  height: 20px;
+  background: ${(props) => props.color};
+  margin-right: 12px;
+  margin-bottom: 12px;
+  border-radius: 4px;
+  ${(props) =>
+    props.selected &&
+    css`
+      border: 2px solid white;
+    `}
+`;
+
+export const Input = styled.input`
+  width: 100%;
+  padding: 8px 12px;
+  background: #222;
+  border: 1px solid #444;
+  border-radius: 4px;
+  outline: none;
+  color: white;
+  &:focus {
+    border: 1px solid ${HIGHLIGHT.toString()};
+  }
+  margin-bottom: 32px;
+`;
+
+export const Buttons = styled.div`
+  display: flex;
+`;
+
+export const StyledButton = styled(Button)`
+  margin-right: 8px;
 `;

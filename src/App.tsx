@@ -20,6 +20,7 @@ import { useImmer } from 'use-immer';
 import NetworkPanel, { useNetworkPanel } from './components/NetworkPanel';
 import { ColyseusContext, ColyseusEvent } from './contexts/ColyseusContext';
 import { CallObjectContext } from './contexts/CallObjectContext';
+import WelcomePanel from './WelcomePanel';
 
 let host: string;
 if (process.env.LOCAL) {
@@ -45,7 +46,9 @@ export interface ActiveParticipant {
 const App: React.FC = () => {
   const wasMinimizedWhenStartedScreenSharing = React.useRef(false);
 
-  const [appState, setAppState] = React.useState<'welcome' | 'normal'>();
+  const [appState, setAppState] = React.useState<'welcome' | 'normal'>(
+    'welcome'
+  );
 
   const [activeParticipants, setActiveParticipants] = useImmer<{
     [identity: string]: ActiveParticipant;
@@ -610,7 +613,7 @@ const App: React.FC = () => {
 
       <S.AppWrapper {...(minimized && dragWindowsProps)}>
         {!minimized && (
-          <S.TopBar focused={appFocused}>
+          <S.TopBar focused={appFocused} hide={appState === 'welcome'}>
             <S.LeftButtons>
               {/* <S.ExitButton name="logout"></S.ExitButton> */}
             </S.LeftButtons>
@@ -652,6 +655,12 @@ const App: React.FC = () => {
           <MainToolbar minimized={minimized} />
           {showNetworkPanel && <NetworkPanel />}
         </S.AppContents>
+        <WelcomePanel
+          open={appState === 'welcome'}
+          onJoin={() => {
+            setAppState('normal');
+          }}
+        ></WelcomePanel>
       </S.AppWrapper>
       <ScreenShareToolbar></ScreenShareToolbar>
       <ScreenShareOverlay localIdentity={localIdentity} />

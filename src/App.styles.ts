@@ -1,6 +1,10 @@
 import styled, { createGlobalStyle, css } from 'styled-components';
 import Icon from './components/Icon';
-import { LIGHT_BACKGROUND, DARK_BACKGROUND } from './components/constants';
+import {
+  LIGHT_BACKGROUND,
+  DARK_BACKGROUND,
+  DANGER,
+} from './components/constants';
 
 export const GlobalStyles = createGlobalStyle<{
   minimized?: boolean;
@@ -53,7 +57,7 @@ export const AppContents = styled.div`
   flex-grow: 1;
 `;
 
-export const TopBar = styled.div<{ focused: boolean }>`
+export const TopBar = styled.div<{ focused: boolean; hide?: boolean }>`
   flex-grow: 0;
   height: 40px;
   background: ${(props) =>
@@ -63,6 +67,12 @@ export const TopBar = styled.div<{ focused: boolean }>`
   justify-content: space-between;
   align-items: center;
   z-index: 3;
+  transition: margin-top 0.2s 0.4s;
+  ${(props) =>
+    props.hide &&
+    css`
+      margin-top: -40px;
+    `}
 `;
 
 export const TabIcon = styled(Icon)`
@@ -109,7 +119,7 @@ export const LeftButtons = styled.div`
 `;
 
 export const ExitButton = styled(Icon)`
-  background: rgb(253, 50, 74);
+  background: ${DANGER.toString()};
   color: white;
   transform: rotate(180deg);
   border-radius: 4px;

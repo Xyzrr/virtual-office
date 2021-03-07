@@ -3,6 +3,7 @@ import React from 'react';
 
 import FakeCursor from './FakeCursor';
 import { ColyseusContext } from '../contexts/ColyseusContext';
+import Color from 'color';
 
 export interface CursorsOverlayProps {
   className?: string;
@@ -108,7 +109,7 @@ const CursorsOverlay: React.FC<CursorsOverlayProps> = ({
           <FakeCursor
             x={`${cursor.x * 100}%`}
             y={`${cursor.y * 100}%`}
-            color={`#${cursor.color.toString(16)}`}
+            color={new Color(cursor.color).toString()}
           ></FakeCursor>
         );
       })}
