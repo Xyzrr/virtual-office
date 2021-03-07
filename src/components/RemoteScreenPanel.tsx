@@ -7,6 +7,7 @@ import HoverMenu from './HoverMenu';
 import { MAX_INTERACTION_DISTANCE } from './constants';
 import { useMouseIsIdle } from '../util/useMouseIsIdle';
 import PanelWrapper from './PanelWrapper';
+import { LocalInfoContext } from '../contexts/LocalInfoContext';
 
 export interface RemoteScreenPanelProps {
   className?: string;
@@ -18,7 +19,6 @@ export interface RemoteScreenPanelProps {
   minY?: number;
 
   screenOwnerIdentity: string;
-  localIdentity: string;
   colyseusRoom: Colyseus.Room;
   videoTrack?: MediaStreamTrack;
   distance: number;
@@ -35,7 +35,6 @@ const RemoteScreenPanel: React.FC<RemoteScreenPanelProps> = React.memo(
     height,
     minY,
     screenOwnerIdentity,
-    localIdentity,
     colyseusRoom,
     videoTrack,
     distance,
@@ -44,6 +43,7 @@ const RemoteScreenPanel: React.FC<RemoteScreenPanelProps> = React.memo(
   }) => {
     const wrapperRef = React.useRef<HTMLDivElement>(null);
     const videoRef = React.useRef<HTMLVideoElement>(null);
+    const { localIdentity } = React.useContext(LocalInfoContext);
     const [videoSize, setVideoSize] = React.useState<{
       width: number;
       height: number;
@@ -186,7 +186,6 @@ const RemoteScreenPanel: React.FC<RemoteScreenPanelProps> = React.memo(
           {!small && (
             <S.ShiftedCursorsOverlay
               screenOwnerIdentity={screenOwnerIdentity}
-              localIdentity={localIdentity}
               x={videoXOffset}
               y={videoYOffset}
               width={videoProjectedWidth}

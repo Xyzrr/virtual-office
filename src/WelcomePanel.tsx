@@ -6,6 +6,7 @@ import * as _ from 'lodash';
 import AudioInputControl from './components/AudioInputControl';
 import VideoInputControl from './components/VideoInputControl';
 import { ColyseusContext } from './contexts/ColyseusContext';
+import { LocalInfoContext } from './contexts/LocalInfoContext';
 
 const COLORS = [
   0xe6194b,
@@ -33,7 +34,6 @@ const COLORS = [
 export interface WelcomePanelProps {
   className?: string;
   open?: boolean;
-  localIdentity: string;
   onJoin?(): void;
 }
 
@@ -41,11 +41,11 @@ const WelcomePanel: React.FC<WelcomePanelProps> = ({
   className,
   open,
   onJoin,
-  localIdentity,
 }) => {
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const { localVideoTrack } = React.useContext(LocalMediaContext);
   const [playerCount, setPlayerCount] = React.useState(0);
+  const { localIdentity } = React.useContext(LocalInfoContext);
   const [name, setName] = React.useState('');
 
   const [selectedColor, setSelectedColor] = React.useState<number>();

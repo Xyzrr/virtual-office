@@ -4,19 +4,19 @@ import React from 'react';
 import FakeCursor from './FakeCursor';
 import { ColyseusContext } from '../contexts/ColyseusContext';
 import Color from 'color';
+import { LocalInfoContext } from '../contexts/LocalInfoContext';
 
 export interface CursorsOverlayProps {
   className?: string;
   screenOwnerIdentity: string;
-  localIdentity: string;
 }
 
 const CursorsOverlay: React.FC<CursorsOverlayProps> = ({
   className,
   screenOwnerIdentity,
-  localIdentity,
 }) => {
   const wrapperRef = React.useRef<HTMLDivElement>(null);
+  const { localIdentity } = React.useContext(LocalInfoContext);
 
   const [cursors, setCursors] = React.useState<{
     [identity: string]: { x: number; y: number; color: number; name: string };

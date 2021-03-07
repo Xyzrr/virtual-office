@@ -540,7 +540,6 @@ const App: React.FC = () => {
             height={height}
             minY={small && mapIsSmall ? 135 + 16 : undefined}
             screenOwnerIdentity={identity}
-            localIdentity={localIdentity}
             colyseusRoom={colyseusRoom}
             videoTrack={participant.screenVideoTrack}
             distance={distance}
@@ -653,14 +652,13 @@ const App: React.FC = () => {
         </S.AppContents>
         <WelcomePanel
           open={appState === 'welcome'}
-          localIdentity={localIdentity}
           onJoin={() => {
             setAppState('normal');
           }}
         ></WelcomePanel>
       </S.AppWrapper>
       <ScreenShareToolbar></ScreenShareToolbar>
-      <ScreenShareOverlay localIdentity={localIdentity} />
+      <ScreenShareOverlay />
     </>
   );
 };
