@@ -176,7 +176,8 @@ const RemoteScreenPanel: React.FC<RemoteScreenPanelProps> = React.memo(
               colyseusRoom.send('cursorMouseDown', {
                 x: (mouseX - videoXOffset) / videoProjectedWidth,
                 y: (mouseY - videoYOffset) / videoProjectedHeight,
-                screenOwnerIdentity: screenOwnerIdentity,
+                surfaceType: 'screen',
+                surfaceId: screenOwnerIdentity,
               });
             }}
             onMouseLeave={() => {

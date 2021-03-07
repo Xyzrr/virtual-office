@@ -53,31 +53,6 @@ const CursorsOverlay: React.FC<CursorsOverlayProps> = ({
     }
 
     const onPlayerUpdated = () => {
-      console.log('preprocessed', room.state.players.entries());
-      console.log(
-        'postprocessed',
-        room?.state.players.entries(),
-        (Array.from(room?.state.players.entries()) as any).map(
-          ([i, p]: [string, any]) => p.x
-        ),
-        room?.state.players.entries().map(([i, p]: [string, any]) => p.cursor),
-        room?.state.players
-          .entries()
-          .filter(
-            ([i, p]: [string, any]) =>
-              p.identity !== localIdentity &&
-              p.cursor &&
-              p.cursor.surfaceType === 'screen' &&
-              p.cursor.surfaceId === screenOwnerIdentity
-          )
-          .map(([i, p]: [string, any]) => ({
-            x: p.cursor.x,
-            y: p.cursor.y,
-            color: p.color,
-            name: p.name,
-          }))
-      );
-
       setCursors(
         (Array.from(room?.state.players.entries()) as any)
           .filter(
