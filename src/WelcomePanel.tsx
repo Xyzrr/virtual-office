@@ -106,6 +106,7 @@ const WelcomePanel: React.FC<WelcomePanelProps> = ({
       <S.ColorOptions>
         {COLORS.map((c) => (
           <S.ColorOption
+            key={c}
             color={new Color(c).toString()}
             selected={selectedColor === c}
             onClick={() => {

@@ -107,6 +107,7 @@ const CursorsOverlay: React.FC<CursorsOverlayProps> = ({
       {Object.entries(cursors).map(([identity, cursor]) => {
         return (
           <FakeCursor
+            key={identity}
             x={`${cursor.x * 100}%`}
             y={`${cursor.y * 100}%`}
             color={new Color(cursor.color).toString()}
