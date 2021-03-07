@@ -1,6 +1,5 @@
 import * as S from './App.styles';
 
-import { v4 as uuid } from 'uuid';
 import React from 'react';
 import { DailyEvent } from '@daily-co/daily-js';
 import { useFakeMinimize } from './util/useFakeMinimize';
@@ -21,6 +20,7 @@ import NetworkPanel, { useNetworkPanel } from './components/NetworkPanel';
 import { ColyseusContext, ColyseusEvent } from './contexts/ColyseusContext';
 import { CallObjectContext } from './contexts/CallObjectContext';
 import WelcomePanel from './WelcomePanel';
+import { LocalInfoContext } from './contexts/LocalInfoContext';
 
 let host: string;
 if (process.env.LOCAL) {
@@ -60,12 +60,6 @@ const App: React.FC = () => {
     height: window.innerHeight,
   });
 
-  const localIdentity = React.useMemo(() => {
-    const result = `cool-person-${uuid()}`;
-    console.log('Local identity:', result);
-    return result;
-  }, []);
-
   const { callObject, join: joinDaily, leave: leaveDaily } = React.useContext(
     CallObjectContext
   );
@@ -73,6 +67,8 @@ const App: React.FC = () => {
   const { localAudioInputOn, localScreenShareOn } = React.useContext(
     LocalMediaContext
   );
+
+  const { localIdentity } = React.useContext(LocalInfoContext);
 
   React.useEffect(() => {
     joinDaily('dev', localIdentity);
