@@ -4,7 +4,6 @@ import React from 'react';
 import { LocalMediaContext } from '../contexts/LocalMediaContext';
 import ScreenSharePicker from './ScreenSharePicker';
 import HiddenSelect from './HiddenSelect';
-import VolumeIndicator from './VolumeIndicator';
 import circleButtonWithOptions from '../masks/circleButtonWithOptions.svg';
 import { useMouseIsIdle } from '../util/useMouseIsIdle';
 import AudioInputControl from './AudioInputControl';
@@ -24,23 +23,12 @@ const MainToolbar: React.FC<MainToolbarProps> = React.memo(
     );
 
     const {
-      localVideoInputOn,
-      setLocalVideoInputOn,
-      localVideoInputDeviceId,
-      setLocalVideoInputDeviceId,
-      localVideoTrack,
-      localAudioInputOn,
-      setLocalAudioInputOn,
-      localAudioTrack,
       localAudioOutputDeviceId,
       setLocalAudioOutputDeviceId,
       localAudioOutputOn,
       setLocalAudioOutputOn,
-      localAudioInputDeviceId,
-      setLocalAudioInputDeviceId,
       localScreenShareOn,
       setLocalScreenShareOn,
-      localScreenShareSourceId,
       setLocalScreenShareSourceId,
     } = React.useContext(LocalMediaContext);
 

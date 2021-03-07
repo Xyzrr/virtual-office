@@ -44,6 +44,7 @@ const VideoInputControl: React.FC<VideoInputControlProps> = ({
 
   return (
     <IconButtonStyles.IconButton
+      className={className}
       color={localVideoInputOn ? undefined : 'danger'}
     >
       <IconButtonStyles.IconButtonBackground

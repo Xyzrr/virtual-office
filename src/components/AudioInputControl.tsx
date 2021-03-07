@@ -68,6 +68,7 @@ const AudioInputControl: React.FC<AudioInputControlProps> = ({
 
   return (
     <IconButtonStyles.IconButton
+      className={className}
       color={localAudioInputOn ? undefined : 'danger'}
     >
       <IconButtonStyles.IconButtonBackground
