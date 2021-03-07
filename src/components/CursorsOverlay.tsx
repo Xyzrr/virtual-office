@@ -55,7 +55,7 @@ const CursorsOverlay: React.FC<CursorsOverlayProps> = ({
         (Array.from(room?.state.players.entries()) as any)
           .filter(
             ([i, p]: [string, any]) =>
-              p.identity !== localIdentity &&
+              i !== localIdentity &&
               p.cursor &&
               p.cursor.surfaceType === 'screen' &&
               p.cursor.surfaceId === screenOwnerIdentity
