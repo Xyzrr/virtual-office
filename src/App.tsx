@@ -68,21 +68,14 @@ const App: React.FC = () => {
     LocalMediaContext
   );
 
-  const { localIdentity } = React.useContext(LocalInfoContext);
-
-  React.useEffect(() => {
-    joinDaily('dev', localIdentity);
-
-    return () => {
-      leaveDaily();
-    };
-  }, [joinDaily]);
+  const { localIdentity, setLocalGhost } = React.useContext(LocalInfoContext);
 
   React.useEffect(() => {
     window.addEventListener('beforeunload', leaveDaily);
 
     return () => {
       window.removeEventListener('beforeunload', leaveDaily);
+      leaveDaily();
     };
   }, [leaveDaily]);
 
@@ -654,6 +647,7 @@ const App: React.FC = () => {
           open={appState === 'welcome'}
           onJoin={() => {
             setAppState('normal');
+            setLocalGhost(false);
           }}
         ></WelcomePanel>
       </S.AppWrapper>

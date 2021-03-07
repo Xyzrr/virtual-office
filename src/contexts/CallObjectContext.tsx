@@ -7,6 +7,7 @@ import DailyIframe, {
   DailyMeetingState,
 } from '@daily-co/daily-js';
 import { LocalMediaContext } from './LocalMediaContext';
+import { LocalInfoContext } from './LocalInfoContext';
 
 interface CallObjectContextValue {
   callObject: DailyCall;
@@ -49,14 +50,16 @@ export const CallObjectContextProvider: React.FC = ({ children }) => {
     localScreenShareSourceId,
   } = React.useContext(LocalMediaContext);
 
+  const { localIdentity, localGhost } = React.useContext(LocalInfoContext);
+
   const join = React.useCallback(
-    async (roomName: string, identity: string) => {
+    async (roomName: string) => {
       const options: DailyCallOptions = {
         url: `http://harbor.daily.co/${roomName}`,
       };
 
       // missing userName property in type definition
-      (options as any).userName = identity;
+      (options as any).userName = localIdentity;
 
       const participantObject = await callObject.join(options);
 
@@ -77,6 +80,14 @@ export const CallObjectContextProvider: React.FC = ({ children }) => {
   const leave = React.useCallback(() => {
     callObject.leave();
   }, [callObject]);
+
+  React.useEffect(() => {
+    if (localGhost) {
+      leave();
+    } else {
+      join('dev');
+    }
+  }, [localGhost, join, leave]);
 
   React.useEffect(() => {
     const events: DailyEvent[] = [
