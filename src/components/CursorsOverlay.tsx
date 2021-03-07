@@ -57,7 +57,9 @@ const CursorsOverlay: React.FC<CursorsOverlayProps> = ({
       console.log(
         'postprocessed',
         room?.state.players.entries(),
-        room?.state.players.entries().map(([i, p]: [string, any]) => p.x),
+        (Array.from(room?.state.players.entries()) as any).map(
+          ([i, p]: [string, any]) => p.x
+        ),
         room?.state.players.entries().map(([i, p]: [string, any]) => p.cursor),
         room?.state.players
           .entries()
@@ -77,8 +79,7 @@ const CursorsOverlay: React.FC<CursorsOverlayProps> = ({
       );
 
       setCursors(
-        room?.state.players
-          .entries()
+        (Array.from(room?.state.players.entries()) as any)
           .filter(
             ([i, p]: [string, any]) =>
               p.identity !== localIdentity &&
