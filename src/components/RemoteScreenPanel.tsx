@@ -57,21 +57,9 @@ const RemoteScreenPanel: React.FC<RemoteScreenPanelProps> = React.memo(
         );
 
     React.useEffect(() => {
-      const videoEl = videoRef.current;
-      if (videoEl == null || !videoTrack) {
-        return;
+      if (videoRef.current && videoTrack) {
+        videoRef.current.srcObject = new MediaStream([videoTrack]);
       }
-
-      const stream = new MediaStream();
-
-      console.log('attempting to add track', videoTrack);
-      stream.addTrack(videoTrack);
-      videoEl.srcObject = stream;
-
-      return () => {
-        stream.removeTrack(videoTrack);
-        videoEl.srcObject = null;
-      };
     }, [videoTrack]);
 
     React.useEffect(() => {
@@ -146,43 +134,45 @@ const RemoteScreenPanel: React.FC<RemoteScreenPanelProps> = React.memo(
           ref={wrapperRef}
           videoOpacity={videoOpacity}
         >
-          <video
-            ref={videoRef}
-            autoPlay
-            onMouseMove={(e) => {
-              if (small) {
-                return;
-              }
+          {videoTrack && (
+            <video
+              ref={videoRef}
+              autoPlay
+              onMouseMove={(e) => {
+                if (small) {
+                  return;
+                }
 
-              const mouseX = e.clientX - x;
-              const mouseY = e.clientY - y;
+                const mouseX = e.clientX - x;
+                const mouseY = e.clientY - y;
 
-              colyseusRoom.send('updatePlayerCursor', {
-                x: (mouseX - videoXOffset) / videoProjectedWidth,
-                y: (mouseY - videoYOffset) / videoProjectedHeight,
-                surfaceType: 'screen',
-                surfaceId: screenOwnerIdentity,
-              });
-            }}
-            onMouseDown={(e) => {
-              if (small) {
-                return;
-              }
+                colyseusRoom.send('updatePlayerCursor', {
+                  x: (mouseX - videoXOffset) / videoProjectedWidth,
+                  y: (mouseY - videoYOffset) / videoProjectedHeight,
+                  surfaceType: 'screen',
+                  surfaceId: screenOwnerIdentity,
+                });
+              }}
+              onMouseDown={(e) => {
+                if (small) {
+                  return;
+                }
 
-              const mouseX = e.clientX - x;
-              const mouseY = e.clientY - y;
+                const mouseX = e.clientX - x;
+                const mouseY = e.clientY - y;
 
-              colyseusRoom.send('cursorMouseDown', {
-                x: (mouseX - videoXOffset) / videoProjectedWidth,
-                y: (mouseY - videoYOffset) / videoProjectedHeight,
-                surfaceType: 'screen',
-                surfaceId: screenOwnerIdentity,
-              });
-            }}
-            onMouseLeave={() => {
-              colyseusRoom.send('updatePlayerCursor', { cursor: undefined });
-            }}
-          ></video>
+                colyseusRoom.send('cursorMouseDown', {
+                  x: (mouseX - videoXOffset) / videoProjectedWidth,
+                  y: (mouseY - videoYOffset) / videoProjectedHeight,
+                  surfaceType: 'screen',
+                  surfaceId: screenOwnerIdentity,
+                });
+              }}
+              onMouseLeave={() => {
+                colyseusRoom.send('updatePlayerCursor', { cursor: undefined });
+              }}
+            ></video>
+          )}
           {small && (
             <HoverMenu hidden={mouseIsIdle}>
               <HoverMenuStyles.MenuItem
