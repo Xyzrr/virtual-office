@@ -68,36 +68,15 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = React.memo(
         );
 
     React.useEffect(() => {
-      const videoEl = videoRef.current;
-      if (videoEl == null || !videoTrack) {
-        return;
+      if (videoRef.current && videoTrack) {
+        videoRef.current.srcObject = new MediaStream([videoTrack]);
       }
-
-      const stream = new MediaStream();
-      stream.addTrack(videoTrack);
-      videoEl.srcObject = stream;
-
-      return () => {
-        stream.removeTrack(videoTrack);
-        videoEl.srcObject = null;
-      };
     }, [videoTrack]);
 
     React.useEffect(() => {
-      const audioEl = audioRef.current;
-      if (audioEl == null || !audioTrack) {
-        return;
+      if (audioRef.current && audioTrack) {
+        audioRef.current.srcObject = new MediaStream([audioTrack]);
       }
-
-      const stream = new MediaStream();
-      stream.addTrack(audioTrack);
-      audioEl.srcObject = stream;
-
-      return () => {
-        audioEl.pause();
-        stream.removeTrack(audioTrack);
-        audioEl.srcObject = null;
-      };
     }, [audioTrack]);
 
     useVolume(audioTrack, (v) => {
@@ -160,8 +139,8 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = React.memo(
           recentlyLoud={recentlyLoud}
           videoOpacity={videoOpacity}
         >
-          <video ref={videoRef} autoPlay></video>
-          <audio ref={audioRef} autoPlay></audio>
+          {videoTrack && <video ref={videoRef} autoPlay></video>}
+          {audioTrack && <audio ref={audioRef} autoPlay></audio>}
           <S.StatusIcons>
             {!audioInputOn && <S.StatusIcon name="mic_off"></S.StatusIcon>}
           </S.StatusIcons>

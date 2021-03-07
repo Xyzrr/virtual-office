@@ -47,22 +47,9 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = React.memo(
     );
 
     React.useEffect(() => {
-      if (videoRef.current == null) {
-        return;
+      if (videoRef.current && localVideoTrack) {
+        videoRef.current.srcObject = new MediaStream([localVideoTrack]);
       }
-
-      if (!localVideoTrack) {
-        return;
-      }
-
-      const stream = new MediaStream();
-      stream.addTrack(localVideoTrack);
-
-      videoRef.current.srcObject = stream;
-
-      return () => {
-        stream.removeTrack(localVideoTrack);
-      };
     }, [localVideoTrack]);
 
     useVolume(localAudioTrack, (v) => {
@@ -99,7 +86,7 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = React.memo(
           ref={wrapperRef}
           recentlyLoud={recentlyLoud}
         >
-          <video ref={videoRef} autoPlay></video>
+          {localVideoTrack && <video ref={videoRef} autoPlay></video>}
           <HoverMenu hidden={mouseIsIdle}>
             <HoverMenuStyles.MenuItem
               name={small ? 'fullscreen' : 'fullscreen_exit'}
