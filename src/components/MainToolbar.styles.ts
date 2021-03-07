@@ -1,4 +1,5 @@
 import styled, { css } from 'styled-components';
+import * as IconButtonStyles from './IconButton.styles';
 
 export const Wrapper = styled.div<{
   minimized?: boolean;
@@ -31,7 +32,7 @@ export const Wrapper = styled.div<{
         transform: translateY(6px);
       `}
 
-      ${IconButton} {
+      ${IconButtonStyles.IconButton} {
         margin-right: 8px;
         width: 28px;
         height: 28px;
