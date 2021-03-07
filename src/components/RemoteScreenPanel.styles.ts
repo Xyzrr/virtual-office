@@ -39,8 +39,10 @@ export const ShiftedCursorsOverlay = styled(CursorsOverlay)<{
   width: number;
   height: number;
 }>`
-  left: ${(props) => props.x}px;
-  top: ${(props) => props.y}px;
-  width: ${(props) => props.width}px;
-  height: ${(props) => props.height}px;
+  & {
+    left: ${(props) => props.x}px;
+    top: ${(props) => props.y}px;
+    width: ${(props) => props.width}px;
+    height: ${(props) => props.height}px;
+  }
 `;

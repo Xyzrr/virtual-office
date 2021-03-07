@@ -10,7 +10,7 @@ const flash = keyframes`
   }
   100% {
       opacity: 0;
-      transform: scale(1);
+      transform: scale(1.6);
       border-width: 0;
   }
 `;
@@ -25,7 +25,7 @@ export const Wrapper = styled.div`
 
   .flasher {
     pointer-events: none;
-    animation: 0.6s ease-out 0s ${flash};
+    animation: 0.4s ease-out 0s ${flash};
     opacity: 0;
     margin-left: -20px;
     margin-top: -20px;
