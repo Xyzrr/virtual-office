@@ -109,7 +109,7 @@ const WelcomePanel: React.FC<WelcomePanelProps> = ({
             selected={selectedColor === c}
             onClick={() => {
               setSelectedColor(c);
-              room?.send('updatePlayer', { color: selectedColor });
+              room?.send('updatePlayer', { color: c });
             }}
           ></S.ColorOption>
         ))}
