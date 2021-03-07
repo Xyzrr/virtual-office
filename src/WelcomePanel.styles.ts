@@ -10,6 +10,7 @@ export const Wrapper = styled.div<{ hide?: boolean }>`
   height: 100%;
   background: #2f2f2f;
   padding: 32px;
+  -webkit-app-region: drag;
 
   transition: left 0.2s;
   ${(props) =>
@@ -55,6 +56,7 @@ export const VideoWrapper = styled.div`
   position: relative;
   background: black;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  -webkit-app-region: no-drag;
 `;
 
 export const InputToolbar = styled.div`
@@ -77,6 +79,7 @@ export const ColorOptions = styled.div`
   display: flex;
   flex-wrap: wrap;
   margin-bottom: 20px;
+  -webkit-app-region: no-drag;
 `;
 
 export const ColorOption = styled.div<{ color: string; selected?: boolean }>`
@@ -105,6 +108,7 @@ export const Input = styled.input`
     border: 1px solid ${HIGHLIGHT.toString()};
   }
   margin-bottom: 32px;
+  -webkit-app-region: no-drag;
 `;
 
 export const Buttons = styled.div`

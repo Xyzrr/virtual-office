@@ -13,6 +13,7 @@ export const Wrapper = styled.button<{
   color: white;
   padding: 6px 10px;
   font-size: 16px;
+  -webkit-app-region: no-drag;
 
   &:hover {
     background: rgba(255, 255, 255, 0.06);
