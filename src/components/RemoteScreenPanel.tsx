@@ -81,7 +81,6 @@ const RemoteScreenPanel: React.FC<RemoteScreenPanelProps> = React.memo(
       }
 
       const onResize = () => {
-        console.log('VIDEO SIZE', videoEl.videoWidth, videoEl.videoHeight);
         setVideoSize({
           width: videoEl.videoWidth,
           height: videoEl.videoHeight,

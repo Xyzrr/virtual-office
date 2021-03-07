@@ -99,8 +99,6 @@ const App: React.FC = () => {
       setActiveParticipants((draft) => {
         const participants = callObject.participants();
 
-        console.log('PARTICIPANTS', participants);
-
         for (const [sid, participant] of Object.entries(participants)) {
           if (draft[participant.user_name] == null) {
             draft[participant.user_name] = { dailyConnected: true };
