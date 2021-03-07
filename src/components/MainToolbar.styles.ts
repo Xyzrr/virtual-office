@@ -100,7 +100,7 @@ export const IconButton = styled.div<{
 
 export const Wrapper = styled.div<{
   minimized?: boolean;
-  hidden?: boolean;
+  hide?: boolean;
 }>`
   pointer-events: none;
   display: flex;
@@ -112,7 +112,7 @@ export const Wrapper = styled.div<{
 
   transition: opacity 0.2s, transform 0.2s;
   ${(props) =>
-    props.hidden &&
+    props.hide &&
     css`
       opacity: 0;
       transform: translateY(12px);
@@ -124,7 +124,7 @@ export const Wrapper = styled.div<{
       top: 108px;
       bottom: auto;
 
-      ${props.hidden &&
+      ${props.hide &&
       css`
         transform: translateY(6px);
       `}

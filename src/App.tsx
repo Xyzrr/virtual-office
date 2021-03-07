@@ -652,7 +652,7 @@ const App: React.FC = () => {
         )}
         <S.AppContents>
           {panelElements}
-          <MainToolbar minimized={minimized} />
+          <MainToolbar minimized={minimized} hide={appState === 'welcome'} />
           {showNetworkPanel && <NetworkPanel />}
         </S.AppContents>
         <WelcomePanel

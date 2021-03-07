@@ -12,10 +12,11 @@ import { useMouseIsIdle } from '../util/useMouseIsIdle';
 export interface MainToolbarProps {
   className?: string;
   minimized?: boolean;
+  hide?: boolean;
 }
 
 const MainToolbar: React.FC<MainToolbarProps> = React.memo(
-  ({ className, minimized }) => {
+  ({ className, minimized, hide }) => {
     const [screenSharePickerOpen, setScreenSharePickerOpen] = React.useState(
       false
     );
@@ -90,7 +91,7 @@ const MainToolbar: React.FC<MainToolbarProps> = React.memo(
       <S.Wrapper
         className={className}
         minimized={minimized}
-        hidden={mouseIsIdle}
+        hide={mouseIsIdle || hide}
       >
         <S.IconButton color={localAudioInputOn ? undefined : 'danger'}>
           <S.IconButtonBackground
