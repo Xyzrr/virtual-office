@@ -45,6 +45,8 @@ export interface ActiveParticipant {
 const App: React.FC = () => {
   const wasMinimizedWhenStartedScreenSharing = React.useRef(false);
 
+  const [appState, setAppState] = React.useState<'welcome' | 'normal'>();
+
   const [activeParticipants, setActiveParticipants] = useImmer<{
     [identity: string]: ActiveParticipant;
   }>({});
@@ -605,6 +607,7 @@ const App: React.FC = () => {
   return (
     <>
       <S.GlobalStyles minimized={minimized} focused={appFocused} />
+
       <S.AppWrapper {...(minimized && dragWindowsProps)}>
         {!minimized && (
           <S.TopBar focused={appFocused}>
