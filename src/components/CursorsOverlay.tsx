@@ -1,27 +1,24 @@
 import * as S from './CursorsOverlay.styles';
 import React from 'react';
 
-import * as Colyseus from 'colyseus.js';
-import produce from 'immer';
 import FakeCursor from './FakeCursor';
+import { ColyseusContext } from '../contexts/ColyseusContext';
 
 export interface CursorsOverlayProps {
   className?: string;
-  colyseusRoom: Colyseus.Room;
   screenOwnerIdentity: string;
   localIdentity: string;
 }
 
 const CursorsOverlay: React.FC<CursorsOverlayProps> = ({
   className,
-  colyseusRoom,
   screenOwnerIdentity,
   localIdentity,
 }) => {
   const wrapperRef = React.useRef<HTMLDivElement>(null);
 
   const [cursors, setCursors] = React.useState<{
-    [identity: string]: { x: number; y: number };
+    [identity: string]: { x: number; y: number; color: number; name: string };
   }>({});
 
   const flash = (x: string, y: string, color: string) => {
@@ -44,52 +41,91 @@ const CursorsOverlay: React.FC<CursorsOverlayProps> = ({
     }, 2000);
   };
 
+  const { addListener, removeListener, room } = React.useContext(
+    ColyseusContext
+  );
+
+  console.log('CURSORS', cursors);
+
   React.useEffect(() => {
-    colyseusRoom.state.cursors.onAdd = (cursor: any) => {
-      if (
-        cursor.screenOwnerIdentity === screenOwnerIdentity &&
-        cursor.cursorOwnerIdentity !== localIdentity
-      ) {
-        setCursors((cs) =>
-          produce(cs, (draft) => {
-            draft[cursor.cursorOwnerIdentity] = { x: cursor.x, y: cursor.y };
-          })
-        );
+    if (!room) {
+      return;
+    }
 
-        cursor.onChange = () => {
-          setCursors((cs) =>
-            produce(cs, (draft) => {
-              draft[cursor.cursorOwnerIdentity].x = cursor.x;
-              draft[cursor.cursorOwnerIdentity].y = cursor.y;
-            })
-          );
-        };
-      }
-    };
-
-    colyseusRoom.state.cursors.onRemove = (cursor: any) => {
-      if (
-        cursor.screenOwnerIdentity === screenOwnerIdentity &&
-        cursor.cursorOwnerIdentity !== localIdentity
-      ) {
-        setCursors((cs) =>
-          produce(cs, (draft) => {
-            delete draft[cursor.cursorOwnerIdentity];
-          })
-        );
-      }
-    };
-
-    colyseusRoom.onMessage('cursorMouseDown', (cursorData: any) => {
-      flash(
-        `${cursorData.x * 100}%`,
-        `${cursorData.y * 100}%`,
-        `#${colyseusRoom.state.players
-          .get(cursorData.cursorOwnerIdentity)
-          .color.toString(16)}`
+    const onPlayerUpdated = () => {
+      console.log('preprocessed', room.state.players.entries());
+      console.log(
+        'postprocessed',
+        room?.state.players.entries(),
+        room?.state.players.entries().map(([i, p]: [string, any]) => p.x),
+        room?.state.players.entries().map(([i, p]: [string, any]) => p.cursor),
+        room?.state.players
+          .entries()
+          .filter(
+            ([i, p]: [string, any]) =>
+              p.identity !== localIdentity &&
+              p.cursor &&
+              p.cursor.surfaceType === 'screen' &&
+              p.cursor.surfaceId === screenOwnerIdentity
+          )
+          .map(([i, p]: [string, any]) => ({
+            x: p.cursor.x,
+            y: p.cursor.y,
+            color: p.color,
+            name: p.name,
+          }))
       );
+
+      setCursors(
+        room?.state.players
+          .entries()
+          .filter(
+            ([i, p]: [string, any]) =>
+              p.identity !== localIdentity &&
+              p.cursor &&
+              p.cursor.surfaceType === 'screen' &&
+              p.cursor.surfaceId === screenOwnerIdentity
+          )
+          .map(([i, p]: [string, any]) => ({
+            x: p.cursor.x,
+            y: p.cursor.y,
+            color: p.color,
+            name: p.name,
+          }))
+      );
+    };
+
+    addListener('player-updated', onPlayerUpdated);
+
+    return () => {
+      removeListener('player-updated', onPlayerUpdated);
+    };
+  }, [room]);
+
+  React.useEffect(() => {
+    if (!room) {
+      return;
+    }
+
+    const remove = room.onMessage('cursorMouseDown', (mouseDownData: any) => {
+      if (
+        mouseDownData.surfaceType === 'screen' &&
+        mouseDownData.surfaceId === screenOwnerIdentity
+      ) {
+        flash(
+          `${mouseDownData.x * 100}%`,
+          `${mouseDownData.y * 100}%`,
+          `#${room.state.players
+            .get(mouseDownData.cursorOwnerIdentity)
+            .color.toString(16)}`
+        );
+      }
     });
-  }, [colyseusRoom]);
+
+    console.log('REMOVE', remove);
+
+    return remove;
+  }, [room]);
 
   return (
     <S.Wrapper className={className} ref={wrapperRef}>
@@ -98,9 +134,7 @@ const CursorsOverlay: React.FC<CursorsOverlayProps> = ({
           <FakeCursor
             x={`${cursor.x * 100}%`}
             y={`${cursor.y * 100}%`}
-            color={`#${colyseusRoom.state.players
-              .get(identity)
-              .color.toString(16)}`}
+            color={`#${cursor.color.toString(16)}`}
           ></FakeCursor>
         );
       })}

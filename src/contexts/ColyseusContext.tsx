@@ -160,9 +160,11 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
   const removeListener = React.useCallback<
     ColyseusContextValue['removeListener']
   >((type, listener) => {
-    const set = (listeners.current as any).get(type)!;
+    const set = listeners.current?.[type];
 
-    set.delete(listener);
+    if (set) {
+      set.delete(listener as any);
+    }
   }, []);
 
   React.useEffect(() => {

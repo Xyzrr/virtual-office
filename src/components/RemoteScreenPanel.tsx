@@ -17,7 +17,7 @@ export interface RemoteScreenPanelProps {
   height: number;
   minY?: number;
 
-  ownerIdentity: string;
+  screenOwnerIdentity: string;
   localIdentity: string;
   colyseusRoom: Colyseus.Room;
   videoTrack?: MediaStreamTrack;
@@ -34,7 +34,7 @@ const RemoteScreenPanel: React.FC<RemoteScreenPanelProps> = React.memo(
     width,
     height,
     minY,
-    ownerIdentity,
+    screenOwnerIdentity,
     localIdentity,
     colyseusRoom,
     videoTrack,
@@ -158,10 +158,11 @@ const RemoteScreenPanel: React.FC<RemoteScreenPanelProps> = React.memo(
               const mouseX = e.clientX - x;
               const mouseY = e.clientY - y;
 
-              colyseusRoom.send('setCursorPosition', {
+              colyseusRoom.send('updatePlayerCursor', {
                 x: (mouseX - videoXOffset) / videoProjectedWidth,
                 y: (mouseY - videoYOffset) / videoProjectedHeight,
-                screenOwnerIdentity: ownerIdentity,
+                surfaceType: 'screen',
+                surfaceId: screenOwnerIdentity,
               });
             }}
             onMouseDown={(e) => {
@@ -175,11 +176,11 @@ const RemoteScreenPanel: React.FC<RemoteScreenPanelProps> = React.memo(
               colyseusRoom.send('cursorMouseDown', {
                 x: (mouseX - videoXOffset) / videoProjectedWidth,
                 y: (mouseY - videoYOffset) / videoProjectedHeight,
-                screenOwnerIdentity: ownerIdentity,
+                screenOwnerIdentity: screenOwnerIdentity,
               });
             }}
             onMouseLeave={() => {
-              colyseusRoom.send('removeCursor');
+              colyseusRoom.send('updatePlayerCursor', { cursor: undefined });
             }}
           ></video>
           {small && (
@@ -194,8 +195,7 @@ const RemoteScreenPanel: React.FC<RemoteScreenPanelProps> = React.memo(
           )}
           {!small && (
             <S.ShiftedCursorsOverlay
-              colyseusRoom={colyseusRoom}
-              screenOwnerIdentity={ownerIdentity}
+              screenOwnerIdentity={screenOwnerIdentity}
               localIdentity={localIdentity}
               x={videoXOffset}
               y={videoYOffset}

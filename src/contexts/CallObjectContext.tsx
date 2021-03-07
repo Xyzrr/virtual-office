@@ -63,9 +63,8 @@ export const CallObjectContextProvider: React.FC = ({ children }) => {
 
       console.log('Joined Daily room', participantObject);
 
-      if (!localAudioInputOn) {
-        callObject.setLocalAudio(false);
-      }
+      callObject.setLocalAudio(localAudioInputOn);
+      callObject.setLocalVideo(localVideoInputOn);
 
       if (process.env.LOW_POWER) {
         callObject.setBandwidth({

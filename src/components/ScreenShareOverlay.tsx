@@ -30,7 +30,6 @@ const ScreenShareOverlay: React.FC<ScreenShareOverlayProps> = React.memo(
         <S.Wrapper className={className}>
           <S.Frame />
           <CursorsOverlay
-            colyseusRoom={colyseusRoom}
             screenOwnerIdentity={localIdentity}
             localIdentity={localIdentity}
           ></CursorsOverlay>

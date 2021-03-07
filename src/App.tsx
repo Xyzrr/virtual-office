@@ -548,7 +548,7 @@ const App: React.FC = () => {
             width={width}
             height={height}
             minY={small && mapIsSmall ? 135 + 16 : undefined}
-            ownerIdentity={identity}
+            screenOwnerIdentity={identity}
             localIdentity={localIdentity}
             colyseusRoom={colyseusRoom}
             videoTrack={participant.screenVideoTrack}
