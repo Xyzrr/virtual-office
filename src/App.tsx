@@ -611,7 +611,7 @@ const App: React.FC = () => {
     <>
       <S.GlobalStyles minimized={minimized} focused={appFocused} />
 
-      <S.AppWrapper {...(minimized && dragWindowsProps)}>
+      <S.AppWrapper {...(minimized && dragWindowsProps)} appState={appState}>
         {!minimized && (
           <S.TopBar focused={appFocused} hide={appState === 'welcome'}>
             <S.LeftButtons>

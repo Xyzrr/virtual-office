@@ -5,6 +5,8 @@ import {
   DARK_BACKGROUND,
   DANGER,
 } from './components/constants';
+import { MapPanelWrapper } from './components/MapPanel.styles';
+import { LocalUserPanelWrapper } from './components/LocalUserPanel.styles';
 
 export const GlobalStyles = createGlobalStyle<{
   minimized?: boolean;
@@ -44,12 +46,22 @@ export const GlobalStyles = createGlobalStyle<{
         `}
 `;
 
-export const AppWrapper = styled.div`
+export const AppWrapper = styled.div<{ appState: string }>`
   height: 100vh;
   position: relative;
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  ${(props) =>
+    props.appState === 'welcome' &&
+    css`
+      ${MapPanelWrapper} {
+        right: -200px;
+      }
+      ${LocalUserPanelWrapper} {
+        opacity: 0;
+      }
+    `}
 `;
 
 export const AppContents = styled.div`

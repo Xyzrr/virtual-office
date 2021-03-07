@@ -1,5 +1,8 @@
 import styled, { css } from 'styled-components';
 import { DARK_BACKGROUND } from './constants';
+import PanelWrapper from './PanelWrapper';
+
+export const LocalUserPanelWrapper = styled(PanelWrapper)``;
 
 export const Wrapper = styled.div<{ recentlyLoud: boolean }>`
   position: relative;

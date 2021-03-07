@@ -10,10 +10,12 @@ export const Wrapper = styled.div<{
   floating?: boolean;
 }>`
   // transition: width 0.2s, height 0.2s, transform 0.2s, z-index 0.2s;
+  transition: right 0.2s, opacity 0.2s;
 
   position: absolute;
   z-index: ${(props) => props.z || 0};
   top: 0;
+  opacity: 1;
   ${(props) =>
     props.xDirection === 'left'
       ? css`

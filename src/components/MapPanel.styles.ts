@@ -1,5 +1,8 @@
 import styled from 'styled-components';
 import { DARK_BACKGROUND } from './constants';
+import PanelWrapper from './PanelWrapper';
+
+export const MapPanelWrapper = styled(PanelWrapper)``;
 
 export const Wrapper = styled.div<{
   small: boolean;

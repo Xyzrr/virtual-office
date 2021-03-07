@@ -71,7 +71,7 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = React.memo(
     const mouseIsIdle = useMouseIsIdle({ containerRef: wrapperRef });
 
     return (
-      <PanelWrapper
+      <S.LocalUserPanelWrapper
         x={x}
         y={y}
         z={small ? 2 : 0}
@@ -97,7 +97,7 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = React.memo(
           </HoverMenu>
           {sharedApp != null && <AppIndicator appInfo={sharedApp} />}
         </S.Wrapper>
-      </PanelWrapper>
+      </S.LocalUserPanelWrapper>
     );
   }
 );

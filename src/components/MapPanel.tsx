@@ -459,7 +459,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
     const mouseIsIdle = useMouseIsIdle({ containerRef: wrapperRef });
 
     return (
-      <PanelWrapper
+      <S.MapPanelWrapper
         x={x}
         y={y}
         z={small ? 2 : 0}
@@ -480,7 +480,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
             </HoverMenu>
           )}
         </S.Wrapper>
-      </PanelWrapper>
+      </S.MapPanelWrapper>
     );
   }
 );

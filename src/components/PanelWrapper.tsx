@@ -27,6 +27,7 @@ const PanelWrapper: React.FC<PanelWrapperProps> = ({
 }) => {
   return (
     <S.Wrapper
+      className={className}
       style={{
         transform: `translate(
           ${(x - 8) * (xDirection === 'left' ? -1 : 1)}px,
@@ -48,7 +49,7 @@ const PanelWrapper: React.FC<PanelWrapperProps> = ({
       xDirection={xDirection}
       floating={floating}
     >
-      <S.InnerWrapper className={className}>{children}</S.InnerWrapper>
+      <S.InnerWrapper>{children}</S.InnerWrapper>
     </S.Wrapper>
   );
 };
