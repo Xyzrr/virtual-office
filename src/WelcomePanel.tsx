@@ -4,6 +4,8 @@ import { LocalMediaContext } from './contexts/LocalMediaContext';
 import Color from 'color';
 import Button from './components/Button';
 import * as _ from 'lodash';
+import AudioInputControl from './components/AudioInputControl';
+import VideoInputControl from './components/VideoInputControl';
 
 const COLORS = [
   0xe6194b,
@@ -58,7 +60,13 @@ const WelcomePanel: React.FC<WelcomePanelProps> = ({
       <S.Subtitle>
         <S.GreenDot></S.GreenDot>4 users currently online
       </S.Subtitle>
-      {localVideoTrack && <video ref={videoRef} autoPlay></video>}
+      <S.VideoWrapper>
+        {localVideoTrack && <video ref={videoRef} autoPlay></video>}
+        <S.InputToolbar>
+          <AudioInputControl />
+          <VideoInputControl />
+        </S.InputToolbar>
+      </S.VideoWrapper>
       <S.Label>Your color</S.Label>
       <S.ColorOptions>
         {COLORS.map((c) => (

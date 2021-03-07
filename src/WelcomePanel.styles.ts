@@ -10,11 +10,7 @@ export const Wrapper = styled.div<{ hide?: boolean }>`
   height: 100%;
   background: #2f2f2f;
   padding: 32px;
-  video {
-    width: 100%;
-    border-radius: 4px;
-    margin-bottom: 32px;
-  }
+
   transition: left 0.2s;
   ${(props) =>
     props.hide &&
@@ -45,6 +41,30 @@ export const Subtitle = styled.div`
   margin-bottom: 16px;
   display: flex;
   align-items: center;
+`;
+
+export const VideoWrapper = styled.div`
+  video {
+    width: 100%;
+    height: 100%;
+  }
+  overflow: hidden;
+  border-radius: 4px;
+  height: 189px;
+  margin-bottom: 32px;
+  position: relative;
+  background: black;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+`;
+
+export const InputToolbar = styled.div`
+  position: absolute;
+  bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  transform: scale(0.8);
 `;
 
 export const Label = styled.div`
