@@ -9,8 +9,7 @@ export const useVolume = (
       return;
     }
 
-    const mediaStream = new MediaStream();
-    mediaStream.addTrack(audioTrack);
+    const mediaStream = new MediaStream([audioTrack]);
 
     const audioContext = new AudioContext();
     const mediaStreamSource = audioContext.createMediaStreamSource(mediaStream);
