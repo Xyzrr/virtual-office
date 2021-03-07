@@ -1,5 +1,9 @@
 import styled, { css } from 'styled-components';
-import { HIGHLIGHT } from './components/constants';
+import {
+  HIGHLIGHT,
+  LIGHT_BACKGROUND,
+  DARK_BACKGROUND,
+} from './components/constants';
 import Button from './components/Button';
 
 export const Wrapper = styled.div<{ hide?: boolean }>`
@@ -99,7 +103,7 @@ export const ColorOption = styled.div<{ color: string; selected?: boolean }>`
 export const Input = styled.input`
   width: 100%;
   padding: 8px 12px;
-  background: #222;
+  background: ${DARK_BACKGROUND.toString()};
   border: 1px solid #444;
   border-radius: 4px;
   outline: none;

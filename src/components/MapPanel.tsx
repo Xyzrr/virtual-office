@@ -230,9 +230,16 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
             graphic.y = mappedY;
           }
 
-          if (identity !== localPlayerIdentity) {
-            const graphic = playerGraphicsRef.current[identity];
+          const graphic = playerGraphicsRef.current[identity];
 
+          // TODO: This is super inefficient.
+          graphic
+            .clear()
+            .beginFill(player.color)
+            .drawCircle(0, 0, 16)
+            .endFill();
+
+          if (identity !== localPlayerIdentity) {
             const [mappedX, mappedY] = mapWorldCoordToPixiCoord(
               player.x,
               player.y

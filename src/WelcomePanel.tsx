@@ -6,6 +6,7 @@ import Button from './components/Button';
 import * as _ from 'lodash';
 import AudioInputControl from './components/AudioInputControl';
 import VideoInputControl from './components/VideoInputControl';
+import { ColyseusContext } from './contexts/ColyseusContext';
 
 const COLORS = [
   0xe6194b,
@@ -43,8 +44,13 @@ const WelcomePanel: React.FC<WelcomePanelProps> = ({
 }) => {
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const { localVideoTrack } = React.useContext(LocalMediaContext);
+  const [playerCount, setPlayerCount] = React.useState(0);
 
   const [selectedColor, setSelectedColor] = React.useState(_.sample(COLORS));
+
+  const { addListener, removeListener, room } = React.useContext(
+    ColyseusContext
+  );
 
   React.useEffect(() => {
     if (videoRef.current && localVideoTrack) {
@@ -52,13 +58,41 @@ const WelcomePanel: React.FC<WelcomePanelProps> = ({
     }
   }, [localVideoTrack]);
 
+  React.useEffect(() => {
+    if (!room) {
+      return;
+    }
+
+    const onPlayerAddedOrRemoved = () => {
+      setPlayerCount(room.state.players.size - 1);
+    };
+
+    addListener('player-added', onPlayerAddedOrRemoved);
+    addListener('player-removed', onPlayerAddedOrRemoved);
+
+    return () => {
+      removeListener('player-added', onPlayerAddedOrRemoved);
+      removeListener('player-removed', onPlayerAddedOrRemoved);
+    };
+  }, [room]);
+
+  React.useEffect(() => {
+    room?.send('updatePlayer', { color: selectedColor });
+  }, [room, selectedColor]);
+
   return (
     <S.Wrapper className={className} hide={!open}>
       <S.Title>
         Ready to join <strong>Harbor</strong>?
       </S.Title>
       <S.Subtitle>
-        <S.GreenDot></S.GreenDot>4 users currently online
+        {playerCount > 0 && <S.GreenDot />}
+        {playerCount === 0
+          ? 'No users'
+          : playerCount === 1
+          ? '1 user'
+          : `${playerCount} users`}{' '}
+        currently online
       </S.Subtitle>
       <S.VideoWrapper>
         {localVideoTrack && <video ref={videoRef} autoPlay></video>}
