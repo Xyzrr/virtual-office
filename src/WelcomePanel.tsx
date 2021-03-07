@@ -2,7 +2,6 @@ import * as S from './WelcomePanel.styles';
 import React from 'react';
 import { LocalMediaContext } from './contexts/LocalMediaContext';
 import Color from 'color';
-import Button from './components/Button';
 import * as _ from 'lodash';
 import AudioInputControl from './components/AudioInputControl';
 import VideoInputControl from './components/VideoInputControl';
@@ -34,6 +33,7 @@ const COLORS = [
 export interface WelcomePanelProps {
   className?: string;
   open?: boolean;
+  localIdentity: string;
   onJoin?(): void;
 }
 
@@ -41,12 +41,13 @@ const WelcomePanel: React.FC<WelcomePanelProps> = ({
   className,
   open,
   onJoin,
+  localIdentity,
 }) => {
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const { localVideoTrack } = React.useContext(LocalMediaContext);
   const [playerCount, setPlayerCount] = React.useState(0);
 
-  const [selectedColor, setSelectedColor] = React.useState(_.sample(COLORS));
+  const [selectedColor, setSelectedColor] = React.useState<number>();
 
   const { addListener, removeListener, room } = React.useContext(
     ColyseusContext
@@ -63,7 +64,10 @@ const WelcomePanel: React.FC<WelcomePanelProps> = ({
       return;
     }
 
-    const onPlayerAddedOrRemoved = () => {
+    const onPlayerAddedOrRemoved = ({ identity, player }: any) => {
+      if (identity === localIdentity) {
+        setSelectedColor(player.color);
+      }
       setPlayerCount(room.state.players.size - 1);
     };
 
@@ -75,10 +79,6 @@ const WelcomePanel: React.FC<WelcomePanelProps> = ({
       removeListener('player-removed', onPlayerAddedOrRemoved);
     };
   }, [room]);
-
-  React.useEffect(() => {
-    room?.send('updatePlayer', { color: selectedColor });
-  }, [room, selectedColor]);
 
   return (
     <S.Wrapper className={className} hide={!open}>
@@ -109,6 +109,7 @@ const WelcomePanel: React.FC<WelcomePanelProps> = ({
             selected={selectedColor === c}
             onClick={() => {
               setSelectedColor(c);
+              room?.send('updatePlayer', { color: selectedColor });
             }}
           ></S.ColorOption>
         ))}

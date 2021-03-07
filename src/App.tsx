@@ -657,6 +657,7 @@ const App: React.FC = () => {
         </S.AppContents>
         <WelcomePanel
           open={appState === 'welcome'}
+          localIdentity={localIdentity}
           onJoin={() => {
             setAppState('normal');
           }}
