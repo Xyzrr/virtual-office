@@ -4,7 +4,7 @@ import NewWindow from './NewWindow';
 import CursorsOverlay from './CursorsOverlay';
 import { ColyseusContext } from '../contexts/ColyseusContext';
 import { LocalMediaContext } from '../contexts/LocalMediaContext';
-import { VideoCallContext } from '../contexts/CallObjectContext';
+import { VideoCallContext } from '../contexts/VideoCallContext/VideoCallContext';
 import { LocalInfoContext } from '../contexts/LocalInfoContext';
 
 export interface ScreenShareOverlayProps {

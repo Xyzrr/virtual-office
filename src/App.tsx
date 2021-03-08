@@ -17,7 +17,7 @@ import { useAppTracker, AppInfo } from './util/app-tracker/useAppTracker';
 import { useImmer } from 'use-immer';
 import NetworkPanel, { useNetworkPanel } from './components/NetworkPanel';
 import { ColyseusContext, ColyseusEvent } from './contexts/ColyseusContext';
-import { VideoCallContext } from './contexts/CallObjectContext';
+import { VideoCallContext } from './contexts/VideoCallContext/VideoCallContext';
 import WelcomePanel from './WelcomePanel';
 import { LocalInfoContext } from './contexts/LocalInfoContext';
 

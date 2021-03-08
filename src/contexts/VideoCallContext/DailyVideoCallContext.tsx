@@ -1,58 +1,23 @@
 import React from 'react';
 import DailyIframe, {
-  DailyCall,
   DailyEvent,
   DailyEventObjectParticipant,
   DailyCallOptions,
   DailyMeetingState,
 } from '@daily-co/daily-js';
-import { LocalMediaContext } from './LocalMediaContext';
-import { LocalInfoContext } from './LocalInfoContext';
+import { LocalMediaContext } from '../LocalMediaContext';
+import { LocalInfoContext } from '../LocalInfoContext';
 import { useImmer } from 'use-immer';
-import { ColyseusContext, ColyseusEvent } from './ColyseusContext';
-import { MAX_INTERACTION_DISTANCE } from '../components/constants';
+import { ColyseusContext, ColyseusEvent } from '../ColyseusContext';
+import { MAX_INTERACTION_DISTANCE } from '../../components/constants';
+import {
+  VideoCallDebugContextValue,
+  VideoCallParticipant,
+  VideoCallContext,
+  VideoCallDebugContext,
+} from './VideoCallContext';
 
-interface CallObjectContextValue {
-  callObject: DailyCall;
-  meetingState: DailyMeetingState;
-  localScreenShareTrulyOn: boolean;
-  join(roomName: string, identity: string): Promise<void>;
-  leave(): void;
-}
-
-export const CallObjectContext = React.createContext<CallObjectContextValue>(
-  null!
-);
-
-interface Participant {
-  serverId: string;
-  audioTrack?: MediaStreamTrack;
-  videoTrack?: MediaStreamTrack;
-  screenVideoTrack?: MediaStreamTrack;
-  screenAudioTrack?: MediaStreamTrack;
-}
-
-interface VideoCallContextValue {
-  participants: {
-    [identity: string]: Participant;
-  };
-}
-
-export const VideoCallContext = React.createContext<VideoCallContextValue>(
-  null!
-);
-
-type VideoCallDebugContextValue =
-  | {
-      [key: string]: string | number;
-    }
-  | undefined;
-
-export const VideoCallDebugContext = React.createContext<VideoCallDebugContextValue>(
-  null!
-);
-
-export const CallObjectContextProvider: React.FC = ({ children }) => {
+export const DailyVideoCallContextProvider: React.FC = ({ children }) => {
   const callObject = React.useMemo(
     () =>
       DailyIframe.createCallObject({
@@ -84,7 +49,7 @@ export const CallObjectContextProvider: React.FC = ({ children }) => {
   const { localIdentity, localGhost } = React.useContext(LocalInfoContext);
 
   const [participants, setParticipants] = useImmer<{
-    [identity: string]: Participant;
+    [identity: string]: VideoCallParticipant;
   }>({});
 
   const join = React.useCallback(
@@ -358,14 +323,10 @@ export const CallObjectContextProvider: React.FC = ({ children }) => {
   }, [callObject]);
 
   return (
-    <CallObjectContext.Provider
-      value={{ callObject, join, meetingState, leave, localScreenShareTrulyOn }}
-    >
-      <VideoCallContext.Provider value={{ participants }}>
-        <VideoCallDebugContext.Provider value={debugStats}>
-          {children}
-        </VideoCallDebugContext.Provider>
-      </VideoCallContext.Provider>
-    </CallObjectContext.Provider>
+    <VideoCallContext.Provider value={{ participants }}>
+      <VideoCallDebugContext.Provider value={debugStats}>
+        {children}
+      </VideoCallDebugContext.Provider>
+    </VideoCallContext.Provider>
   );
 };

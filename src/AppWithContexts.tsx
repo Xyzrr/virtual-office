@@ -1,7 +1,7 @@
 import React from 'react';
 import { ColyseusContextProvider } from './contexts/ColyseusContext';
 import { LocalMediaContextProvider } from './contexts/LocalMediaContext';
-import { CallObjectContextProvider } from './contexts/CallObjectContext';
+import { DailyVideoCallContextProvider } from './contexts/VideoCallContext/DailyVideoCallContext';
 import { LocalInfoContextProvider } from './contexts/LocalInfoContext';
 import App from './App';
 
@@ -12,9 +12,9 @@ const AppWithContexts: React.FC<AppWithContextsProps> = () => {
     <LocalInfoContextProvider>
       <LocalMediaContextProvider>
         <ColyseusContextProvider>
-          <CallObjectContextProvider>
+          <DailyVideoCallContextProvider>
             <App></App>
-          </CallObjectContextProvider>
+          </DailyVideoCallContextProvider>
         </ColyseusContextProvider>
       </LocalMediaContextProvider>
     </LocalInfoContextProvider>

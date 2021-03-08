@@ -2,7 +2,7 @@ import * as S from './ScreenShareToolbar.styles';
 import React from 'react';
 import NewWindow from './NewWindow';
 import { LocalMediaContext } from '../contexts/LocalMediaContext';
-import { VideoCallContext } from '../contexts/CallObjectContext';
+import { VideoCallContext } from '../contexts/VideoCallContext/VideoCallContext';
 import { LocalInfoContext } from '../contexts/LocalInfoContext';
 
 export interface ScreenShareToolbarProps {

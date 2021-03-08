@@ -1,7 +1,7 @@
 import * as S from './NetworkPanel.styles';
 import React from 'react';
 import isHotkey from 'is-hotkey';
-import { VideoCallDebugContext } from '../contexts/CallObjectContext';
+import { VideoCallDebugContext } from '../contexts/VideoCallContext/VideoCallContext';
 
 export const useNetworkPanel = () => {
   const [showNetworkPanel, setShowNetworkPanel] = React.useState(false);
