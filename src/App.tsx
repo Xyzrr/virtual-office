@@ -1,7 +1,6 @@
 import * as S from './App.styles';
 
 import React from 'react';
-import { DailyEvent } from '@daily-co/daily-js';
 import { useFakeMinimize } from './util/useFakeMinimize';
 import RemoteUserPanel from './components/RemoteUserPanel';
 import MapPanel from './components/MapPanel';
@@ -18,7 +17,10 @@ import { useAppTracker, AppInfo } from './util/app-tracker/useAppTracker';
 import { useImmer } from 'use-immer';
 import NetworkPanel, { useNetworkPanel } from './components/NetworkPanel';
 import { ColyseusContext, ColyseusEvent } from './contexts/ColyseusContext';
-import { CallObjectContext } from './contexts/CallObjectContext';
+import {
+  CallObjectContext,
+  VideoCallContext,
+} from './contexts/CallObjectContext';
 import WelcomePanel from './WelcomePanel';
 import { LocalInfoContext } from './contexts/LocalInfoContext';
 
@@ -29,18 +31,13 @@ if (process.env.LOCAL) {
   host = 'virtual-office-server.herokuapp.com';
 }
 
-export interface ActiveParticipant {
+export interface NearbyPlayer {
   sid?: string;
-  distance?: number;
-  audioSubscribed?: boolean;
-  videoSubscribed?: boolean;
-  screenSubscribed?: boolean;
+  distance: number;
   audioInputOn?: boolean;
   videoInputOn?: boolean;
+  screenInputOn?: boolean;
   sharedApp?: AppInfo;
-
-  dailyConnected?: boolean;
-  colyseusConnected?: boolean;
 }
 
 const App: React.FC = () => {
@@ -50,8 +47,8 @@ const App: React.FC = () => {
     'welcome'
   );
 
-  const [activeParticipants, setActiveParticipants] = useImmer<{
-    [identity: string]: ActiveParticipant;
+  const [nearbyPlayers, setNearbyPlayers] = useImmer<{
+    [identity: string]: NearbyPlayer;
   }>({});
   const [expandedPanels, setExpandedPanels] = React.useState<string[]>(['map']);
   const [smallPanelsScrollY, setSmallPanelsScrollY] = React.useState(0);
@@ -79,55 +76,7 @@ const App: React.FC = () => {
     };
   }, [leaveDaily]);
 
-  /**
-   * Start listening for participant changes, when the callObject is set.
-   */
-  React.useEffect(() => {
-    const events: DailyEvent[] = [
-      'participant-joined',
-      'participant-updated',
-      'participant-left',
-    ];
-
-    function handleNewParticipantsState(event: DailyEvent) {
-      setActiveParticipants((draft) => {
-        const participants = callObject.participants();
-
-        for (const [sid, participant] of Object.entries(participants)) {
-          if (draft[participant.user_name] == null) {
-            draft[participant.user_name] = { dailyConnected: true };
-          }
-
-          draft[participant.user_name].sid = sid;
-          draft[participant.user_name].videoSubscribed = participant.video;
-          draft[participant.user_name].audioSubscribed = participant.audio;
-          draft[participant.user_name].screenSubscribed = participant.screen;
-        }
-
-        for (const [id, ap] of Object.entries(draft)) {
-          if (ap.sid != null && participants[ap.sid] == null) {
-            draft[id].dailyConnected = false;
-
-            if (!draft[id].colyseusConnected) {
-              delete draft[id];
-            }
-          }
-        }
-      });
-    }
-
-    // Listen for changes in state
-    for (const event of events) {
-      callObject.on(event, handleNewParticipantsState);
-    }
-
-    // Stop listening for changes in state
-    return function cleanup() {
-      for (const event of events) {
-        callObject.off(event, handleNewParticipantsState);
-      }
-    };
-  }, [callObject]);
+  const { participants } = React.useContext(VideoCallContext);
 
   const showNetworkPanel = useNetworkPanel();
 
@@ -161,37 +110,41 @@ const App: React.FC = () => {
     ];
 
     const onPlayersUpdated = () => {
-      setActiveParticipants((draft) => {
+      setNearbyPlayers((draft) => {
         const localPlayer = colyseusRoom.state.players.get(localIdentity);
 
-        const updateDistanceToPlayer = (id: string, player: any) => {
-          const dist = Math.sqrt(
+        const distToPlayer = (player: any) => {
+          return Math.sqrt(
             (player.x - localPlayer.x) ** 2 + (player.y - localPlayer.y) ** 2
           );
-
-          draft[id].distance = dist;
         };
 
         for (const [identity, player] of colyseusRoom.state.players.entries()) {
           if (identity !== localIdentity) {
-            if (draft[identity] == null) {
-              draft[identity] = { colyseusConnected: true };
+            const dist = distToPlayer(player);
+
+            if (dist > MAX_INTERACTION_DISTANCE) {
+              continue;
             }
 
-            updateDistanceToPlayer(identity, player);
+            if (draft[identity] == null) {
+              draft[identity] = {
+                distance: dist,
+              };
+            }
+
+            draft[identity].distance = dist;
             draft[identity].audioInputOn = player.audioInputOn;
             draft[identity].videoInputOn = player.videoInputOn;
+            draft[identity].screenInputOn = player.screenInputOn;
             draft[identity].sharedApp = player.sharedApp;
           }
         }
 
-        for (const [id, ap] of Object.entries(draft)) {
-          if (colyseusRoom.state.players.get(id) == null) {
-            draft[id].colyseusConnected = false;
-
-            if (!draft[id].dailyConnected) {
-              delete draft[id];
-            }
+        for (const [id, np] of Object.entries(draft)) {
+          const p = colyseusRoom.state.players.get(id);
+          if (p == null || distToPlayer(p) > MAX_INTERACTION_DISTANCE) {
+            delete draft[id];
           }
         }
       });
@@ -364,79 +317,38 @@ const App: React.FC = () => {
   })();
 
   React.useEffect(() => {
-    Object.entries(activeParticipants).forEach(([identity, ap]) => {
-      const { distance } = ap;
-      let cameraKey = `remote-user:${identity}`;
-      let screenKey = `remote-screen:${identity}`;
-
-      if (
-        distance != null &&
-        distance <= MAX_INTERACTION_DISTANCE &&
-        ap.sid != null
-      ) {
-        callObject?.updateParticipant(ap.sid, {
-          setSubscribedTracks: true,
-        });
-      }
-
-      if (
-        distance != null &&
-        distance > MAX_INTERACTION_DISTANCE &&
-        ap.sid != null
-      ) {
-        callObject?.updateParticipant(ap.sid, {
-          setSubscribedTracks: false,
-        });
-      }
-
-      if (
-        distance != null &&
-        distance > MAX_INTERACTION_DISTANCE &&
-        (expandedPanels.includes(cameraKey) ||
-          expandedPanels.includes(screenKey))
-      ) {
-        setExpandedPanels(['map']);
-      }
-    });
-
     for (const panel of expandedPanels) {
       const [type, identity] = panel.split(':');
 
       if (type === 'remote-user') {
-        if (activeParticipants[identity] == null) {
+        if (nearbyPlayers[identity] == null) {
           setExpandedPanels(['map']);
         }
       }
 
       if (type === 'remote-screen') {
         if (
-          activeParticipants[identity] == null ||
-          !activeParticipants[identity].screenSubscribed
+          nearbyPlayers[identity] == null ||
+          !participants[identity].screenVideoTrack
         ) {
           setExpandedPanels(['map']);
         }
       }
     }
-  }, [activeParticipants]);
+  }, [nearbyPlayers, participants]);
 
-  Object.entries(activeParticipants).forEach(([identity, ap]) => {
+  console.log('Nearby players:', nearbyPlayers);
+
+  Object.entries(nearbyPlayers).forEach(([identity, np]) => {
     if (identity == localIdentity) {
       return;
     }
 
-    const { sid, distance, audioInputOn, videoInputOn } = ap;
+    const { distance, audioInputOn, videoInputOn, screenInputOn } = np;
 
-    if (sid == null || distance == null) {
-      return;
-    }
+    const participant = participants[identity];
 
-    const participant = callObject?.participants()[sid];
-
-    if (participant == null) {
-      return;
-    }
-
-    if (distance > MAX_INTERACTION_DISTANCE) {
+    if (!participant) {
       return;
     }
 
@@ -479,7 +391,7 @@ const App: React.FC = () => {
           audioInputOn={audioInputOn}
           videoInputOn={videoInputOn}
           distance={distance}
-          sharedApp={ap.sharedApp}
+          sharedApp={np.sharedApp}
           small={small}
           onSetExpanded={(value) => {
             if (value) {
@@ -496,7 +408,7 @@ const App: React.FC = () => {
       );
     })();
 
-    if (!ap.screenSubscribed) {
+    if (!np.screenInputOn) {
       return;
     }
 

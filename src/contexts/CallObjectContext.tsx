@@ -8,6 +8,7 @@ import DailyIframe, {
 } from '@daily-co/daily-js';
 import { LocalMediaContext } from './LocalMediaContext';
 import { LocalInfoContext } from './LocalInfoContext';
+import { useImmer } from 'use-immer';
 
 interface CallObjectContextValue {
   callObject: DailyCall;
@@ -19,6 +20,23 @@ interface CallObjectContextValue {
 
 export const CallObjectContext = React.createContext<CallObjectContextValue>(
   null!
+);
+
+interface Participant {
+  audioTrack?: MediaStreamTrack;
+  videoTrack?: MediaStreamTrack;
+  screenVideoTrack?: MediaStreamTrack;
+  screenAudioTrack?: MediaStreamTrack;
+}
+
+interface VideoCallContextValue {
+  participants: {
+    [identity: string]: Participant;
+  };
+}
+
+export const VideoCallContext = React.createContext<VideoCallContextValue>(
+  null
 );
 
 export const CallObjectContextProvider: React.FC = ({ children }) => {
@@ -51,6 +69,10 @@ export const CallObjectContextProvider: React.FC = ({ children }) => {
   } = React.useContext(LocalMediaContext);
 
   const { localIdentity, localGhost } = React.useContext(LocalInfoContext);
+
+  const [participants, setParticipants] = useImmer<{
+    [identity: string]: Participant;
+  }>({});
 
   const join = React.useCallback(
     async (roomName: string) => {
@@ -164,11 +186,79 @@ export const CallObjectContextProvider: React.FC = ({ children }) => {
     }
   }, [callObject, localScreenShareOn, localScreenShareSourceId]);
 
+  /**
+   * Start listening for participant changes, when the callObject is set.
+   */
+  React.useEffect(() => {
+    const events: DailyEvent[] = [
+      'participant-joined',
+      'participant-updated',
+      'participant-left',
+    ];
+
+    function handleNewParticipantsState(event: DailyEvent) {
+      setParticipants((draft) => {
+        const newParts = callObject.participants();
+
+        Object.entries(newParts).forEach(([identity, participant]) => {
+          draft[identity] = {
+            audioTrack: participant.audioTrack,
+            videoTrack: participant.videoTrack,
+            screenAudioTrack: participant.screenAudioTrack,
+            screenVideoTrack: participant.screenVideoTrack,
+          };
+        });
+
+        Object.entries(draft).forEach(([identity, p]) => {
+          if (!newParts[identity]) {
+            delete draft[identity];
+          }
+        });
+      });
+    }
+
+    // Listen for changes in state
+    for (const event of events) {
+      callObject.on(event, handleNewParticipantsState);
+    }
+
+    // Stop listening for changes in state
+    return function cleanup() {
+      for (const event of events) {
+        callObject.off(event, handleNewParticipantsState);
+      }
+    };
+  }, [callObject]);
+
+  // React.useEffect(() => {
+  //   if (
+  //     distance != null &&
+  //     distance <= MAX_INTERACTION_DISTANCE &&
+  //     ap.sid != null
+  //   ) {
+  //     callObject?.updateParticipant(ap.sid, {
+  //       setSubscribedTracks: true,
+  //     });
+  //   }
+
+  //   if (
+  //     distance != null &&
+  //     distance > MAX_INTERACTION_DISTANCE &&
+  //     ap.sid != null
+  //   ) {
+  //     callObject?.updateParticipant(ap.sid, {
+  //       setSubscribedTracks: false,
+  //     });
+  //   }
+  // });
+
   return (
     <CallObjectContext.Provider
       value={{ callObject, join, meetingState, leave, localScreenShareTrulyOn }}
     >
-      {children}
+      <VideoCallContext.Provider value={{ participants }}>
+        {children}
+      </VideoCallContext.Provider>
     </CallObjectContext.Provider>
   );
 };
