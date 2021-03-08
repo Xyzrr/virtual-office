@@ -97,8 +97,6 @@ const CursorsOverlay: React.FC<CursorsOverlayProps> = ({
       }
     });
 
-    console.log('REMOVE', remove);
-
     return remove;
   }, [room]);
 
