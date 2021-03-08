@@ -90,9 +90,9 @@ const CursorsOverlay: React.FC<CursorsOverlayProps> = ({
         flash(
           `${mouseDownData.x * 100}%`,
           `${mouseDownData.y * 100}%`,
-          `#${room.state.players
-            .get(mouseDownData.cursorOwnerIdentity)
-            .color.toString(16)}`
+          Color(
+            room.state.players.get(mouseDownData.cursorOwnerIdentity).color
+          ).toString()
         );
       }
     });
@@ -108,7 +108,7 @@ const CursorsOverlay: React.FC<CursorsOverlayProps> = ({
             key={identity}
             x={`${cursor.x * 100}%`}
             y={`${cursor.y * 100}%`}
-            color={new Color(cursor.color).toString()}
+            color={Color(cursor.color).toString()}
           ></FakeCursor>
         );
       })}
