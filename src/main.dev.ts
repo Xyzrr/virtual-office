@@ -19,7 +19,7 @@ import { electron } from 'process';
 import { Rectangle } from 'electron/main';
 import { centerOnParent } from './util/electron-helpers';
 import ScreenSharePicker from './components/ScreenSharePicker';
-import activeWin from 'active-win';
+import activeWin from '@rize-io/active-win';
 import * as _ from 'lodash';
 import { LIGHT_BACKGROUND } from './components/constants';
 
@@ -214,7 +214,7 @@ const createWindow = async () => {
           let id: number | undefined;
 
           try {
-            const win = activeWin.sync();
+            const win = activeWin.sync({ screenRecordingPermission: false });
             bounds = win?.bounds;
             id = win?.id;
           } catch (e) {
@@ -234,7 +234,7 @@ const createWindow = async () => {
           if (!failed) {
             screenShareOverlayInterval = setInterval(() => {
               const startTime = Date.now();
-              activeWin()
+              activeWin({ screenRecordingPermission: false })
                 .then((result) => {
                   if (screenShareOverlay == null) {
                     return;

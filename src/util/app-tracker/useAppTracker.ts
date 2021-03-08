@@ -1,5 +1,5 @@
 import React from 'react';
-import activeWin from 'active-win';
+import activeWin from '@rize-io/active-win';
 
 import iconFigma from './app-icons/figma.ico';
 import iconNotion from './app-icons/notion.ico';
@@ -102,7 +102,7 @@ export const APPS = [
   { name: 'Slack', url: 'slack.com', icon: iconSlack },
   { name: 'Spotify', url: 'open.spotify.com', icon: iconSpotify },
   { name: 'Expensify', url: 'expensify.com', icon: iconExpensify },
-  { name: 'iTerm2', icon: iconITerm2 },
+  { name: 'iTerm', icon: iconITerm2 },
 ];
 
 export interface AppInfo {
@@ -124,7 +124,8 @@ export const useAppTracker = () => {
     }
 
     const interval = window.setInterval(() => {
-      activeWin().then((result) => {
+      activeWin({ screenRecordingPermission: false }).then((result) => {
+        console.log('AppTracker found:', result);
         if (result == null) {
           return;
         }
