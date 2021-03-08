@@ -9,6 +9,8 @@ import DailyIframe, {
 import { LocalMediaContext } from './LocalMediaContext';
 import { LocalInfoContext } from './LocalInfoContext';
 import { useImmer } from 'use-immer';
+import { ColyseusContext, ColyseusEvent } from './ColyseusContext';
+import { MAX_INTERACTION_DISTANCE } from '../components/constants';
 
 interface CallObjectContextValue {
   callObject: DailyCall;
@@ -23,6 +25,7 @@ export const CallObjectContext = React.createContext<CallObjectContextValue>(
 );
 
 interface Participant {
+  serverId: string;
   audioTrack?: MediaStreamTrack;
   videoTrack?: MediaStreamTrack;
   screenVideoTrack?: MediaStreamTrack;
@@ -36,7 +39,7 @@ interface VideoCallContextValue {
 }
 
 export const VideoCallContext = React.createContext<VideoCallContextValue>(
-  null
+  null!
 );
 
 export const CallObjectContextProvider: React.FC = ({ children }) => {
@@ -200,17 +203,22 @@ export const CallObjectContextProvider: React.FC = ({ children }) => {
       setParticipants((draft) => {
         const newParts = callObject.participants();
 
-        Object.entries(newParts).forEach(([identity, participant]) => {
-          draft[identity] = {
+        for (const [serverId, participant] of Object.entries(newParts)) {
+          if (serverId === 'local') {
+            continue;
+          }
+
+          draft[participant.user_name] = {
+            serverId: serverId,
             audioTrack: participant.audioTrack,
             videoTrack: participant.videoTrack,
             screenAudioTrack: participant.screenAudioTrack,
             screenVideoTrack: participant.screenVideoTrack,
           };
-        });
+        }
 
         Object.entries(draft).forEach(([identity, p]) => {
-          if (!newParts[identity]) {
+          if (!newParts[p.serverId]) {
             delete draft[identity];
           }
         });
@@ -230,27 +238,78 @@ export const CallObjectContextProvider: React.FC = ({ children }) => {
     };
   }, [callObject]);
 
-  // React.useEffect(() => {
-  //   if (
-  //     distance != null &&
-  //     distance <= MAX_INTERACTION_DISTANCE &&
-  //     ap.sid != null
-  //   ) {
-  //     callObject?.updateParticipant(ap.sid, {
-  //       setSubscribedTracks: true,
-  //     });
-  //   }
+  const {
+    room: colyseusRoom,
+    addListener: addColyseusListener,
+    removeListener: removeColyseusListener,
+  } = React.useContext(ColyseusContext);
 
-  //   if (
-  //     distance != null &&
-  //     distance > MAX_INTERACTION_DISTANCE &&
-  //     ap.sid != null
-  //   ) {
-  //     callObject?.updateParticipant(ap.sid, {
-  //       setSubscribedTracks: false,
-  //     });
-  //   }
-  // });
+  console.log('Daily participants:', participants);
+
+  React.useEffect(() => {
+    if (!colyseusRoom) {
+      return;
+    }
+
+    const events: ColyseusEvent[] = [
+      'player-added',
+      'player-updated',
+      'player-removed',
+    ];
+
+    const onPlayersUpdated = () => {
+      const localPlayer = colyseusRoom.state.players.get(localIdentity);
+
+      const distToPlayer = (player: any) => {
+        return Math.sqrt(
+          (player.x - localPlayer.x) ** 2 + (player.y - localPlayer.y) ** 2
+        );
+      };
+
+      for (const [identity, player] of colyseusRoom.state.players.entries()) {
+        if (identity === localIdentity) {
+          continue;
+        }
+
+        const participant = participants[identity];
+
+        if (!participant) {
+          return;
+        }
+
+        const dist = distToPlayer(player);
+
+        if (dist > MAX_INTERACTION_DISTANCE) {
+          callObject?.updateParticipant(participant.serverId, {
+            setSubscribedTracks: false,
+          });
+        } else {
+          callObject?.updateParticipant(participant.serverId, {
+            setSubscribedTracks: true,
+          });
+        }
+      }
+    };
+
+    onPlayersUpdated();
+
+    for (const event of events) {
+      addColyseusListener(event, onPlayersUpdated);
+    }
+
+    return () => {
+      for (const event of events) {
+        removeColyseusListener(event, onPlayersUpdated);
+      }
+    };
+  }, [
+    colyseusRoom,
+    addColyseusListener,
+    removeColyseusListener,
+    localIdentity,
+    callObject,
+    participants,
+  ]);
 
   return (
     <CallObjectContext.Provider
