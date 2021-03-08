@@ -17,10 +17,7 @@ import { useAppTracker, AppInfo } from './util/app-tracker/useAppTracker';
 import { useImmer } from 'use-immer';
 import NetworkPanel, { useNetworkPanel } from './components/NetworkPanel';
 import { ColyseusContext, ColyseusEvent } from './contexts/ColyseusContext';
-import {
-  CallObjectContext,
-  VideoCallContext,
-} from './contexts/CallObjectContext';
+import { VideoCallContext } from './contexts/CallObjectContext';
 import WelcomePanel from './WelcomePanel';
 import { LocalInfoContext } from './contexts/LocalInfoContext';
 
@@ -36,7 +33,7 @@ export interface NearbyPlayer {
   distance: number;
   audioInputOn?: boolean;
   videoInputOn?: boolean;
-  screenInputOn?: boolean;
+  screenShareOn?: boolean;
   sharedApp?: AppInfo;
 }
 
@@ -57,24 +54,11 @@ const App: React.FC = () => {
     height: window.innerHeight,
   });
 
-  const { callObject, join: joinDaily, leave: leaveDaily } = React.useContext(
-    CallObjectContext
-  );
-
   const { localAudioInputOn, localScreenShareOn } = React.useContext(
     LocalMediaContext
   );
 
   const { localIdentity, setLocalGhost } = React.useContext(LocalInfoContext);
-
-  React.useEffect(() => {
-    window.addEventListener('beforeunload', leaveDaily);
-
-    return () => {
-      window.removeEventListener('beforeunload', leaveDaily);
-      leaveDaily();
-    };
-  }, [leaveDaily]);
 
   const { participants } = React.useContext(VideoCallContext);
 
@@ -136,7 +120,7 @@ const App: React.FC = () => {
             draft[identity].distance = dist;
             draft[identity].audioInputOn = player.audioInputOn;
             draft[identity].videoInputOn = player.videoInputOn;
-            draft[identity].screenInputOn = player.screenInputOn;
+            draft[identity].screenShareOn = player.screenShareOn;
             draft[identity].sharedApp = player.sharedApp;
           }
         }
@@ -344,7 +328,7 @@ const App: React.FC = () => {
       return;
     }
 
-    const { distance, audioInputOn, videoInputOn, screenInputOn } = np;
+    const { distance, audioInputOn, videoInputOn, screenShareOn } = np;
 
     const participant = participants[identity];
 
@@ -408,7 +392,7 @@ const App: React.FC = () => {
       );
     })();
 
-    if (!np.screenInputOn) {
+    if (!screenShareOn) {
       return;
     }
 

@@ -2,7 +2,8 @@ import * as S from './ScreenShareToolbar.styles';
 import React from 'react';
 import NewWindow from './NewWindow';
 import { LocalMediaContext } from '../contexts/LocalMediaContext';
-import { CallObjectContext } from '../contexts/CallObjectContext';
+import { VideoCallContext } from '../contexts/CallObjectContext';
+import { LocalInfoContext } from '../contexts/LocalInfoContext';
 
 export interface ScreenShareToolbarProps {
   className?: string;
@@ -11,10 +12,15 @@ export interface ScreenShareToolbarProps {
 const ScreenShareToolbar: React.FC<ScreenShareToolbarProps> = React.memo(
   ({ className }) => {
     const { setLocalScreenShareOn } = React.useContext(LocalMediaContext);
-    const { localScreenShareTrulyOn } = React.useContext(CallObjectContext);
+    const { participants } = React.useContext(VideoCallContext);
+    const { localIdentity } = React.useContext(LocalInfoContext);
+
+    const screenShareTrulyOn =
+      participants[localIdentity] &&
+      !!participants[localIdentity].screenVideoTrack;
 
     return (
-      <NewWindow name="screen-share-toolbar" open={localScreenShareTrulyOn}>
+      <NewWindow name="screen-share-toolbar" open={screenShareTrulyOn}>
         <S.Wrapper className={className}>
           <S.StopButton
             onClick={() => {

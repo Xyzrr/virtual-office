@@ -204,10 +204,6 @@ export const CallObjectContextProvider: React.FC = ({ children }) => {
         const newParts = callObject.participants();
 
         for (const [serverId, participant] of Object.entries(newParts)) {
-          if (serverId === 'local') {
-            continue;
-          }
-
           draft[participant.user_name] = {
             serverId: serverId,
             audioTrack: participant.audioTrack,
@@ -310,6 +306,15 @@ export const CallObjectContextProvider: React.FC = ({ children }) => {
     callObject,
     participants,
   ]);
+
+  React.useEffect(() => {
+    window.addEventListener('beforeunload', leave);
+
+    return () => {
+      window.removeEventListener('beforeunload', leave);
+      leave();
+    };
+  }, [leave]);
 
   return (
     <CallObjectContext.Provider
