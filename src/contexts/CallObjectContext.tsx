@@ -42,6 +42,16 @@ export const VideoCallContext = React.createContext<VideoCallContextValue>(
   null!
 );
 
+type VideoCallDebugContextValue =
+  | {
+      [key: string]: string | number;
+    }
+  | undefined;
+
+export const VideoCallDebugContext = React.createContext<VideoCallDebugContextValue>(
+  null!
+);
+
 export const CallObjectContextProvider: React.FC = ({ children }) => {
   const callObject = React.useMemo(
     () =>
@@ -316,12 +326,45 @@ export const CallObjectContextProvider: React.FC = ({ children }) => {
     };
   }, [leave]);
 
+  const [
+    debugStats,
+    setDebugStats,
+  ] = React.useState<VideoCallDebugContextValue>();
+
+  React.useEffect(() => {
+    if (callObject == null) {
+      return;
+    }
+
+    const updateNetworkStats = async () => {
+      const s = await callObject.getNetworkStats();
+      setDebugStats({
+        Threshold: s.threshold,
+        Quality: s.quality,
+        'Receive bitrate': s.stats.latest.videoRecvBitsPerSecond,
+        'Send bitrate': s.stats.latest.videoSendBitsPerSecond,
+        'Worst recv pkt loss': s.stats.worstVideoRecvPacketLoss,
+        'Worst send pkt loss': s.stats.worstVideoSendPacketLoss,
+      });
+    };
+
+    callObject.on('network-quality-change', updateNetworkStats);
+    const interval = window.setInterval(updateNetworkStats, 2000);
+
+    return () => {
+      callObject.off('network-quality-change', updateNetworkStats);
+      window.clearInterval(interval);
+    };
+  }, [callObject]);
+
   return (
     <CallObjectContext.Provider
       value={{ callObject, join, meetingState, leave, localScreenShareTrulyOn }}
     >
       <VideoCallContext.Provider value={{ participants }}>
-        {children}
+        <VideoCallDebugContext.Provider value={debugStats}>
+          {children}
+        </VideoCallDebugContext.Provider>
       </VideoCallContext.Provider>
     </CallObjectContext.Provider>
   );

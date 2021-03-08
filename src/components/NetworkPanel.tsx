@@ -1,8 +1,7 @@
 import * as S from './NetworkPanel.styles';
-import React, { useContext } from 'react';
+import React from 'react';
 import isHotkey from 'is-hotkey';
-import { CallObjectContext } from '../contexts/CallObjectContext';
-import { DailyNetworkStats } from '@daily-co/daily-js';
+import { VideoCallDebugContext } from '../contexts/CallObjectContext';
 
 export const useNetworkPanel = () => {
   const [showNetworkPanel, setShowNetworkPanel] = React.useState(false);
@@ -29,64 +28,23 @@ export interface NetworkPanelProps {
 }
 
 const NetworkPanel: React.FC<NetworkPanelProps> = ({ className }) => {
-  const { callObject } = useContext(CallObjectContext);
-
-  const [stats, setStats] = React.useState<DailyNetworkStats | null>(null);
-
-  React.useEffect(() => {
-    if (callObject == null) {
-      return;
-    }
-
-    const updateNetworkStats = async () => {
-      const s = await callObject.getNetworkStats();
-      setStats(s);
-    };
-
-    callObject.on('network-quality-change', updateNetworkStats);
-    const interval = window.setInterval(updateNetworkStats, 2000);
-
-    return () => {
-      callObject.off('network-quality-change', updateNetworkStats);
-      window.clearInterval(interval);
-    };
-  }, [callObject]);
+  const debugStats = React.useContext(VideoCallDebugContext);
 
   return (
     <S.Wrapper className={className}>
-      {stats == null ? (
-        <>Loading</>
-      ) : (
+      {debugStats ? (
         <>
-          <S.Stat>
-            <S.StatLabel>Threshold:</S.StatLabel>
-            <S.StatValue>{stats.threshold}</S.StatValue>
-          </S.Stat>
-          <S.Stat>
-            <S.StatLabel>Quality:</S.StatLabel>
-            <S.StatValue>{stats.quality}</S.StatValue>
-          </S.Stat>
-          <S.Stat>
-            <S.StatLabel>Receive bitrate:</S.StatLabel>
-            <S.StatValue>
-              {stats.stats.latest.videoRecvBitsPerSecond}
-            </S.StatValue>
-          </S.Stat>
-          <S.Stat>
-            <S.StatLabel>Send bitrate:</S.StatLabel>
-            <S.StatValue>
-              {stats.stats.latest.videoSendBitsPerSecond}
-            </S.StatValue>
-          </S.Stat>
-          <S.Stat>
-            <S.StatLabel>Worst recv pkt loss:</S.StatLabel>
-            <S.StatValue>{stats.stats.worstVideoRecvPacketLoss}</S.StatValue>
-          </S.Stat>
-          <S.Stat>
-            <S.StatLabel>Worst send pkt loss:</S.StatLabel>
-            <S.StatValue>{stats.stats.worstVideoSendPacketLoss}</S.StatValue>
-          </S.Stat>
+          {Object.entries(debugStats).map(([key, value]) => {
+            return (
+              <S.Stat>
+                <S.StatLabel>{key}:</S.StatLabel>
+                <S.StatValue>{value}</S.StatValue>
+              </S.Stat>
+            );
+          })}
         </>
+      ) : (
+        <>Loading</>
       )}
     </S.Wrapper>
   );
