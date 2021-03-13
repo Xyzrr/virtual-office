@@ -1,3 +1,5 @@
+# Harbor - Electron
+
 This is the Electron client for Harbor. It's built off [Electron React Boilerplate](https://electron-react-boilerplate.js.org/) and uses [styled-components](https://styled-components.com/) for styling.
 
 ## Setting up
