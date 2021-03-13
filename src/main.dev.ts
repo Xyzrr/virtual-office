@@ -42,6 +42,7 @@ let mainWindow: BrowserWindow | null = null;
 let screenSharePicker: BrowserWindow | undefined;
 let screenShareToolbar: BrowserWindow | undefined;
 let screenShareOverlay: BrowserWindow | undefined;
+let permissionHelperWindow: BrowserWindow | undefined;
 
 let screenShareOverlayInterval: NodeJS.Timeout | undefined;
 
@@ -328,6 +329,36 @@ const createWindow = async () => {
         return;
       }
 
+      if (frameName === 'permission-helper-window') {
+        event.preventDefault();
+
+        permissionHelperWindow = new BrowserWindow({
+          ...options,
+          width: 640,
+          height: 400,
+          minWidth: undefined,
+          minHeight: undefined,
+          resizable: false,
+          transparent: false,
+          parent: mainWindow!,
+          show: false,
+        });
+
+        event.newGuest = permissionHelperWindow;
+
+        permissionHelperWindow.setBackgroundColor('#00000000');
+        permissionHelperWindow.setMaximizable(false);
+        permissionHelperWindow.setMinimizable(false);
+
+        permissionHelperWindow.once('ready-to-show', () => {
+          permissionHelperWindow?.show();
+        });
+
+        centerOnParent(permissionHelperWindow);
+
+        return;
+      }
+
       event.preventDefault();
       shell.openExternal(url);
     }
@@ -380,6 +411,10 @@ ipcMain.handle('close', (e, windowName: string) => {
     screenShareOverlay?.hide();
     screenShareOverlay?.setSimpleFullScreen(false);
     screenShareOverlay?.close();
+  }
+  if (windowName === 'permission-helper-window') {
+    permissionHelperWindow?.hide();
+    permissionHelperWindow?.close();
   }
 });
 
@@ -476,4 +511,15 @@ ipcMain.on('toggleMaximized', () => {
 
 ipcMain.handle('isTrustedAccessibilityClient', (e, prompt: boolean) => {
   return systemPreferences.isTrustedAccessibilityClient(prompt);
+});
+
+ipcMain.handle(
+  'getMediaAccessStatus',
+  (e, mediaType: 'microphone' | 'camera' | 'screen') => {
+    return systemPreferences.getMediaAccessStatus(mediaType);
+  }
+);
+
+ipcMain.handle('askForMediaAccess', (e, mediaType: 'microphone' | 'camera') => {
+  return systemPreferences.askForMediaAccess(mediaType);
 });

@@ -87,7 +87,13 @@ const ScreenSharePicker: React.FC<ScreenSharePickerProps> = React.memo(
             <S.Title>Apps</S.Title>
             <S.ScreenShareOptionsWrapper>
               {windowSources
-                .filter((source) => source.name !== 'screen-share-picker')
+                .filter(
+                  (source) =>
+                    ![
+                      'screen-share-picker',
+                      'permission-helper-window',
+                    ].includes(source.name)
+                )
                 .map((source) => {
                   return (
                     <S.ScreenShareOption

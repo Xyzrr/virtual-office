@@ -4,13 +4,14 @@ import React from 'react';
 export type ButtonProps = Omit<React.ComponentProps<'button'>, 'ref'> & {
   variant?: 'contained' | 'outlined';
   color?: 'primary' | 'danger';
+  size?: 'small' | 'medium' | 'large';
   disabled?: boolean;
 };
 
 const Button: React.FC<ButtonProps> = React.forwardRef<
   HTMLButtonElement,
   ButtonProps
->(({ variant, color, disabled, ...standardProps }, ref) => {
+>(({ variant, color, disabled, size, ...standardProps }, ref) => {
   return (
     <S.Wrapper
       {...standardProps}
@@ -18,6 +19,7 @@ const Button: React.FC<ButtonProps> = React.forwardRef<
       variant={variant}
       color={color}
       disabled={disabled}
+      size={size}
     ></S.Wrapper>
   );
 });

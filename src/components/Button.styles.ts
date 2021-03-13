@@ -5,13 +5,14 @@ export const Wrapper = styled.button<{
   variant?: string;
   color?: string;
   disabled?: boolean;
+  size?: string;
 }>`
   outline: none;
   border: none;
   border-radius: 4px;
   background: none;
   color: white;
-  padding: 6px 10px;
+  padding: 6px 12px;
   font-size: 16px;
   -webkit-app-region: no-drag;
 
@@ -52,4 +53,20 @@ export const Wrapper = styled.button<{
       background: #777;
       opacity: 0.6;
     `}
+
+  ${(props) => {
+    if (props.size === 'small') {
+      return css`
+        font-size: 14px;
+        padding: 4px 8px;
+      `;
+    }
+
+    if (props.size === 'large') {
+      return css`
+        font-size: 18px;
+        padding: 8px 16px;
+      `;
+    }
+  }}
 `;

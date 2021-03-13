@@ -9,6 +9,8 @@ import { useMouseIsIdle } from '../util/useMouseIsIdle';
 import AudioInputControl from './AudioInputControl';
 import * as IconButtonStyles from './IconButton.styles';
 import VideoInputControl from './VideoInputControl';
+import { ipcRenderer } from 'electron';
+import PermissionHelperWindow from './PermissionHelperWindow';
 
 export interface MainToolbarProps {
   className?: string;
@@ -21,6 +23,10 @@ const MainToolbar: React.FC<MainToolbarProps> = React.memo(
     const [screenSharePickerOpen, setScreenSharePickerOpen] = React.useState(
       false
     );
+    const [
+      screenPermissionHelperOpen,
+      setScreenPermissionHelperOpen,
+    ] = React.useState(false);
 
     const {
       localAudioOutputDeviceId,
@@ -104,18 +110,40 @@ const MainToolbar: React.FC<MainToolbarProps> = React.memo(
           color={localScreenShareOn ? 'good' : undefined}
         >
           <IconButtonStyles.IconButtonBackground
-            onClick={() => {
+            onClick={async () => {
               if (localScreenShareOn) {
                 setLocalScreenShareOn(false);
                 return;
               }
-              setScreenSharePickerOpen((o) => !o);
+              if (!screenSharePickerOpen) {
+                const screenAccess = await ipcRenderer.invoke(
+                  'getMediaAccessStatus',
+                  'screen'
+                );
+                if (screenAccess === 'granted') {
+                  setScreenSharePickerOpen(true);
+                } else {
+                  setScreenPermissionHelperOpen(true);
+                }
+              } else {
+                setScreenSharePickerOpen(false);
+              }
             }}
           ></IconButtonStyles.IconButtonBackground>
           <IconButtonStyles.IconButtonIcon
             name={localScreenShareOn ? 'stop_screen_share' : 'screen_share'}
           ></IconButtonStyles.IconButtonIcon>
         </IconButtonStyles.IconButton>
+        <PermissionHelperWindow
+          open={screenPermissionHelperOpen}
+          onClose={() => {
+            setScreenPermissionHelperOpen(false);
+          }}
+          onGranted={() => {
+            setScreenPermissionHelperOpen(false);
+            setScreenSharePickerOpen(true);
+          }}
+        ></PermissionHelperWindow>
         <ScreenSharePicker
           open={screenSharePickerOpen}
           onClose={() => {
