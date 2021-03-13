@@ -33,6 +33,7 @@ import iconSpotify from './app-icons/spotify.png';
 import iconExpensify from './app-icons/expensify.png';
 import iconITerm2 from './app-icons/iterm2.png';
 import { ColyseusContext } from '../../contexts/ColyseusContext';
+import * as electron from 'electron';
 
 export const APPS = [
   { name: 'VS Code', nameMatch: 'Code', icon: iconVSCode },
@@ -116,6 +117,8 @@ export const useAppTracker = () => {
     undefined
   );
 
+  const promptedRef = React.useRef(false);
+
   const { room: colyseusRoom } = React.useContext(ColyseusContext);
 
   React.useEffect(() => {
@@ -123,31 +126,40 @@ export const useAppTracker = () => {
       return;
     }
 
-    const interval = window.setInterval(() => {
-      activeWin({ screenRecordingPermission: false }).then((result) => {
-        console.log('AppTracker found:', result);
-        if (result == null) {
-          return;
-        }
+    const interval = window.setInterval(async () => {
+      if (
+        !(await electron.ipcRenderer.invoke(
+          'isTrustedAccessibilityClient',
+          !promptedRef.current
+        ))
+      ) {
+        promptedRef.current = true;
+        return;
+      }
 
-        for (const app of APPS) {
-          if (
-            result.owner.name.includes(app.name) ||
-            (app.nameMatch && result.owner.name.includes(app.nameMatch)) ||
-            ((result as any).url != null &&
-              (result as any).url.includes(app.url))
-          ) {
-            const appInfo = {
-              title: result.title,
-              name: app.name,
-              url: (result as any).url,
-            };
+      const result = await activeWin({ screenRecordingPermission: false });
 
-            setLocalApp(appInfo);
-            colyseusRoom.send('appInfo', { ...appInfo });
-          }
+      console.log('AppTracker found:', result);
+      if (result == null) {
+        return;
+      }
+
+      for (const app of APPS) {
+        if (
+          result.owner.name.includes(app.name) ||
+          (app.nameMatch && result.owner.name.includes(app.nameMatch)) ||
+          ((result as any).url != null && (result as any).url.includes(app.url))
+        ) {
+          const appInfo = {
+            title: result.title,
+            name: app.name,
+            url: (result as any).url,
+          };
+
+          setLocalApp(appInfo);
+          colyseusRoom.send('appInfo', { ...appInfo });
         }
-      });
+      }
     }, 2000);
 
     return () => {
