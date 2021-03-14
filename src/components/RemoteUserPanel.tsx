@@ -10,6 +10,7 @@ import { MAX_INTERACTION_DISTANCE } from './constants';
 import PanelWrapper from './PanelWrapper';
 import { AppInfo } from '../util/app-tracker/useAppTracker';
 import AppIndicator from './AppIndicator';
+import { CircularProgress } from '@material-ui/core';
 
 export interface RemoteUserPanelProps {
   className?: string;
@@ -55,6 +56,7 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = React.memo(
     const audioRef = React.useRef<HTMLAudioElement>(null);
     const [recentlyLoud, setRecentlyLoud] = React.useState(false);
     const recentlyLoudTimerRef = React.useRef<number | null>(null);
+    const [videoStreaming, setVideoStreaming] = React.useState(false);
 
     const { localAudioOutputDeviceId, localAudioOutputOn } = useContext(
       LocalMediaContext
@@ -80,6 +82,12 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = React.memo(
         audioRef.current.srcObject = new MediaStream([audioTrack]);
       }
     }, [audioTrack]);
+
+    React.useEffect(() => {
+      if (!videoTrack) {
+        setVideoStreaming(false);
+      }
+    }, [videoTrack]);
 
     useVolume(audioTrack, (v) => {
       if (v > 0.15) {
@@ -143,12 +151,25 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = React.memo(
           noVideo={!videoInputOn}
         >
           {videoInputOn && videoTrack && (
-            <video ref={videoRef} autoPlay></video>
+            <video
+              ref={videoRef}
+              onCanPlay={() => {
+                setVideoStreaming(true);
+              }}
+              onEmptied={() => {
+                setVideoStreaming(false);
+              }}
+              autoPlay
+            ></video>
+          )}
+          {videoInputOn && !videoStreaming && (
+            <S.LoaderWrapper>
+              <CircularProgress />
+            </S.LoaderWrapper>
           )}
           {audioInputOn && audioTrack && (
             <audio ref={audioRef} autoPlay></audio>
           )}
-
           <HoverMenu hidden={mouseIsIdle}>
             <HoverMenuStyles.MenuItem
               name={small ? 'fullscreen' : 'fullscreen_exit'}

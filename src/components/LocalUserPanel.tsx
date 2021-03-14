@@ -116,7 +116,7 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = React.memo(
           )}
           {localVideoInputOn && !videoStreaming && (
             <S.LoaderWrapper>
-              <CircularProgress></CircularProgress>
+              <CircularProgress />
             </S.LoaderWrapper>
           )}
           <HoverMenu hidden={mouseIsIdle}>
