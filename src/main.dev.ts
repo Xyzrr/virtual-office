@@ -128,15 +128,11 @@ const createWindow = async () => {
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
 
-  // Open urls in the user's browser
-  mainWindow.webContents.on(
-    'new-window',
-    (event, url, frameName, disposition, options, additionalFeatures) => {
-      if (frameName === 'screen-share-picker') {
-        event.preventDefault();
-
-        screenSharePicker = new BrowserWindow({
-          ...options,
+  mainWindow.webContents.setWindowOpenHandler(({ frameName, features }) => {
+    if (frameName === 'screen-share-picker') {
+      return {
+        action: 'allow',
+        overrideBrowserWindowOptions: {
           width: 840,
           height: 600,
           minWidth: undefined,
@@ -144,31 +140,19 @@ const createWindow = async () => {
           resizable: false,
           transparent: false,
           parent: mainWindow!,
-          show: false,
-        });
+          backgroundColor: '#222',
+          maximizable: false,
+          minimizable: false,
+        },
+      };
+    }
 
-        event.newGuest = screenSharePicker;
+    if (frameName === 'screen-share-toolbar') {
+      const workAreaBounds = screen.getPrimaryDisplay().workArea;
 
-        screenSharePicker.setBackgroundColor('#222');
-        screenSharePicker.setMaximizable(false);
-        screenSharePicker.setMinimizable(false);
-
-        screenSharePicker.once('ready-to-show', () => {
-          screenSharePicker?.show();
-        });
-
-        centerOnParent(screenSharePicker);
-
-        return;
-      }
-
-      if (frameName === 'screen-share-toolbar') {
-        event.preventDefault();
-
-        const workAreaBounds = screen.getPrimaryDisplay().workArea;
-
-        screenShareToolbar = new BrowserWindow({
-          ...options,
+      return {
+        action: 'allow',
+        overrideBrowserWindowOptions: {
           width: 252,
           height: 52,
           x: workAreaBounds.x + workAreaBounds.width / 2 - 252 / 2,
@@ -177,30 +161,68 @@ const createWindow = async () => {
           minHeight: undefined,
           resizable: false,
           transparent: false,
-          show: false,
-        });
+          vibrancy: 'menu',
+          focusable: false,
+          alwaysOnTop: true,
+          titleBarStyle: 'hidden',
+        },
+      };
+    }
 
-        event.newGuest = screenShareToolbar;
+    if (frameName === 'screen-share-overlay') {
+      return {
+        action: 'allow',
+        overrideBrowserWindowOptions: {
+          transparent: true,
+          minWidth: undefined,
+          minHeight: undefined,
+          titleBarStyle: 'hidden',
+          hasShadow: false,
+        },
+      };
+    }
 
-        screenShareToolbar.setBackgroundColor('#00000000');
-        screenShareToolbar.setWindowButtonVisibility?.(false);
-        screenShareToolbar.setAlwaysOnTop(true);
-        screenShareToolbar.setContentProtection(true);
-        screenShareToolbar.setFocusable(false);
-        screenShareToolbar.setVibrancy('menu');
+    if (frameName === 'permission-helper-window') {
+      return {
+        action: 'allow',
+        overrideBrowserWindowOptions: {
+          width: 640,
+          height: 400,
+          minWidth: undefined,
+          minHeight: undefined,
+          resizable: false,
+          transparent: false,
+          parent: mainWindow!,
+          maximizable: false,
+          minimizable: false,
+        },
+      };
+    }
 
-        screenShareToolbar.once('ready-to-show', () => {
-          screenShareToolbar?.show();
-        });
+    return { action: 'deny' };
+  });
 
-        return;
+  mainWindow.webContents.on(
+    'did-create-window',
+    (win, { frameName, options }) => {
+      if (frameName === 'screen-share-picker') {
+        screenSharePicker = win;
+        centerOnParent(win);
+      }
+
+      if (frameName === 'screen-share-toolbar') {
+        screenShareToolbar = win;
+        win.setWindowButtonVisibility(false);
       }
 
       if (frameName === 'screen-share-overlay') {
-        event.preventDefault();
+        screenShareOverlay = win;
 
-        const { shareSourceId } = options as any;
-        delete (options as any).shareSourceId;
+        win.setIgnoreMouseEvents(true);
+        win.setContentProtection(true);
+        win.setWindowButtonVisibility(false);
+
+        const shareSourceId = (options as any).shareSourceId;
 
         const [sourceType, sourceId, sourceTab] = shareSourceId.split(':');
         const sourceIdNumber = parseInt(sourceId, 10);
@@ -208,14 +230,20 @@ const createWindow = async () => {
         let failed = false;
         let wrongInitialActiveWindow = false;
 
-        const additionalOpts: any = {};
         if (sourceType === 'screen') {
           const sharedDisplay = screen
             .getAllDisplays()
             .find((d) => d.id === sourceIdNumber);
 
-          additionalOpts.x = sharedDisplay?.bounds.x;
-          additionalOpts.y = sharedDisplay?.bounds.y;
+          if (sharedDisplay) {
+            win.setPosition(sharedDisplay.bounds.x, sharedDisplay.bounds.y);
+          }
+
+          win.setSimpleFullScreen(true);
+          win.setAlwaysOnTop(true, 'screen-saver');
+          win.setVisibleOnAllWorkspaces(true, {
+            visibleOnFullScreen: true,
+          });
         } else {
           let bounds:
             | { x: number; y: number; width: number; height: number }
@@ -231,14 +259,13 @@ const createWindow = async () => {
             failed = true;
           }
 
-          if (id === sourceIdNumber) {
-            additionalOpts.x = bounds?.x;
-            additionalOpts.y = bounds?.y;
-            additionalOpts.width = bounds?.width;
-            additionalOpts.height = bounds?.height;
+          if (id === sourceIdNumber && bounds) {
+            win.setBounds(bounds);
           } else {
             wrongInitialActiveWindow = true;
           }
+
+          win.setAlwaysOnTop(true, 'floating', -1);
 
           if (!failed) {
             screenShareOverlayInterval = setInterval(() => {
@@ -292,78 +319,251 @@ const createWindow = async () => {
             }, 1000);
           }
         }
-
-        screenShareOverlay = new BrowserWindow({
-          ...options,
-          ...additionalOpts,
-          transparent: true,
-          show: false,
-          minWidth: undefined,
-          minHeight: undefined,
-          titleBarStyle: 'hidden',
-          hasShadow: false,
-        });
-
-        event.newGuest = screenShareOverlay;
-
-        screenShareOverlay.setBackgroundColor('#00000000');
-        if (sourceType === 'screen') {
-          screenShareOverlay.setSimpleFullScreen(true);
-          screenShareOverlay.setAlwaysOnTop(true, 'screen-saver');
-          screenShareOverlay.setVisibleOnAllWorkspaces(true, {
-            visibleOnFullScreen: true,
-          });
-        } else {
-          screenShareOverlay.setAlwaysOnTop(true, 'floating', -1);
-        }
-        screenShareOverlay.setFocusable(false);
-        screenShareOverlay.setWindowButtonVisibility?.(false);
-        screenShareOverlay.setIgnoreMouseEvents(true);
-        screenShareOverlay.setContentProtection(true);
-
-        if (!failed && !wrongInitialActiveWindow) {
-          screenShareOverlay.once('ready-to-show', () => {
-            screenShareOverlay?.show();
-          });
-        }
-
-        return;
       }
 
       if (frameName === 'permission-helper-window') {
-        event.preventDefault();
-
-        permissionHelperWindow = new BrowserWindow({
-          ...options,
-          width: 640,
-          height: 400,
-          minWidth: undefined,
-          minHeight: undefined,
-          resizable: false,
-          transparent: false,
-          parent: mainWindow!,
-          show: false,
-        });
-
-        event.newGuest = permissionHelperWindow;
-
-        permissionHelperWindow.setBackgroundColor('#00000000');
-        permissionHelperWindow.setMaximizable(false);
-        permissionHelperWindow.setMinimizable(false);
-
-        permissionHelperWindow.once('ready-to-show', () => {
-          permissionHelperWindow?.show();
-        });
-
-        centerOnParent(permissionHelperWindow);
-
-        return;
+        permissionHelperWindow = win;
+        centerOnParent(win);
       }
-
-      event.preventDefault();
-      shell.openExternal(url);
     }
   );
+
+  // Open urls in the user's browser
+  // mainWindow.webContents.on(
+  //   'new-window',
+  //   (event, url, frameName, disposition, options, additionalFeatures) => {
+  //     // if (frameName === 'screen-share-picker') {
+  //     //   event.preventDefault();
+
+  //     //   screenSharePicker = new BrowserWindow({
+  //     //     ...options,
+  //     //     width: 840,
+  //     //     height: 600,
+  //     //     minWidth: undefined,
+  //     //     minHeight: undefined,
+  //     //     resizable: false,
+  //     //     transparent: false,
+  //     //     parent: mainWindow!,
+  //     //     show: false,
+  //     //   });
+
+  //     //   event.newGuest = screenSharePicker;
+
+  //     //   screenSharePicker.setBackgroundColor('#222');
+  //     //   screenSharePicker.setMaximizable(false);
+  //     //   screenSharePicker.setMinimizable(false);
+
+  //     //   screenSharePicker.once('ready-to-show', () => {
+  //     //     screenSharePicker?.show();
+  //     //   });
+
+  //     //   centerOnParent(screenSharePicker);
+
+  //     //   return;
+  //     // }
+
+  //     if (frameName === 'screen-share-toolbar') {
+  //       event.preventDefault();
+
+  //       const workAreaBounds = screen.getPrimaryDisplay().workArea;
+
+  //       screenShareToolbar = new BrowserWindow({
+  //         ...options,
+  //         width: 252,
+  //         height: 52,
+  //         x: workAreaBounds.x + workAreaBounds.width / 2 - 252 / 2,
+  //         y: workAreaBounds.y + workAreaBounds.height - 52 - 8,
+  //         minWidth: undefined,
+  //         minHeight: undefined,
+  //         resizable: false,
+  //         transparent: false,
+  //         show: false,
+  //       });
+
+  //       event.newGuest = screenShareToolbar;
+
+  //       screenShareToolbar.setBackgroundColor('#00000000');
+  //       screenShareToolbar.setWindowButtonVisibility?.(false);
+  //       screenShareToolbar.setAlwaysOnTop(true);
+  //       screenShareToolbar.setContentProtection(true);
+  //       screenShareToolbar.setFocusable(false);
+  //       screenShareToolbar.setVibrancy('menu');
+
+  //       screenShareToolbar.once('ready-to-show', () => {
+  //         screenShareToolbar?.show();
+  //       });
+
+  //       return;
+  //     }
+
+  //     if (frameName === 'screen-share-overlay') {
+  //       event.preventDefault();
+
+  //       const { shareSourceId } = options as any;
+  //       delete (options as any).shareSourceId;
+
+  //       const [sourceType, sourceId, sourceTab] = shareSourceId.split(':');
+  //       const sourceIdNumber = parseInt(sourceId, 10);
+
+  //       let failed = false;
+  //       let wrongInitialActiveWindow = false;
+
+  //       const additionalOpts: any = {};
+  //       if (sourceType === 'screen') {
+  //         const sharedDisplay = screen
+  //           .getAllDisplays()
+  //           .find((d) => d.id === sourceIdNumber);
+
+  //         additionalOpts.x = sharedDisplay?.bounds.x;
+  //         additionalOpts.y = sharedDisplay?.bounds.y;
+  //       } else {
+  //         let bounds:
+  //           | { x: number; y: number; width: number; height: number }
+  //           | undefined;
+  //         let id: number | undefined;
+
+  //         try {
+  //           const win = activeWin.sync({ screenRecordingPermission: false });
+  //           bounds = win?.bounds;
+  //           id = win?.id;
+  //         } catch (e) {
+  //           console.log('Error trying to get active window data:', e);
+  //           failed = true;
+  //         }
+
+  //         if (id === sourceIdNumber) {
+  //           additionalOpts.x = bounds?.x;
+  //           additionalOpts.y = bounds?.y;
+  //           additionalOpts.width = bounds?.width;
+  //           additionalOpts.height = bounds?.height;
+  //         } else {
+  //           wrongInitialActiveWindow = true;
+  //         }
+
+  //         if (!failed) {
+  //           screenShareOverlayInterval = setInterval(() => {
+  //             const startTime = Date.now();
+  //             activeWin({ screenRecordingPermission: false })
+  //               .then((result) => {
+  //                 if (screenShareOverlay == null) {
+  //                   return;
+  //                 }
+
+  //                 const endTime = Date.now();
+  //                 console.log(
+  //                   'TOOK',
+  //                   endTime - startTime,
+  //                   'ms',
+  //                   sourceIdNumber,
+  //                   result
+  //                 );
+  //                 if (result && result.id === sourceIdNumber) {
+  //                   if (!screenShareOverlay.isVisible()) {
+  //                     screenShareOverlay.show();
+  //                   }
+
+  //                   if (
+  //                     !_.isEqual(screenShareOverlay.getBounds(), result.bounds)
+  //                   ) {
+  //                     screenShareOverlay.setBounds(result.bounds);
+  //                   }
+  //                   if (!screenShareOverlay.isAlwaysOnTop()) {
+  //                     screenShareOverlay.setAlwaysOnTop(true, 'floating', -1);
+  //                   }
+  //                 } else {
+  //                   if (!screenShareOverlay.isVisible()) {
+  //                     return;
+  //                   }
+
+  //                   if (screenShareOverlay.isAlwaysOnTop()) {
+  //                     screenShareOverlay.setAlwaysOnTop(false);
+  //                     screenShareOverlay.moveAbove(
+  //                       `window:${sourceIdNumber}:0`
+  //                     );
+  //                   }
+  //                 }
+  //               })
+  //               .catch((e) => {
+  //                 console.log(
+  //                   'Failed to get active window data after successfully getting it earlier:',
+  //                   e
+  //                 );
+  //               });
+  //           }, 1000);
+  //         }
+  //       }
+
+  //       screenShareOverlay = new BrowserWindow({
+  //         ...options,
+  //         ...additionalOpts,
+  //         transparent: true,
+  //         show: false,
+  //         minWidth: undefined,
+  //         minHeight: undefined,
+  //         titleBarStyle: 'hidden',
+  //         hasShadow: false,
+  //       });
+
+  //       event.newGuest = screenShareOverlay;
+
+  //       screenShareOverlay.setBackgroundColor('#00000000');
+  //       if (sourceType === 'screen') {
+  //         screenShareOverlay.setSimpleFullScreen(true);
+  //         screenShareOverlay.setAlwaysOnTop(true, 'screen-saver');
+  //         screenShareOverlay.setVisibleOnAllWorkspaces(true, {
+  //           visibleOnFullScreen: true,
+  //         });
+  //       } else {
+  //         screenShareOverlay.setAlwaysOnTop(true, 'floating', -1);
+  //       }
+  //       screenShareOverlay.setFocusable(false);
+  //       screenShareOverlay.setWindowButtonVisibility?.(false);
+  //       screenShareOverlay.setIgnoreMouseEvents(true);
+  //       screenShareOverlay.setContentProtection(true);
+
+  //       if (!failed && !wrongInitialActiveWindow) {
+  //         screenShareOverlay.once('ready-to-show', () => {
+  //           screenShareOverlay?.show();
+  //         });
+  //       }
+
+  //       return;
+  //     }
+
+  //     if (frameName === 'permission-helper-window') {
+  //       event.preventDefault();
+
+  //       permissionHelperWindow = new BrowserWindow({
+  //         ...options,
+  //         width: 640,
+  //         height: 400,
+  //         minWidth: undefined,
+  //         minHeight: undefined,
+  //         resizable: false,
+  //         transparent: false,
+  //         parent: mainWindow!,
+  //         show: false,
+  //       });
+
+  //       event.newGuest = permissionHelperWindow;
+
+  //       permissionHelperWindow.setBackgroundColor('#00000000');
+  //       permissionHelperWindow.setMaximizable(false);
+  //       permissionHelperWindow.setMinimizable(false);
+
+  //       permissionHelperWindow.once('ready-to-show', () => {
+  //         permissionHelperWindow?.show();
+  //       });
+
+  //       centerOnParent(permissionHelperWindow);
+
+  //       return;
+  //     }
+
+  //     event.preventDefault();
+  //     shell.openExternal(url);
+  //   }
+  // );
 
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
@@ -397,7 +597,7 @@ let previousUnminimizedBounds: Rectangle | null = null;
 
 ipcMain.handle('close', (e, windowName: string) => {
   if (windowName === 'screen-share-picker') {
-    screenSharePicker?.hide();
+    // screenSharePicker?.hide();
     screenSharePicker?.close();
   }
   if (windowName === 'screen-share-toolbar') {
