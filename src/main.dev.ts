@@ -178,6 +178,7 @@ const createWindow = async () => {
           minHeight: undefined,
           titleBarStyle: 'hidden',
           hasShadow: false,
+          show: false,
         },
       };
     }
@@ -195,6 +196,7 @@ const createWindow = async () => {
           parent: mainWindow!,
           maximizable: false,
           minimizable: false,
+          backgroundColor: '#00000000',
         },
       };
     }
@@ -239,83 +241,81 @@ const createWindow = async () => {
             win.setPosition(sharedDisplay.bounds.x, sharedDisplay.bounds.y);
           }
 
+          win.show();
           win.setSimpleFullScreen(true);
           win.setAlwaysOnTop(true, 'screen-saver');
           win.setVisibleOnAllWorkspaces(true, {
             visibleOnFullScreen: true,
           });
         } else {
-          let bounds:
-            | { x: number; y: number; width: number; height: number }
-            | undefined;
-          let id: number | undefined;
+          win.setAlwaysOnTop(true, 'floating', -1);
 
           try {
-            const win = activeWin.sync({ screenRecordingPermission: false });
-            bounds = win?.bounds;
-            id = win?.id;
+            const aw = activeWin.sync({ screenRecordingPermission: false });
+
+            if (aw && aw.id === sourceIdNumber) {
+              win.show();
+              win.setBounds(aw.bounds);
+            } else {
+              wrongInitialActiveWindow = true;
+            }
           } catch (e) {
             console.log('Error trying to get active window data:', e);
             failed = true;
           }
 
-          if (id === sourceIdNumber && bounds) {
-            win.setBounds(bounds);
-          } else {
-            wrongInitialActiveWindow = true;
-          }
-
-          win.setAlwaysOnTop(true, 'floating', -1);
-
           if (!failed) {
-            screenShareOverlayInterval = setInterval(() => {
+            screenShareOverlayInterval = setInterval(async () => {
               const startTime = Date.now();
-              activeWin({ screenRecordingPermission: false })
-                .then((result) => {
-                  if (screenShareOverlay == null) {
-                    return;
-                  }
 
-                  const endTime = Date.now();
-                  console.log(
-                    'TOOK',
-                    endTime - startTime,
-                    'ms',
-                    sourceIdNumber,
-                    result
-                  );
-                  if (result && result.id === sourceIdNumber) {
-                    if (!screenShareOverlay.isVisible()) {
-                      screenShareOverlay.show();
-                    }
+              let result:
+                | activeWin.MacOSResult
+                | activeWin.LinuxResult
+                | activeWin.WindowsResult
+                | undefined;
 
-                    if (
-                      !_.isEqual(screenShareOverlay.getBounds(), result.bounds)
-                    ) {
-                      screenShareOverlay.setBounds(result.bounds);
-                    }
-                    if (!screenShareOverlay.isAlwaysOnTop()) {
-                      screenShareOverlay.setAlwaysOnTop(true, 'floating', -1);
-                    }
-                  } else {
-                    if (!screenShareOverlay.isVisible()) {
-                      return;
-                    }
+              try {
+                result = await activeWin({ screenRecordingPermission: false });
+              } catch (e) {
+                console.log(
+                  'Failed to get active window data after successfully getting it earlier:',
+                  e
+                );
+              }
 
-                    if (screenShareOverlay.isAlwaysOnTop()) {
-                      screenShareOverlay.setAlwaysOnTop(false);
-                      screenShareOverlay.moveAbove(
-                        `window:${sourceIdNumber}:0`
-                      );
-                    }
-                  }
-                })
-                .catch((e) => {
-                  console.log(
-                    'Failed to get active window data after successfully getting it earlier:',
-                    e
-                  );
-                });
+              if (!result) {
+                return;
+              }
+
+              const endTime = Date.now();
+              console.log(
+                'TOOK',
+                endTime - startTime,
+                'ms',
+                sourceIdNumber,
+                result
+              );
+              if (result && result.id === sourceIdNumber) {
+                if (!win.isVisible()) {
+                  win.show();
+                }
+
+                if (!_.isEqual(win.getBounds(), result.bounds)) {
+                  win.setBounds(result.bounds);
+                }
+                if (!win.isAlwaysOnTop()) {
+                  win.setAlwaysOnTop(true, 'floating', -1);
+                }
+              } else {
+                if (!win.isVisible()) {
+                  return;
+                }
+
+                if (win.isAlwaysOnTop()) {
+                  win.setAlwaysOnTop(false);
+                  win.moveAbove(`window:${sourceIdNumber}:0`);
+                }
+              }
             }, 1000);
           }
         }
