@@ -38,14 +38,32 @@ const PermissionHelperWindow: React.FC<PermissionHelperWindowProps> = React.memo
     return (
       <NewWindow name="permission-helper-window" open={open} onClose={onClose}>
         <S.Wrapper>
-          <S.TopBar><Button size="small" onClick={onClose}>Cancel</Button></S.TopBar>
+          <S.TopBar>
+            <Button size="small" onClick={onClose}>
+              Cancel
+            </Button>
+          </S.TopBar>
           <S.Title>
             To screen share, Harbor needs screen recording permission.
           </S.Title>
           <S.SubTitle>
-            MacOS Security &amp; Privacy Settings > Privacy > Screen Recording
+            MacOS Security &amp; Privacy Settings &gt; Privacy &gt; Screen
+            Recording
           </S.SubTitle>
-          <Button color="primary" variant="contained" size="large">Open MacOS Privacy Settings</Button>
+          <Button
+            color="primary"
+            variant="contained"
+            size="large"
+            onClick={() => {
+              ipcRenderer.send(
+                'openSystemPreferences',
+                'security',
+                'Privacy_ScreenCapture'
+              );
+            }}
+          >
+            Open MacOS Privacy Settings
+          </Button>
         </S.Wrapper>
       </NewWindow>
     );

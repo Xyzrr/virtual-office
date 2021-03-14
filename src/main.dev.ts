@@ -29,6 +29,7 @@ import ScreenSharePicker from './components/ScreenSharePicker';
 import activeWin from '@rize-io/active-win';
 import * as _ from 'lodash';
 import { LIGHT_BACKGROUND } from './components/constants';
+import { openSystemPreferences } from 'electron-util';
 
 export default class AppUpdater {
   constructor() {
@@ -88,7 +89,7 @@ const createWindow = async () => {
   };
 
   mainWindow = new BrowserWindow({
-    title: 'Virtual Office',
+    title: 'Harbor',
     show: false,
     width: 1280,
     height: 720,
@@ -167,7 +168,6 @@ const createWindow = async () => {
           alwaysOnTop: true,
           titleBarStyle: 'hidden',
           show: false,
-          closable: false,
         },
       };
     }
@@ -182,7 +182,6 @@ const createWindow = async () => {
           titleBarStyle: 'hidden',
           hasShadow: false,
           show: false,
-          closable: false,
         },
       };
     }
@@ -191,6 +190,7 @@ const createWindow = async () => {
       return {
         action: 'allow',
         overrideBrowserWindowOptions: {
+          title: 'permission-helper-window',
           width: 640,
           height: 400,
           minWidth: undefined,
@@ -201,6 +201,7 @@ const createWindow = async () => {
           maximizable: false,
           minimizable: false,
           backgroundColor: '#00000000',
+          show: false,
         },
       };
     }
@@ -483,3 +484,14 @@ ipcMain.handle(
 ipcMain.handle('askForMediaAccess', (e, mediaType: 'microphone' | 'camera') => {
   return systemPreferences.askForMediaAccess(mediaType);
 });
+
+ipcMain.on(
+  'openSystemPreferences',
+  (
+    e,
+    pane: 'universalaccess' | 'security' | 'speech' | 'sharing' | undefined,
+    section: string
+  ) => {
+    openSystemPreferences(pane, section as any);
+  }
+);
