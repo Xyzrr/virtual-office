@@ -34,10 +34,12 @@ export const Wrapper = styled.div<{ recentlyLoud: boolean; noVideo?: boolean }>`
 
 export const StatusIcons = styled.div`
   display: flex;
+  padding-left: 4px;
 `;
 
 export const StatusIcon = styled(Icon)`
   padding: 4px;
+  padding-left: 0;
   color: red;
 `;
 
@@ -67,4 +69,5 @@ export const InfoBar = styled.div`
   align-items: center;
   justify-content: space-between;
   overflow: hidden;
+  height: 40px;
 `;
