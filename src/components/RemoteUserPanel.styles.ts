@@ -46,7 +46,7 @@ export const StatusIcon = styled(Icon)`
 
 export const Name = styled.span`
   color: white;
-  text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.7);
   font-size: 13px;
   opacity: 0.7;
   white-space: nowrap;
@@ -58,6 +58,7 @@ export const InfoBarLeft = styled.div`
   overflow: hidden;
   mask-image: linear-gradient(to left, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1) 12px);
   width: 100%;
+  height: 100%;
 `;
 
 export const InfoBar = styled.div`
