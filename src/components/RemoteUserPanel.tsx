@@ -138,9 +138,14 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = React.memo(
           ref={wrapperRef}
           recentlyLoud={recentlyLoud}
           videoOpacity={videoOpacity}
+          noVideo={!videoInputOn}
         >
-          {videoTrack && <video ref={videoRef} autoPlay></video>}
-          {audioTrack && <audio ref={audioRef} autoPlay></audio>}
+          {videoInputOn && videoTrack && (
+            <video ref={videoRef} autoPlay></video>
+          )}
+          {audioInputOn && audioTrack && (
+            <audio ref={audioRef} autoPlay></audio>
+          )}
           <S.StatusIcons>
             {!audioInputOn && <S.StatusIcon name="mic_off"></S.StatusIcon>}
           </S.StatusIcons>

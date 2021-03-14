@@ -352,7 +352,7 @@ const App: React.FC = () => {
       if (small) {
         width = Math.floor(240 * scale);
         x = 8;
-        height = Math.floor(135 * scale);
+        height = videoInputOn ? Math.floor(135 * scale) : 40;
         y = nextSmallPanelY - smallPanelsScrollY;
         nextSmallPanelY += height + 8;
       } else {

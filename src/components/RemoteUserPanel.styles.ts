@@ -5,6 +5,7 @@ import { DARK_BACKGROUND } from './constants';
 export const Wrapper = styled.div<{
   recentlyLoud: boolean;
   videoOpacity: number;
+  noVideo?: boolean;
 }>`
   position: relative;
   border-radius: 4px;
@@ -24,6 +25,11 @@ export const Wrapper = styled.div<{
     props.recentlyLoud &&
     css`
       box-shadow: 0 0 0 2px rgba(0, 255, 0, 1);
+    `}
+  ${(props) =>
+    props.noVideo &&
+    css`
+      background: ${DARK_BACKGROUND.lighten(0.5).toString()};
     `}
 `;
 
