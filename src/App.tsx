@@ -502,6 +502,7 @@ const App: React.FC = () => {
       <S.GlobalStyles minimized={minimized} focused={appFocused} />
 
       <S.AppWrapper {...(minimized && dragWindowsProps)} appState={appState}>
+        {process.platform === 'darwin' && !minimized && <S.FakeMacOSFrame />}
         {!minimized && (
           <S.TopBar focused={appFocused} hide={appState === 'welcome'}>
             <S.LeftButtons>
