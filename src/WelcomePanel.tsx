@@ -47,6 +47,7 @@ const WelcomePanel: React.FC<WelcomePanelProps> = ({
   const { localVideoTrack } = React.useContext(LocalMediaContext);
   const [playerCount, setPlayerCount] = React.useState(0);
   const { localIdentity, name, setName } = React.useContext(LocalInfoContext);
+  const [transitioning, setTransitioning] = React.useState(false);
 
   const [selectedColor, setSelectedColor] = React.useState<number>();
 
@@ -81,10 +82,24 @@ const WelcomePanel: React.FC<WelcomePanelProps> = ({
     };
   }, [room]);
 
+  React.useEffect(() => {
+    setTransitioning(true);
+  }, [open]);
+
+  if (!open && !transitioning) {
+    return null;
+  }
+
   const submitDisabled = name === '';
 
   return (
-    <S.Wrapper className={className} hide={!open}>
+    <S.Wrapper
+      className={className}
+      hide={!open}
+      onTransitionEnd={() => {
+        setTransitioning(false);
+      }}
+    >
       <S.Title>
         Ready to join <strong>Harbor</strong>?
       </S.Title>
