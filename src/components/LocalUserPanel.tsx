@@ -10,6 +10,7 @@ import PanelWrapper, { PanelWrapperProps } from './PanelWrapper';
 import * as Colyseus from 'colyseus.js';
 import { AppInfo } from '../util/app-tracker/useAppTracker';
 import AppIndicator from './AppIndicator';
+import { LocalInfoContext } from '../contexts/LocalInfoContext';
 
 export interface LocalUserPanelProps {
   className?: string;
@@ -45,8 +46,11 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = React.memo(
     const {
       localAudioTrack,
       localVideoTrack,
+      localAudioInputOn,
       localVideoInputOn,
     } = React.useContext(LocalMediaContext);
+
+    const { name } = React.useContext(LocalInfoContext);
 
     React.useEffect(() => {
       if (videoRef.current && localVideoTrack) {
@@ -100,7 +104,17 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = React.memo(
               }}
             ></HoverMenuStyles.MenuItem>
           </HoverMenu>
-          {sharedApp != null && <AppIndicator appInfo={sharedApp} />}
+          <S.InfoBar>
+            <S.InfoBarLeft>
+              <S.StatusIcons>
+                {!localAudioInputOn && (
+                  <S.StatusIcon name="mic_off"></S.StatusIcon>
+                )}
+              </S.StatusIcons>
+              <S.Name>{name}</S.Name>
+            </S.InfoBarLeft>
+            {sharedApp != null && <AppIndicator appInfo={sharedApp} />}
+          </S.InfoBar>
         </S.Wrapper>
       </S.LocalUserPanelWrapper>
     );
