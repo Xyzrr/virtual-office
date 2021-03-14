@@ -375,6 +375,7 @@ const App: React.FC = () => {
           width={width}
           height={height}
           minY={small && mapIsSmall ? 135 + 16 : undefined}
+          name={np.name}
           videoTrack={participant.videoTrack}
           audioTrack={participant.audioTrack}
           audioInputOn={audioInputOn}

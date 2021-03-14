@@ -20,6 +20,7 @@ export interface RemoteUserPanelProps {
   height: number;
   minY?: number;
 
+  name: string;
   videoTrack?: MediaStreamTrack;
   audioTrack?: MediaStreamTrack;
   audioInputOn?: boolean;
@@ -39,6 +40,7 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = React.memo(
     width,
     height,
     minY,
+    name,
     videoTrack,
     audioTrack,
     audioInputOn,
@@ -146,9 +148,7 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = React.memo(
           {audioInputOn && audioTrack && (
             <audio ref={audioRef} autoPlay></audio>
           )}
-          <S.StatusIcons>
-            {!audioInputOn && <S.StatusIcon name="mic_off"></S.StatusIcon>}
-          </S.StatusIcons>
+
           <HoverMenu hidden={mouseIsIdle}>
             <HoverMenuStyles.MenuItem
               name={small ? 'fullscreen' : 'fullscreen_exit'}
@@ -157,7 +157,15 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = React.memo(
               }}
             ></HoverMenuStyles.MenuItem>
           </HoverMenu>
-          {sharedApp != null && <AppIndicator appInfo={sharedApp} />}
+          <S.InfoBar>
+            <S.InfoBarLeft>
+              <S.StatusIcons>
+                {!audioInputOn && <S.StatusIcon name="mic_off"></S.StatusIcon>}
+              </S.StatusIcons>
+              <S.Name>{name}</S.Name>
+            </S.InfoBarLeft>
+            {sharedApp != null && <AppIndicator appInfo={sharedApp} />}
+          </S.InfoBar>
         </S.Wrapper>
       </PanelWrapper>
     );
