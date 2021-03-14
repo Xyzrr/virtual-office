@@ -99,6 +99,7 @@ const createWindow = async () => {
     transparent: true,
     titleBarStyle: 'hiddenInset',
     webPreferences: {
+      contextIsolation: false,
       nodeIntegration: true,
       nativeWindowOpen: true,
     },
