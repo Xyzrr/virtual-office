@@ -11,6 +11,7 @@ import PanelWrapper from './PanelWrapper';
 import { AppInfo } from '../util/app-tracker/useAppTracker';
 import AppIndicator from './AppIndicator';
 import { CircularProgress } from '@material-ui/core';
+import Loader from './Loader';
 
 export interface RemoteUserPanelProps {
   className?: string;
@@ -162,11 +163,7 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = React.memo(
               autoPlay
             ></video>
           )}
-          {videoInputOn && !videoStreaming && (
-            <S.LoaderWrapper>
-              <CircularProgress />
-            </S.LoaderWrapper>
-          )}
+          {videoInputOn && !videoStreaming && <Loader />}
           {audioInputOn && audioTrack && (
             <audio ref={audioRef} autoPlay></audio>
           )}

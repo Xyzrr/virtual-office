@@ -12,6 +12,7 @@ import { AppInfo } from '../util/app-tracker/useAppTracker';
 import AppIndicator from './AppIndicator';
 import { LocalInfoContext } from '../contexts/LocalInfoContext';
 import { CircularProgress } from '@material-ui/core';
+import Loader from './Loader';
 
 export interface LocalUserPanelProps {
   className?: string;
@@ -114,11 +115,7 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = React.memo(
               }}
             ></video>
           )}
-          {localVideoInputOn && !videoStreaming && (
-            <S.LoaderWrapper>
-              <CircularProgress />
-            </S.LoaderWrapper>
-          )}
+          {localVideoInputOn && !videoStreaming && <Loader />}
           <HoverMenu hidden={mouseIsIdle}>
             <HoverMenuStyles.MenuItem
               name={small ? 'fullscreen' : 'fullscreen_exit'}

@@ -8,6 +8,7 @@ import { MAX_INTERACTION_DISTANCE } from './constants';
 import { useMouseIsIdle } from '../util/useMouseIsIdle';
 import PanelWrapper from './PanelWrapper';
 import { LocalInfoContext } from '../contexts/LocalInfoContext';
+import Loader from './Loader';
 
 export interface RemoteScreenPanelProps {
   className?: string;
@@ -48,6 +49,7 @@ const RemoteScreenPanel: React.FC<RemoteScreenPanelProps> = React.memo(
       width: number;
       height: number;
     }>({ width: 100, height: 100 });
+    const [videoStreaming, setVideoStreaming] = React.useState(false);
 
     const videoOpacity = small
       ? 1
@@ -59,6 +61,12 @@ const RemoteScreenPanel: React.FC<RemoteScreenPanelProps> = React.memo(
     React.useEffect(() => {
       if (videoRef.current && videoTrack) {
         videoRef.current.srcObject = new MediaStream([videoTrack]);
+      }
+    }, [videoTrack]);
+
+    React.useEffect(() => {
+      if (!videoTrack) {
+        setVideoStreaming(false);
       }
     }, [videoTrack]);
 
@@ -138,6 +146,12 @@ const RemoteScreenPanel: React.FC<RemoteScreenPanelProps> = React.memo(
             <video
               ref={videoRef}
               autoPlay
+              onCanPlay={() => {
+                setVideoStreaming(true);
+              }}
+              onEmptied={() => {
+                setVideoStreaming(false);
+              }}
               onMouseMove={(e) => {
                 if (small) {
                   return;
@@ -173,6 +187,7 @@ const RemoteScreenPanel: React.FC<RemoteScreenPanelProps> = React.memo(
               }}
             ></video>
           )}
+          {!videoStreaming && <Loader />}
           {small && (
             <HoverMenu hidden={mouseIsIdle}>
               <HoverMenuStyles.MenuItem
