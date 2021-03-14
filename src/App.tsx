@@ -54,7 +54,7 @@ const App: React.FC = () => {
     height: window.innerHeight,
   });
 
-  const { localAudioInputOn, localScreenShareOn } = React.useContext(
+  const { localAudioInputOn, localVideoInputOn, localScreenShareOn } = React.useContext(
     LocalMediaContext
   );
 
@@ -264,7 +264,7 @@ const App: React.FC = () => {
       if (small) {
         width = 240;
         x = 8;
-        height = 135;
+        height = localVideoInputOn ? 135 : 40;
         y = nextSmallPanelY - smallPanelsScrollY;
         nextSmallPanelY += height + 8;
       } else {

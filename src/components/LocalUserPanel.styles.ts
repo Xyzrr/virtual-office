@@ -4,7 +4,7 @@ import PanelWrapper from './PanelWrapper';
 
 export const LocalUserPanelWrapper = styled(PanelWrapper)``;
 
-export const Wrapper = styled.div<{ recentlyLoud: boolean }>`
+export const Wrapper = styled.div<{ recentlyLoud: boolean; noVideo?: boolean }>`
   position: relative;
   border-radius: 4px;
   overflow: hidden;
@@ -23,5 +23,10 @@ export const Wrapper = styled.div<{ recentlyLoud: boolean }>`
     props.recentlyLoud &&
     css`
       box-shadow: 0 0 0 2px rgba(0, 255, 0, 1);
+    `}
+  ${(props) =>
+    props.noVideo &&
+    css`
+      background: ${DARK_BACKGROUND.lighten(0.5).toString()};
     `}
 `;

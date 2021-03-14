@@ -42,9 +42,11 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = React.memo(
     const [recentlyLoud, setRecentlyLoud] = React.useState(false);
     const recentlyLoudTimerRef = React.useRef<number | null>(null);
 
-    const { localAudioTrack, localVideoTrack } = React.useContext(
-      LocalMediaContext
-    );
+    const {
+      localAudioTrack,
+      localVideoTrack,
+      localVideoInputOn,
+    } = React.useContext(LocalMediaContext);
 
     React.useEffect(() => {
       if (videoRef.current && localVideoTrack) {
@@ -85,8 +87,11 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = React.memo(
           className={className}
           ref={wrapperRef}
           recentlyLoud={recentlyLoud}
+          noVideo={!localVideoInputOn}
         >
-          {localVideoTrack && <video ref={videoRef} autoPlay></video>}
+          {localVideoInputOn && localVideoTrack && (
+            <video ref={videoRef} autoPlay></video>
+          )}
           <HoverMenu hidden={mouseIsIdle}>
             <HoverMenuStyles.MenuItem
               name={small ? 'fullscreen' : 'fullscreen_exit'}
