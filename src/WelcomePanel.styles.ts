@@ -15,6 +15,7 @@ export const Wrapper = styled.div<{ hide?: boolean }>`
   background: #2f2f2f;
   padding: 32px;
   -webkit-app-region: drag;
+  overflow: auto;
 
   transition: left 0.2s;
   ${(props) =>
