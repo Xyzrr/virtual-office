@@ -11,6 +11,7 @@ import * as Colyseus from 'colyseus.js';
 import { AppInfo } from '../util/app-tracker/useAppTracker';
 import AppIndicator from './AppIndicator';
 import { LocalInfoContext } from '../contexts/LocalInfoContext';
+import { CircularProgress } from '@material-ui/core';
 
 export interface LocalUserPanelProps {
   className?: string;
@@ -43,6 +44,8 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = React.memo(
     const [recentlyLoud, setRecentlyLoud] = React.useState(false);
     const recentlyLoudTimerRef = React.useRef<number | null>(null);
 
+    const [videoStreaming, setVideoStreaming] = React.useState(false);
+
     const {
       localAudioTrack,
       localVideoTrack,
@@ -55,6 +58,12 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = React.memo(
     React.useEffect(() => {
       if (videoRef.current && localVideoTrack) {
         videoRef.current.srcObject = new MediaStream([localVideoTrack]);
+      }
+    }, [localVideoTrack]);
+
+    React.useEffect(() => {
+      if (!localVideoTrack) {
+        setVideoStreaming(false);
       }
     }, [localVideoTrack]);
 
@@ -94,7 +103,21 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = React.memo(
           noVideo={!localVideoInputOn}
         >
           {localVideoInputOn && localVideoTrack && (
-            <video ref={videoRef} autoPlay></video>
+            <video
+              ref={videoRef}
+              autoPlay
+              onCanPlay={() => {
+                setVideoStreaming(true);
+              }}
+              onEmptied={() => {
+                setVideoStreaming(false);
+              }}
+            ></video>
+          )}
+          {localVideoInputOn && !videoStreaming && (
+            <S.LoaderWrapper>
+              <CircularProgress></CircularProgress>
+            </S.LoaderWrapper>
           )}
           <HoverMenu hidden={mouseIsIdle}>
             <HoverMenuStyles.MenuItem

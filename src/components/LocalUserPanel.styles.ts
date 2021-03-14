@@ -2,6 +2,7 @@ import styled, { css } from 'styled-components';
 import { DARK_BACKGROUND } from './constants';
 import PanelWrapper from './PanelWrapper';
 import Icon from './Icon';
+import { CircularProgress } from '@material-ui/core';
 
 export const LocalUserPanelWrapper = styled(PanelWrapper)``;
 
@@ -70,4 +71,16 @@ export const InfoBar = styled.div`
   justify-content: space-between;
   overflow: hidden;
   height: 40px;
+`;
+
+export const LoaderWrapper = styled.div`
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: fit-content;
+  height: fit-content;
+  transform: translate(-50%, -50%);
+  .MuiCircularProgress-colorPrimary {
+    color: rgba(128, 128, 128, 0.7);
+  }
 `;
