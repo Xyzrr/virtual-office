@@ -45,8 +45,7 @@ const WelcomePanel: React.FC<WelcomePanelProps> = ({
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const { localVideoTrack } = React.useContext(LocalMediaContext);
   const [playerCount, setPlayerCount] = React.useState(0);
-  const { localIdentity } = React.useContext(LocalInfoContext);
-  const [name, setName] = React.useState('');
+  const { localIdentity, name, setName } = React.useContext(LocalInfoContext);
 
   const [selectedColor, setSelectedColor] = React.useState<number>();
 
@@ -80,6 +79,8 @@ const WelcomePanel: React.FC<WelcomePanelProps> = ({
       removeListener('player-removed', onPlayerAddedOrRemoved);
     };
   }, [room]);
+
+  const submitDisabled = name === '';
 
   return (
     <S.Wrapper className={className} hide={!open}>
@@ -121,10 +122,22 @@ const WelcomePanel: React.FC<WelcomePanelProps> = ({
         value={name}
         onChange={(e) => {
           setName(e.target.value);
+          room?.send('updatePlayer', { name: e.target.value });
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && !submitDisabled) {
+            onJoin?.();
+            e.currentTarget.blur();
+          }
         }}
       ></S.Input>
       <S.Buttons>
-        <S.StyledButton color="primary" variant="contained" onClick={onJoin}>
+        <S.StyledButton
+          color="primary"
+          variant="contained"
+          onClick={onJoin}
+          disabled={submitDisabled}
+        >
           Join now
         </S.StyledButton>
         {/* <S.StyledButton>Cancel</S.StyledButton> */}

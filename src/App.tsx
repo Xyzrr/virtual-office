@@ -30,6 +30,7 @@ if (process.env.LOCAL) {
 
 export interface NearbyPlayer {
   sid?: string;
+  name: string;
   distance: number;
   audioInputOn?: boolean;
   videoInputOn?: boolean;
@@ -54,9 +55,11 @@ const App: React.FC = () => {
     height: window.innerHeight,
   });
 
-  const { localAudioInputOn, localVideoInputOn, localScreenShareOn } = React.useContext(
-    LocalMediaContext
-  );
+  const {
+    localAudioInputOn,
+    localVideoInputOn,
+    localScreenShareOn,
+  } = React.useContext(LocalMediaContext);
 
   const { localIdentity, setLocalGhost } = React.useContext(LocalInfoContext);
 
@@ -113,10 +116,12 @@ const App: React.FC = () => {
 
             if (draft[identity] == null) {
               draft[identity] = {
+                name: player.name,
                 distance: dist,
               };
             }
 
+            draft[identity].name = player.name;
             draft[identity].distance = dist;
             draft[identity].audioInputOn = player.audioInputOn;
             draft[identity].videoInputOn = player.videoInputOn;
