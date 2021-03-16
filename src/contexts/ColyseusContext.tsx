@@ -180,11 +180,15 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
     room?.send('updatePlayer', { screenShareOn: localScreenShareOn });
   }, [localScreenShareOn]);
 
-  const { localName } = React.useContext(LocalInfoContext);
+  const { localName, localWhisperingTo } = React.useContext(LocalInfoContext);
 
   React.useEffect(() => {
     room?.send('updatePlayer', { name: localName });
   }, [localName]);
+
+  React.useEffect(() => {
+    room?.send('updatePlayer', { whisperingTo: localWhisperingTo });
+  }, [localWhisperingTo]);
 
   return (
     <ColyseusContext.Provider

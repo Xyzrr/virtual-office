@@ -36,6 +36,7 @@ export interface NearbyPlayer {
   videoInputOn?: boolean;
   screenShareOn?: boolean;
   sharedApp?: AppInfo;
+  whisperingTo?: string;
 }
 
 const App: React.FC = () => {
@@ -129,6 +130,7 @@ const App: React.FC = () => {
             draft[identity].videoInputOn = player.videoInputOn;
             draft[identity].screenShareOn = player.screenShareOn;
             draft[identity].sharedApp = player.sharedApp;
+            draft[identity].whisperingTo = player.whisperingTo;
           }
         }
 
@@ -385,7 +387,8 @@ const App: React.FC = () => {
           videoInputOn={videoInputOn}
           distance={distance}
           sharedApp={np.sharedApp}
-          whispering={localWhisperingTo === identity}
+          whisperingTo={np.whisperingTo}
+          whisperTarget={localWhisperingTo === identity}
           small={small}
           onSetExpanded={(value) => {
             if (value) {

@@ -6,6 +6,8 @@ export const Wrapper = styled.div<{
   recentlyLoud: boolean;
   videoOpacity: number;
   noVideo?: boolean;
+  whisperTarget?: boolean;
+  backgrounded?: boolean;
 }>`
   position: relative;
   border-radius: 4px;
@@ -30,6 +32,18 @@ export const Wrapper = styled.div<{
     props.noVideo &&
     css`
       background: ${DARK_BACKGROUND.lighten(0.5).toString()};
+    `}
+    ${(props) =>
+    props.whisperTarget &&
+    css`
+      box-shadow: 0 0 0 2px rgba(255, 255, 0, 1);
+    `}
+    ${(props) =>
+    props.backgrounded &&
+    css`
+      video {
+        opacity: 0.4;
+      }
     `}
 `;
 

@@ -13,6 +13,7 @@ import AppIndicator from './AppIndicator';
 import { CircularProgress } from '@material-ui/core';
 import Loader from './Loader';
 import { ColyseusContext } from '../contexts/ColyseusContext';
+import { LocalInfoContext } from '../contexts/LocalInfoContext';
 
 export interface RemoteUserPanelProps {
   className?: string;
@@ -31,7 +32,8 @@ export interface RemoteUserPanelProps {
   videoInputOn?: boolean;
   distance: number;
   sharedApp?: AppInfo;
-  whispering?: boolean;
+  whisperingTo?: string;
+  whisperTarget?: boolean;
 
   small?: boolean;
   onSetExpanded(value: boolean): void;
@@ -54,7 +56,8 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = React.memo(
     distance,
     sharedApp,
     small,
-    whispering,
+    whisperingTo,
+    whisperTarget,
     onSetExpanded,
   }) => {
     const wrapperRef = React.useRef<HTMLDivElement>(null);
@@ -138,7 +141,9 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = React.memo(
 
     const mouseIsIdle = useMouseIsIdle({ containerRef: wrapperRef });
 
-    const { room } = React.useContext(ColyseusContext);
+    const { localWhisperingTo, setLocalWhisperingTo } = React.useContext(
+      LocalInfoContext
+    );
 
     return (
       <PanelWrapper
@@ -157,6 +162,10 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = React.memo(
           recentlyLoud={recentlyLoud}
           videoOpacity={videoOpacity}
           noVideo={!videoInputOn}
+          whisperTarget={localWhisperingTo === identity}
+          backgrounded={
+            localWhisperingTo != null && localWhisperingTo !== identity
+          }
         >
           {videoInputOn && videoTrack && (
             <video
@@ -191,12 +200,12 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = React.memo(
               }}
             />
             <HoverMenuStyles.MenuItem
-              name={whispering ? 'hearing_disabled' : 'hearing'}
+              name={whisperTarget ? 'hearing_disabled' : 'hearing'}
               onClick={() => {
-                if (whispering) {
-                  room?.send('updatePlayer', { whisperingTo: undefined });
+                if (whisperTarget) {
+                  setLocalWhisperingTo(undefined);
                 } else {
-                  room?.send('updatePlayer', { whisperingTo: identity });
+                  setLocalWhisperingTo(identity);
                 }
               }}
             />
