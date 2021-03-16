@@ -42,6 +42,7 @@ export const StatusIcon = styled(Icon)`
   padding: 4px;
   padding-left: 0;
   color: red;
+  margin-left: -3px;
 `;
 
 export const Name = styled.span`
@@ -67,7 +68,7 @@ export const InfoBar = styled.div`
   left: 0;
   width: 100%;
   display: flex;
-  padding: 4px;
+  padding: 4px 8px;
   align-items: center;
   justify-content: space-between;
   overflow: hidden;
