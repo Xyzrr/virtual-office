@@ -1,12 +1,15 @@
 {
   "folders": [
-	{
-		"path": ".."
-	},
-	{
-		"path": "../../virtual-office-server"
-	}
-],
+    {
+      "path": ".."
+    },
+    {
+      "path": "../../virtual-office-server"
+    },
+    {
+      "path": "../../harbor-marketing"
+    }
+  ],
   "settings": {
     "files.associations": {
       ".babelrc": "jsonc",
@@ -17,6 +20,6 @@
     "javascript.validate.enable": false,
     "javascript.format.enable": false,
     "typescript.format.enable": false,
-    "typescript.tsdk": "virtual-office/node_modules/typescript/lib"
+    "typescript.tsdk": "harbor-marketing/node_modules/typescript/lib"
   }
 }

@@ -135,6 +135,7 @@ const WelcomePanel: React.FC<WelcomePanelProps> = ({
       </S.ColorOptions>
       <S.Label>Your name</S.Label>
       <S.Input
+        autoFocus
         value={name}
         onChange={(e) => {
           setName(e.target.value);
