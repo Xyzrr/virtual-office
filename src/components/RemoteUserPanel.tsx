@@ -167,14 +167,6 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = React.memo(
           {audioInputOn && audioTrack && (
             <audio ref={audioRef} autoPlay></audio>
           )}
-          <HoverMenu hidden={mouseIsIdle}>
-            <HoverMenuStyles.MenuItem
-              name={small ? 'fullscreen' : 'fullscreen_exit'}
-              onClick={() => {
-                onSetExpanded(!!small);
-              }}
-            ></HoverMenuStyles.MenuItem>
-          </HoverMenu>
           <S.InfoBar>
             <S.InfoBarLeft>
               <S.StatusIcons>
@@ -184,6 +176,14 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = React.memo(
             </S.InfoBarLeft>
             {sharedApp != null && <AppIndicator appInfo={sharedApp} />}
           </S.InfoBar>
+          <HoverMenu hidden={mouseIsIdle}>
+            <HoverMenuStyles.MenuItem
+              name={small ? 'fullscreen' : 'fullscreen_exit'}
+              onClick={() => {
+                onSetExpanded(!!small);
+              }}
+            ></HoverMenuStyles.MenuItem>
+          </HoverMenu>
         </S.Wrapper>
       </PanelWrapper>
     );

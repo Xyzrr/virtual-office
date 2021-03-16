@@ -116,14 +116,6 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = React.memo(
             ></video>
           )}
           {localVideoInputOn && !videoStreaming && <Loader />}
-          <HoverMenu hidden={mouseIsIdle}>
-            <HoverMenuStyles.MenuItem
-              name={small ? 'fullscreen' : 'fullscreen_exit'}
-              onClick={() => {
-                onSetExpanded(!!small);
-              }}
-            ></HoverMenuStyles.MenuItem>
-          </HoverMenu>
           <S.InfoBar>
             <S.InfoBarLeft>
               <S.StatusIcons>
@@ -135,6 +127,14 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = React.memo(
             </S.InfoBarLeft>
             {sharedApp != null && <AppIndicator appInfo={sharedApp} />}
           </S.InfoBar>
+          <HoverMenu hidden={mouseIsIdle}>
+            <HoverMenuStyles.MenuItem
+              name={small ? 'fullscreen' : 'fullscreen_exit'}
+              onClick={() => {
+                onSetExpanded(!!small);
+              }}
+            ></HoverMenuStyles.MenuItem>
+          </HoverMenu>
         </S.Wrapper>
       </S.LocalUserPanelWrapper>
     );
