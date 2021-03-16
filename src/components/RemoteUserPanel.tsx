@@ -130,20 +130,26 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = React.memo(
         });
     }, [localAudioOutputDeviceId]);
 
+    const {
+      localIdentity,
+      localWhisperingTo,
+      setLocalWhisperingTo,
+    } = React.useContext(LocalInfoContext);
+
     React.useEffect(() => {
       const audioEl = audioRef.current;
       if (audioEl == null) {
         return;
       }
 
-      audioEl.volume = localAudioOutputOn ? volumeMultiplier : 0;
-    }, [volumeMultiplier, localAudioOutputOn]);
+      let vol = localAudioOutputOn ? volumeMultiplier : 0;
+      if (whisperingTo && whisperingTo !== localIdentity) {
+        vol = 0;
+      }
+      audioEl.volume = vol;
+    }, [volumeMultiplier, localAudioOutputOn, whisperingTo]);
 
     const mouseIsIdle = useMouseIsIdle({ containerRef: wrapperRef });
-
-    const { localWhisperingTo, setLocalWhisperingTo } = React.useContext(
-      LocalInfoContext
-    );
 
     return (
       <PanelWrapper
