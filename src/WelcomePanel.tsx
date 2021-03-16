@@ -46,7 +46,9 @@ const WelcomePanel: React.FC<WelcomePanelProps> = ({
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const { localVideoTrack } = React.useContext(LocalMediaContext);
   const [playerCount, setPlayerCount] = React.useState(0);
-  const { localIdentity, name, setName } = React.useContext(LocalInfoContext);
+  const { localIdentity, localName, setLocalName } = React.useContext(
+    LocalInfoContext
+  );
   const [transitioning, setTransitioning] = React.useState(false);
 
   const [selectedColor, setSelectedColor] = React.useState<number>();
@@ -90,7 +92,7 @@ const WelcomePanel: React.FC<WelcomePanelProps> = ({
     return null;
   }
 
-  const submitDisabled = name === '';
+  const submitDisabled = localName === '';
 
   return (
     <S.Wrapper
@@ -136,10 +138,9 @@ const WelcomePanel: React.FC<WelcomePanelProps> = ({
       <S.Label>Your name</S.Label>
       <S.Input
         autoFocus
-        value={name}
+        value={localName}
         onChange={(e) => {
-          setName(e.target.value);
-          room?.send('updatePlayer', { name: e.target.value });
+          setLocalName(e.target.value);
         }}
         onKeyDown={(e) => {
           if (e.key === 'Enter' && !submitDisabled) {

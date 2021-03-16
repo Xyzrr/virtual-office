@@ -12,6 +12,7 @@ import { AppInfo } from '../util/app-tracker/useAppTracker';
 import AppIndicator from './AppIndicator';
 import { CircularProgress } from '@material-ui/core';
 import Loader from './Loader';
+import { ColyseusContext } from '../contexts/ColyseusContext';
 
 export interface RemoteUserPanelProps {
   className?: string;
@@ -22,6 +23,7 @@ export interface RemoteUserPanelProps {
   height: number;
   minY?: number;
 
+  identity: string;
   name: string;
   videoTrack?: MediaStreamTrack;
   audioTrack?: MediaStreamTrack;
@@ -29,6 +31,7 @@ export interface RemoteUserPanelProps {
   videoInputOn?: boolean;
   distance: number;
   sharedApp?: AppInfo;
+  whispering?: boolean;
 
   small?: boolean;
   onSetExpanded(value: boolean): void;
@@ -42,6 +45,7 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = React.memo(
     width,
     height,
     minY,
+    identity,
     name,
     videoTrack,
     audioTrack,
@@ -50,6 +54,7 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = React.memo(
     distance,
     sharedApp,
     small,
+    whispering,
     onSetExpanded,
   }) => {
     const wrapperRef = React.useRef<HTMLDivElement>(null);
@@ -133,6 +138,8 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = React.memo(
 
     const mouseIsIdle = useMouseIsIdle({ containerRef: wrapperRef });
 
+    const { room } = React.useContext(ColyseusContext);
+
     return (
       <PanelWrapper
         x={x}
@@ -182,7 +189,17 @@ const RemoteUserPanel: React.FC<RemoteUserPanelProps> = React.memo(
               onClick={() => {
                 onSetExpanded(!!small);
               }}
-            ></HoverMenuStyles.MenuItem>
+            />
+            <HoverMenuStyles.MenuItem
+              name={whispering ? 'hearing_disabled' : 'hearing'}
+              onClick={() => {
+                if (whispering) {
+                  room?.send('updatePlayer', { whisperingTo: undefined });
+                } else {
+                  room?.send('updatePlayer', { whisperingTo: identity });
+                }
+              }}
+            />
           </HoverMenu>
         </S.Wrapper>
       </PanelWrapper>

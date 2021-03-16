@@ -9,7 +9,7 @@ export const Wrapper = styled.div<{ hidden?: boolean }>`
 
   display: flex;
   background: rgba(20, 20, 20, 0.9);
-  border-radius: 50%;
+  border-radius: 14px;
   padding: 4px;
 
   transition: opacity 0.2s;

@@ -2,6 +2,7 @@ import React from 'react';
 
 import * as Colyseus from 'colyseus.js';
 import { LocalMediaContext } from './LocalMediaContext';
+import { LocalInfoContext } from './LocalInfoContext';
 
 interface PlayerAddedEvent {
   identity: string;
@@ -178,6 +179,12 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
   React.useEffect(() => {
     room?.send('updatePlayer', { screenShareOn: localScreenShareOn });
   }, [localScreenShareOn]);
+
+  const { localName } = React.useContext(LocalInfoContext);
+
+  React.useEffect(() => {
+    room?.send('updatePlayer', { name: localName });
+  }, [localName]);
 
   return (
     <ColyseusContext.Provider

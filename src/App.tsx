@@ -61,7 +61,9 @@ const App: React.FC = () => {
     localScreenShareOn,
   } = React.useContext(LocalMediaContext);
 
-  const { localIdentity, setLocalGhost } = React.useContext(LocalInfoContext);
+  const { localIdentity, setLocalGhost, localWhisperingTo } = React.useContext(
+    LocalInfoContext
+  );
 
   const { participants } = React.useContext(VideoCallContext);
 
@@ -375,6 +377,7 @@ const App: React.FC = () => {
           width={width}
           height={height}
           minY={small && mapIsSmall ? 135 + 16 : undefined}
+          identity={identity}
           name={np.name}
           videoTrack={participant.videoTrack}
           audioTrack={participant.audioTrack}
@@ -382,6 +385,7 @@ const App: React.FC = () => {
           videoInputOn={videoInputOn}
           distance={distance}
           sharedApp={np.sharedApp}
+          whispering={localWhisperingTo === identity}
           small={small}
           onSetExpanded={(value) => {
             if (value) {

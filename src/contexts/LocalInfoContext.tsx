@@ -3,10 +3,12 @@ import { v4 as uuid } from 'uuid';
 
 interface LocalInfoContextValue {
   localIdentity: string;
-  name: string;
-  setName(name: string): void;
+  localName: string;
+  setLocalName(name: string): void;
   localGhost: boolean;
   setLocalGhost(ghost: boolean): void;
+  localWhisperingTo?: string;
+  setLocalWhisperingTo(identity: string | undefined): void;
 }
 
 export const LocalInfoContext = React.createContext<LocalInfoContextValue>(
@@ -20,13 +22,21 @@ export const LocalInfoContextProvider: React.FC = ({ children }) => {
     return result;
   }, []);
 
+  const [localName, setLocalName] = React.useState('');
   const [localGhost, setLocalGhost] = React.useState(true);
-
-  const [name, setName] = React.useState('');
+  const [localWhisperingTo, setLocalWhisperingTo] = React.useState<string>();
 
   return (
     <LocalInfoContext.Provider
-      value={{ localIdentity, localGhost, setLocalGhost, name, setName }}
+      value={{
+        localIdentity,
+        localGhost,
+        setLocalGhost,
+        localName,
+        setLocalName,
+        localWhisperingTo,
+        setLocalWhisperingTo,
+      }}
     >
       {children}
     </LocalInfoContext.Provider>

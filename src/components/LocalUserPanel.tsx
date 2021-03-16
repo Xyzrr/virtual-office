@@ -1,17 +1,14 @@
 import * as S from './LocalUserPanel.styles';
 import * as HoverMenuStyles from './HoverMenu.styles';
 
-import React, { useContext } from 'react';
+import React from 'react';
 import { useVolume } from '../util/useVolume';
 import HoverMenu from './HoverMenu';
 import { LocalMediaContext } from '../contexts/LocalMediaContext';
 import { useMouseIsIdle } from '../util/useMouseIsIdle';
-import PanelWrapper, { PanelWrapperProps } from './PanelWrapper';
-import * as Colyseus from 'colyseus.js';
 import { AppInfo } from '../util/app-tracker/useAppTracker';
 import AppIndicator from './AppIndicator';
 import { LocalInfoContext } from '../contexts/LocalInfoContext';
-import { CircularProgress } from '@material-ui/core';
 import Loader from './Loader';
 
 export interface LocalUserPanelProps {
@@ -54,7 +51,7 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = React.memo(
       localVideoInputOn,
     } = React.useContext(LocalMediaContext);
 
-    const { name } = React.useContext(LocalInfoContext);
+    const { localName } = React.useContext(LocalInfoContext);
 
     React.useEffect(() => {
       if (videoRef.current && localVideoTrack) {
@@ -123,7 +120,7 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = React.memo(
                   <S.StatusIcon name="mic_off"></S.StatusIcon>
                 )}
               </S.StatusIcons>
-              <S.Name>{name}</S.Name>
+              <S.Name>{localName}</S.Name>
             </S.InfoBarLeft>
             {sharedApp != null && <AppIndicator appInfo={sharedApp} />}
           </S.InfoBar>
