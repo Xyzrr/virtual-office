@@ -4,6 +4,7 @@ import React from 'react';
 import NewWindow from './NewWindow';
 import { ipcRenderer } from 'electron';
 import Button from './Button';
+import { desktopCapturer } from 'electron';
 
 export interface PermissionHelperWindowProps {
   className?: string;
@@ -18,6 +19,10 @@ const PermissionHelperWindow: React.FC<PermissionHelperWindowProps> = React.memo
       if (!open) {
         return;
       }
+
+      desktopCapturer.getSources({
+        types: ['screen', 'window'],
+      });
 
       const interval = window.setInterval(async () => {
         const screenAccess = await ipcRenderer.invoke(
