@@ -46,12 +46,14 @@ const WelcomePanel: React.FC<WelcomePanelProps> = ({
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const { localVideoTrack } = React.useContext(LocalMediaContext);
   const [playerCount, setPlayerCount] = React.useState(0);
-  const { localIdentity, localName, setLocalName } = React.useContext(
-    LocalInfoContext
-  );
+  const {
+    localIdentity,
+    localName,
+    setLocalName,
+    localColor,
+    setLocalColor,
+  } = React.useContext(LocalInfoContext);
   const [transitioning, setTransitioning] = React.useState(false);
-
-  const [selectedColor, setSelectedColor] = React.useState<number>();
 
   const { addListener, removeListener, room } = React.useContext(
     ColyseusContext
@@ -68,10 +70,10 @@ const WelcomePanel: React.FC<WelcomePanelProps> = ({
       return;
     }
 
-    const onPlayerAddedOrRemoved = ({ identity, player }: any) => {
-      if (identity === localIdentity) {
-        setSelectedColor(player.color);
-      }
+    const onPlayerAddedOrRemoved = () => {
+      // if (identity === localIdentity) {
+      //   setSelectedColor(player.color);
+      // }
       setPlayerCount(room.state.players.size - 1);
     };
 
@@ -127,10 +129,10 @@ const WelcomePanel: React.FC<WelcomePanelProps> = ({
           <S.ColorOption
             key={c}
             color={new Color(c).toString()}
-            selected={selectedColor === c}
+            selected={localColor === c}
             onClick={() => {
-              setSelectedColor(c);
-              room?.send('updatePlayer', { color: c });
+              setLocalColor(c);
+              setLocalName;
             }}
           ></S.ColorOption>
         ))}

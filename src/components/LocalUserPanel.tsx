@@ -10,6 +10,7 @@ import { AppInfo } from '../util/app-tracker/useAppTracker';
 import AppIndicator from './AppIndicator';
 import { LocalInfoContext } from '../contexts/LocalInfoContext';
 import Loader from './Loader';
+import Color from 'color';
 
 export interface LocalUserPanelProps {
   className?: string;
@@ -51,7 +52,7 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = React.memo(
       localVideoInputOn,
     } = React.useContext(LocalMediaContext);
 
-    const { localName } = React.useContext(LocalInfoContext);
+    const { localName, localColor } = React.useContext(LocalInfoContext);
 
     React.useEffect(() => {
       if (videoRef.current && localVideoTrack) {
@@ -113,6 +114,11 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = React.memo(
             ></video>
           )}
           {localVideoInputOn && !videoStreaming && <Loader />}
+          {localColor != null && (
+            <S.ColorIndicator
+              color={Color(localColor).toString()}
+            ></S.ColorIndicator>
+          )}
           <S.InfoBar>
             <S.InfoBarLeft>
               <S.StatusIcons>

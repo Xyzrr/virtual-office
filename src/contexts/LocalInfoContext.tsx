@@ -9,6 +9,8 @@ interface LocalInfoContextValue {
   setLocalGhost(ghost: boolean): void;
   localWhisperingTo?: string;
   setLocalWhisperingTo(identity: string | undefined): void;
+  localColor?: number;
+  setLocalColor(color: number): void;
 }
 
 export const LocalInfoContext = React.createContext<LocalInfoContextValue>(
@@ -25,6 +27,7 @@ export const LocalInfoContextProvider: React.FC = ({ children }) => {
   const [localName, setLocalName] = React.useState('');
   const [localGhost, setLocalGhost] = React.useState(true);
   const [localWhisperingTo, setLocalWhisperingTo] = React.useState<string>();
+  const [localColor, setLocalColor] = React.useState<number>();
 
   return (
     <LocalInfoContext.Provider
@@ -36,6 +39,8 @@ export const LocalInfoContextProvider: React.FC = ({ children }) => {
         setLocalName,
         localWhisperingTo,
         setLocalWhisperingTo,
+        localColor,
+        setLocalColor,
       }}
     >
       {children}

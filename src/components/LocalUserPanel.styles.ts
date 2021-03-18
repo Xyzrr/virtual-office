@@ -86,3 +86,12 @@ export const LoaderWrapper = styled.div`
     color: rgba(128, 128, 128, 0.7);
   }
 `;
+
+export const ColorIndicator = styled.div<{ color: string }>`
+  position; absolute;
+  width: 8px;
+  height: 8px;
+  left: -4px;
+  bottom: 8px;
+  background: ${(props) => props.color};
+`;
