@@ -20,6 +20,7 @@ import { ColyseusContext, ColyseusEvent } from './contexts/ColyseusContext';
 import { VideoCallContext } from './contexts/VideoCallContext/VideoCallContext';
 import WelcomePanel from './WelcomePanel';
 import { LocalInfoContext } from './contexts/LocalInfoContext';
+import YoutubePanel from './components/YoutubePanel';
 
 let host: string;
 if (process.env.LOCAL) {
@@ -329,6 +330,50 @@ const App: React.FC = () => {
       }
     }
   }, [nearbyPlayers, participants]);
+
+  (() => {
+    let width = 240;
+    let x = 8;
+    let height = 135;
+    let y = nextSmallPanelY;
+    let key = "yt";
+    let small = !expandedPanels.includes(key);
+    if (small) {
+      width = 240;
+      x = 8;
+      height = localVideoInputOn ? 135 : 40;
+      y = nextSmallPanelY - smallPanelsScrollY;
+      nextSmallPanelY += height + 8;
+    } else {
+      x = 0;
+      y = contentYOffset;
+      width = windowSize.width;
+      height = availableHeight;
+    }
+
+    panelElements.push(
+      <YoutubePanel
+        key={key}
+        x={x}
+        y={y}
+        width={width}
+        height={height}
+        small={small}
+        videoTrack={"https://www.youtube.com/watch?v=HJb0VYVtaNc"}
+        onSetExpanded={(value) => {
+          if (value) {
+            if (minimized) {
+              setMinimized(false);
+            }
+
+            setExpandedPanels([key]);
+          } else {
+            setExpandedPanels(['map']);
+          }
+        }}
+      />
+    );
+  })();
 
   console.log('Nearby players:', nearbyPlayers);
 
