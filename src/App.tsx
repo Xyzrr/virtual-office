@@ -40,6 +40,14 @@ export interface NearbyPlayer {
   whisperingTo?: string;
 }
 
+export interface ColyseusYoutubePlayer {
+  currentVideo: string;
+  id: string;
+  isPlaying: boolean;
+  videoPosition: number;
+  videoQueue: any;
+}
+
 const App: React.FC = () => {
   const wasMinimizedWhenStartedScreenSharing = React.useRef(false);
 
@@ -49,6 +57,9 @@ const App: React.FC = () => {
 
   const [nearbyPlayers, setNearbyPlayers] = useImmer<{
     [identity: string]: NearbyPlayer;
+  }>({});
+  const [youtubePlayers, setYoutubePlayers] = React.useState<{
+    [identity: string]: ColyseusYoutubePlayer;
   }>({});
   const [expandedPanels, setExpandedPanels] = React.useState<string[]>(['map']);
   const [smallPanelsScrollY, setSmallPanelsScrollY] = React.useState(0);
@@ -160,6 +171,32 @@ const App: React.FC = () => {
     addColyseusListener,
     removeColyseusListener,
     localIdentity,
+  ]);
+
+  React.useEffect(() => {
+    if (!colyseusRoom) {
+      return;
+    }
+
+    const onYoutubePlayersUpdated = () => {
+      const draft = {};
+      for (const [identity, player] of colyseusRoom.state.youtubePlayers.entries()) {
+        draft[identity] = player;
+      }
+      setYoutubePlayers(draft);
+    }
+
+    const event: ColyseusEvent = 'youtube-player-added';
+
+    addColyseusListener(event, onYoutubePlayersUpdated);
+
+    return () => {
+      removeColyseusListener(event, onYoutubePlayersUpdated);
+    }
+  }, [
+    colyseusRoom,
+    addColyseusListener,
+    removeColyseusListener,
   ]);
 
   const [appFocused, setAppFocused] = React.useState(true);
@@ -331,49 +368,51 @@ const App: React.FC = () => {
     }
   }, [nearbyPlayers, participants]);
 
-  (() => {
-    let width = 240;
-    let x = 8;
-    let height = 135;
-    let y = nextSmallPanelY;
-    let key = "yt";
-    let small = !expandedPanels.includes(key);
-    if (small) {
-      width = 240;
-      x = 8;
-      height = localVideoInputOn ? 135 : 40;
-      y = nextSmallPanelY - smallPanelsScrollY;
-      nextSmallPanelY += height + 8;
-    } else {
-      x = 0;
-      y = contentYOffset;
-      width = windowSize.width;
-      height = availableHeight;
-    }
+  Object.entries(youtubePlayers).forEach(([identity, youtubePlayer]) => {
+    (() => {
+      let width = 240;
+      let x = 8;
+      let height = 135;
+      let y = nextSmallPanelY;
+      let key = "yt";
+      let small = !expandedPanels.includes(key);
+      if (small) {
+        width = 240;
+        x = 8;
+        height = 135;
+        y = nextSmallPanelY - smallPanelsScrollY;
+        nextSmallPanelY += height + 8;
+      } else {
+        x = 0;
+        y = contentYOffset;
+        width = windowSize.width;
+        height = availableHeight;
+      }
 
-    panelElements.push(
-      <YoutubePanel
-        key={key}
-        x={x}
-        y={y}
-        width={width}
-        height={height}
-        small={small}
-        videoTrack={"https://www.youtube.com/watch?v=HJb0VYVtaNc"}
-        onSetExpanded={(value) => {
-          if (value) {
-            if (minimized) {
-              setMinimized(false);
+      panelElements.push(
+        <YoutubePanel
+          key={key}
+          x={x}
+          y={y}
+          width={width}
+          height={height}
+          youtubePlayer={youtubePlayer}
+          small={small}
+          onSetExpanded={(value) => {
+            if (value) {
+              if (minimized) {
+                setMinimized(false);
+              }
+
+              setExpandedPanels([key]);
+            } else {
+              setExpandedPanels(['map']);
             }
-
-            setExpandedPanels([key]);
-          } else {
-            setExpandedPanels(['map']);
-          }
-        }}
-      />
-    );
-  })();
+          }}
+        />
+      );
+    })();
+  });
 
   console.log('Nearby players:', nearbyPlayers);
 

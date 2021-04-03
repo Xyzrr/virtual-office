@@ -9,6 +9,7 @@ import { useMouseIsIdle } from '../util/useMouseIsIdle';
 import AudioInputControl from './AudioInputControl';
 import * as IconButtonStyles from './IconButton.styles';
 import VideoInputControl from './VideoInputControl';
+import YoutubeControl from './YoutubeControl';
 import { ipcRenderer } from 'electron';
 import PermissionHelperWindow from './PermissionHelperWindow';
 
@@ -134,6 +135,9 @@ const MainToolbar: React.FC<MainToolbarProps> = React.memo(
             name={localScreenShareOn ? 'stop_screen_share' : 'screen_share'}
           ></IconButtonStyles.IconButtonIcon>
         </IconButtonStyles.IconButton>
+        
+        <YoutubeControl minimized={minimized}/>
+
         <PermissionHelperWindow
           open={screenPermissionHelperOpen}
           onClose={() => {

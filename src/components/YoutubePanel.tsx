@@ -4,6 +4,8 @@ import * as HoverMenuStyles from './HoverMenu.styles';
 import React from 'react';
 import * as Colyseus from 'colyseus.js';
 
+import { ColyseusYoutubePlayer } from '../App';
+
 import HoverMenu from './HoverMenu';
 import { MAX_INTERACTION_DISTANCE } from './constants';
 import { useMouseIsIdle } from '../util/useMouseIsIdle';
@@ -19,6 +21,7 @@ export interface YoutubeProps {
   width: number;
   height: number;
   minY?: number;
+  youtubePlayer: ColyseusYoutubePlayer;
 
   screenOwnerIdentity: string;
   colyseusRoom: Colyseus.Room;
@@ -35,20 +38,20 @@ const YoutubePanel: React.FC<YoutubeProps> = React.memo(
     width,
     height,
     minY,
+    youtubePlayer,
     screenOwnerIdentity,
-    colyseusRoom,
     distance,
     small,
     onSetExpanded,
   }) => {
     const wrapperRef = React.useRef<HTMLDivElement>(null);
-    const videoRef = React.useRef<HTMLVideoElement>(null);
     const { localIdentity } = React.useContext(LocalInfoContext);
+
     const [videoSize, setVideoSize] = React.useState<{
       width: number;
       height: number;
     }>({ width: 100, height: 100 });
-    const [ytPlayer, setYTPlayer] = React.useState<YT.Player>(undefined);
+    const [clientPlayer, setClientPlayer] = React.useState<YT.Player>(undefined);
 
     const videoOpacity = small
       ? 1
@@ -58,17 +61,21 @@ const YoutubePanel: React.FC<YoutubeProps> = React.memo(
         );
 
     React.useEffect(() => {
+      if (!youtubePlayer) {
+        return;
+      }
+
       const script = document.createElement('script');
       script.src = "https://www.youtube.com/iframe_api";
       script.async = true;
-
       document.body.appendChild(script);
+      
       window.onYouTubeIframeAPIReady = () => {
-        setYTPlayer(
-          new YT.Player('youtube-player', {
+        setClientPlayer(
+          new YT.Player(youtubePlayer.id, {
             height: '100%',
             width: '100%',
-            videoId: 'M7lc1UVf-VE',
+            videoId: youtubePlayer.currentVideo,
             events: {
               'onReady': (e) => e.target.playVideo(),
               'onStateChange': (e) => {},
@@ -81,28 +88,7 @@ const YoutubePanel: React.FC<YoutubeProps> = React.memo(
         window.onYouTubeIframeAPIReady = () => {};
         document.body.removeChild(script);
       }
-    }, []);
-
-
-    React.useEffect(() => {
-      const videoEl = videoRef.current;
-      if (videoEl == null) {
-        return;
-      }
-
-      const onResize = () => {
-        setVideoSize({
-          width: videoEl.videoWidth,
-          height: videoEl.videoHeight,
-        });
-      };
-
-      videoEl.addEventListener('resize', onResize);
-
-      return () => {
-        videoEl?.removeEventListener('resize', onResize);
-      };
-    }, []);
+    }, [youtubePlayer]);
 
     const mouseIsIdle = useMouseIsIdle({ containerRef: wrapperRef });
 
@@ -156,7 +142,7 @@ const YoutubePanel: React.FC<YoutubeProps> = React.memo(
           ref={wrapperRef}
           videoOpacity={videoOpacity}
         >
-          <div id="youtube-player"/>
+          {youtubePlayer && <div id={youtubePlayer.id}/>}
           {small && (
             <HoverMenu hidden={mouseIsIdle}>
               <HoverMenuStyles.MenuItem

@@ -20,16 +20,23 @@ interface PlayerRemovedEvent {
   player: any;
 }
 
+interface YoutubePlayerAddedEvent {
+  identity: string;
+  youtubePlayer: any;
+}
+
 interface ColyseusEventMap {
   'player-added': PlayerAddedEvent;
   'player-updated': PlayerUpdatedEvent;
   'player-removed': PlayerRemovedEvent;
+  'youtube-player-added': YoutubePlayerAddedEvent;
 }
 
 export type ColyseusEvent =
   | 'player-added'
   | 'player-updated'
-  | 'player-removed';
+  | 'player-removed'
+  | 'youtube-player-added';
 
 type ColyseusListener<T extends ColyseusEvent> = (
   ev: ColyseusEventMap[T]
@@ -77,7 +84,6 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
     } else {
       host = 'virtual-office-server.herokuapp.com';
     }
-
     const client = new Colyseus.Client(`ws://${host}`);
 
     const r: Colyseus.Room<any> = await client.joinOrCreate(roomName, {
@@ -118,6 +124,25 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
       if (removeListeners) {
         removeListeners.forEach((l) => l({ identity, player }));
       }
+    };
+
+    r.state.youtubePlayers.onAdd = (youtubePlayer: any, identity: string) => {
+      console.log('Youtube player added:', identity, youtubePlayer);
+      
+      const addListeners = listeners.current?.['youtube-player-added'];
+
+      if (addListeners) {
+        addListeners.forEach((l) => l({ identity, youtubePlayer }));
+      }
+
+      youtubePlayer.videoQueue.onAdd = (changes: any) => {
+      }
+
+      youtubePlayer.onChange = (changes: any) => {
+      }
+    };
+
+    r.state.youtubePlayers.onRemove = (youtubePlayer: any, identity: string) => {
     };
   }, []);
 
