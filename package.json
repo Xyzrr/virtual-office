@@ -99,29 +99,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/electron-react-boilerplate/electron-react-boilerplate.git"
+    "url": "git+https://github.com/Xyzrr/virtual-office.git"
   },
-  "author": {
-    "name": "Electron React Boilerplate Maintainers",
-    "email": "electronreactboilerplate@gmail.com",
-    "url": "https://electron-react-boilerplate.js.org"
-  },
-  "contributors": [
-    {
-      "name": "Amila Welihinda",
-      "email": "amilajack@gmail.com",
-      "url": "https://github.com/amilajack"
-    },
-    {
-      "name": "John Tran",
-      "email": "jptran318@gmail.com",
-      "url": "https://github.com/jooohhn"
-    }
-  ],
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/electron-react-boilerplate/electron-react-boilerplate/issues"
-  },
   "keywords": [
     "electron",
     "boilerplate",
@@ -283,6 +263,7 @@
     "regenerator-runtime": "^0.13.5",
     "source-map-support": "^0.5.19",
     "styled-components": "^5.2.1",
+    "update-electron-app": "^2.0.1",
     "use-immer": "^0.4.2",
     "use-resize-observer": "^7.0.0",
     "uuid": "^8.3.2"
