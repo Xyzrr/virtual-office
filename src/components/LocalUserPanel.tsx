@@ -114,11 +114,11 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = React.memo(
             ></video>
           )}
           {localVideoInputOn && !videoStreaming && <Loader />}
-          {localColor != null && (
+          {/* {localColor != null && (
             <S.ColorIndicator
               color={Color(localColor).toString()}
             ></S.ColorIndicator>
-          )}
+          )} */}
           <S.InfoBar>
             <S.InfoBarLeft>
               <S.StatusIcons>
