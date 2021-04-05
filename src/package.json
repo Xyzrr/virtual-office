@@ -15,7 +15,6 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@rize-io/active-win": "^6.3.0",
-    "ffi-napi": "^4.0.1"
+    "@rize-io/active-win": "^6.3.0"
   }
 }
