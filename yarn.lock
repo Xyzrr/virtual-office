@@ -1113,10 +1113,10 @@
   resolved "https://registry.yarnpkg.com/@colyseus/schema/-/schema-1.0.16.tgz#c0c1cb9870bd50b5f12e0fb274bb31d1498430f7"
   integrity sha512-9fMyKplgUvNW7EwxK0q4GzOcmrkoeBPM+IpvPpj8+/3uLKNFOXz1quVHQfBelFy83psYV+CdMR5EuXOVZ/2YKQ==
 
-"@daily-co/daily-js@^0.9.999":
-  version "0.9.999"
-  resolved "https://registry.yarnpkg.com/@daily-co/daily-js/-/daily-js-0.9.999.tgz#6c6a466119bc54398fe75c430ef971f64926a197"
-  integrity sha512-wHj3+EXH2sNJybupknaFFG+FBbEXTgkboO7WICWidml4Ws1cjkFSb+nIi2flvF6tHCNQIYkB41DlDWHLgk1r2w==
+"@daily-co/daily-js@^0.10.0":
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/@daily-co/daily-js/-/daily-js-0.10.0.tgz#8de5338897df10636aa8a4b0e048f3786338777e"
+  integrity sha512-xWtEA+STnODraYnNTnqGzm1Yzqazu8j2fdMa6EZv6dC92ose+VM67zbmJZpBl3WUZ3zhGUyNPqBs+FnB9HXS+g==
   dependencies:
     "@babel/runtime" "^7.12.5"
     bowser "^2.8.1"
