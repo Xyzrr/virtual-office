@@ -97,10 +97,7 @@
       "repo": "electron-react-boilerplate"
     }
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Xyzrr/virtual-office.git"
-  },
+  "repository": "github:Xyzrr/virtual-office",
   "license": "MIT",
   "keywords": [
     "electron",
