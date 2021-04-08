@@ -31,6 +31,8 @@ import { LIGHT_BACKGROUND } from './components/constants';
 import { openSystemPreferences } from 'electron-util';
 import { autoUpdater } from 'electron-updater';
 
+log.transports.file.level = 'info';
+
 export default class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';
