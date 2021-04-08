@@ -19,7 +19,6 @@ import {
   ipcMain,
   systemPreferences,
 } from 'electron';
-import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { electron } from 'process';
@@ -30,6 +29,7 @@ import activeWin from '@rize-io/active-win';
 import * as _ from 'lodash';
 import { LIGHT_BACKGROUND } from './components/constants';
 import { openSystemPreferences } from 'electron-util';
+import { autoUpdater } from 'electron-updater';
 
 export default class AppUpdater {
   constructor() {
