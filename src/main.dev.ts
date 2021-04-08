@@ -30,9 +30,6 @@ import activeWin from '@rize-io/active-win';
 import * as _ from 'lodash';
 import { LIGHT_BACKGROUND } from './components/constants';
 import { openSystemPreferences } from 'electron-util';
-import updateElectronApp from 'update-electron-app';
-
-updateElectronApp();
 
 export default class AppUpdater {
   constructor() {
