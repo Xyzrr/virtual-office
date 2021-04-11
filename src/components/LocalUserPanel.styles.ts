@@ -39,6 +39,7 @@ export const StatusIcons = styled.div`
 `;
 
 export const StatusIcon = styled(Icon)`
+  user-select: none;
   padding: 4px;
   padding-left: 0;
   color: red;

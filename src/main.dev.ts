@@ -44,6 +44,7 @@ let screenSharePicker: BrowserWindow | undefined;
 let screenShareToolbar: BrowserWindow | undefined;
 let screenShareOverlay: BrowserWindow | undefined;
 let permissionHelperWindow: BrowserWindow | undefined;
+let popupWindow: BrowserWindow | undefined;
 
 let screenShareOverlayInterval: NodeJS.Timeout | undefined;
 
@@ -495,3 +496,5 @@ ipcMain.on(
     openSystemPreferences(pane, section as any);
   }
 );
+
+ipcMain.on('showPopup', (e, direction: string) => {});

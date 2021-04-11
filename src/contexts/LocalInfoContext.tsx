@@ -11,6 +11,8 @@ interface LocalInfoContextValue {
   setLocalWhisperingTo(identity: string | undefined): void;
   localColor?: number;
   setLocalColor(color: number): void;
+  appSharingOn?: boolean;
+  setAppSharingOn(on: boolean): void;
 }
 
 export const LocalInfoContext = React.createContext<LocalInfoContextValue>(
@@ -28,6 +30,7 @@ export const LocalInfoContextProvider: React.FC = ({ children }) => {
   const [localGhost, setLocalGhost] = React.useState(true);
   const [localWhisperingTo, setLocalWhisperingTo] = React.useState<string>();
   const [localColor, setLocalColor] = React.useState<number>();
+  const [appSharingOn, setAppSharingOn] = React.useState<boolean>();
 
   return (
     <LocalInfoContext.Provider
@@ -41,6 +44,8 @@ export const LocalInfoContextProvider: React.FC = ({ children }) => {
         setLocalWhisperingTo,
         localColor,
         setLocalColor,
+        appSharingOn,
+        setAppSharingOn,
       }}
     >
       {children}

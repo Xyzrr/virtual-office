@@ -11,6 +11,7 @@ import AppIndicator from './AppIndicator';
 import { LocalInfoContext } from '../contexts/LocalInfoContext';
 import Loader from './Loader';
 import Color from 'color';
+import AppSharingHelper from './AppSharingHelper';
 
 export interface LocalUserPanelProps {
   className?: string;
@@ -52,7 +53,9 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = React.memo(
       localVideoInputOn,
     } = React.useContext(LocalMediaContext);
 
-    const { localName, localColor } = React.useContext(LocalInfoContext);
+    const { localName, localColor, appSharingOn } = React.useContext(
+      LocalInfoContext
+    );
 
     React.useEffect(() => {
       if (videoRef.current && localVideoTrack) {
@@ -128,7 +131,11 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = React.memo(
               </S.StatusIcons>
               <S.Name>{localName}</S.Name>
             </S.InfoBarLeft>
-            {sharedApp != null && <AppIndicator appInfo={sharedApp} />}
+            {appSharingOn == null ? (
+              <AppSharingHelper></AppSharingHelper>
+            ) : (
+              sharedApp != null && <AppIndicator appInfo={sharedApp} />
+            )}
           </S.InfoBar>
           <HoverMenu hidden={mouseIsIdle}>
             <HoverMenuStyles.MenuItem
