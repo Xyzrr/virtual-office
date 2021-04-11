@@ -135,9 +135,6 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
         addListeners.forEach((l) => l({ identity, youtubePlayer }));
       }
 
-      youtubePlayer.videoQueue.onAdd = (changes: any) => {
-      }
-
       youtubePlayer.onChange = (changes: any) => {
       }
     };

@@ -3,6 +3,7 @@ import * as HoverMenuStyles from './HoverMenu.styles';
 
 import React from 'react';
 import * as Colyseus from 'colyseus.js';
+import { useImmer } from 'use-immer';
 
 import { ColyseusYoutubePlayer } from '../App';
 
@@ -52,6 +53,9 @@ const YoutubePanel: React.FC<YoutubeProps> = React.memo(
       height: number;
     }>({ width: 100, height: 100 });
     const [clientPlayer, setClientPlayer] = React.useState<YT.Player>(undefined);
+    const [playerReady, setPlayerReady] = React.useState<boolean>(false);
+
+    const [playlist, setPlayerlist] = useImmer()
 
     const videoOpacity = small
       ? 1
@@ -61,34 +65,43 @@ const YoutubePanel: React.FC<YoutubeProps> = React.memo(
         );
 
     React.useEffect(() => {
-      if (!youtubePlayer) {
-        return;
-      }
-
       const script = document.createElement('script');
       script.src = "https://www.youtube.com/iframe_api";
       script.async = true;
       document.body.appendChild(script);
       
       window.onYouTubeIframeAPIReady = () => {
-        setClientPlayer(
-          new YT.Player(youtubePlayer.id, {
-            height: '100%',
-            width: '100%',
-            videoId: youtubePlayer.currentVideo,
-            events: {
-              'onReady': (e) => e.target.playVideo(),
-              'onStateChange': (e) => {},
-            }
-          })
-        );
+        setClientPlayer(new YT.Player(youtubePlayer.id, {
+          height: '100%',
+          width: '100%',
+          origin: "https://www.youtube.com",
+          events: {
+            'onReady': (e) => setPlayerReady(true),
+            'onStateChange': (e) => {
+              console.log(e.data === YT.PlayerState.ENDED)
+            },
+          }
+        }));
       };
 
       return () => {
         window.onYouTubeIframeAPIReady = () => {};
         document.body.removeChild(script);
       }
-    }, [youtubePlayer]);
+    }, []);
+
+    React.useEffect(() => {
+      if (!youtubePlayer || !playerReady) {
+        return;
+      }
+
+      clientPlayer.loadVideoById(youtubePlayer.currentVideo);
+
+      youtubePlayer.videoQueue.onAdd = (videoId: string) => {
+      };
+      youtubePlayer.triggerAll()
+
+    }, [youtubePlayer, clientPlayer, playerReady]);
 
     const mouseIsIdle = useMouseIsIdle({ containerRef: wrapperRef });
 
