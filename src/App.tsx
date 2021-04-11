@@ -58,7 +58,7 @@ const App: React.FC = () => {
   const [nearbyPlayers, setNearbyPlayers] = useImmer<{
     [identity: string]: NearbyPlayer;
   }>({});
-  const [youtubePlayers, setYoutubePlayers] = React.useState<{
+  const [youtubePlayers, setYoutubePlayers] = useImmer<{
     [identity: string]: ColyseusYoutubePlayer;
   }>({});
   const [expandedPanels, setExpandedPanels] = React.useState<string[]>(['map']);
@@ -178,12 +178,10 @@ const App: React.FC = () => {
       return;
     }
 
-    const onYoutubePlayersUpdated = () => {
-      const draft = {};
-      for (const [identity, player] of colyseusRoom.state.youtubePlayers.entries()) {
-        draft[identity] = player;
-      }
-      setYoutubePlayers(draft);
+    const onYoutubePlayersUpdated = ({ identity, youtubePlayer }) => {
+      setYoutubePlayers((draft) => {
+        draft[identity] = youtubePlayer;
+      });
     }
 
     const event: ColyseusEvent = 'youtube-player-added';
