@@ -17,7 +17,24 @@ export const Wrapper = styled(Icon).attrs({ name: 'apps_outlined' })`
 `;
 
 export const PopupContent = styled.div`
-  width: 100px;
-  padding: 12px;
+  width: 280px;
+  padding: 16px;
   background: white;
+
+  h3 {
+    margin-top: 4px;
+    margin-bottom: 12px;
+  }
+
+  p {
+    color: #999;
+    margin-top: 0;
+    font-size: 16px;
+    margin-bottom: 16px;
+  }
+`;
+
+export const Actions = styled.div`
+  display: flex;
+  justify-content: flex-end;
 `;

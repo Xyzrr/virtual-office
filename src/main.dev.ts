@@ -368,7 +368,7 @@ const createWindow = async () => {
 
       if (frameName === 'popup') {
         popupWindow = win;
-        log.info(options);
+        win.setWindowButtonVisibility(false);
       }
     }
   );
