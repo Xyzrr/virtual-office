@@ -219,6 +219,21 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
               .beginFill(player.color)
               .drawCircle(0, 0, 16)
               .endFill();
+            // const text = new PIXI.Text(
+            //   'John',
+            //   new PIXI.TextStyle({
+            //     fill: '#fff',
+            //     fontSize: 14,
+            //     align: 'center',
+            //     dropShadow: true,
+            //     dropShadowColor: '#f00',
+            //     dropShadowBlur: 4,
+            //   })
+            // );
+            // text.anchor.x = 0.5;
+            // text.x = 0;
+            // text.y = -40;
+            // graphic.addChild(text);
             playerGraphicsRef.current[identity] = graphic;
             pixiApp.stage.addChild(graphic);
 
