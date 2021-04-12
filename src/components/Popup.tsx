@@ -79,7 +79,7 @@ const Popup: React.FC<PopupProps> = ({
   return (
     <>
       {ReactDOM.createPortal(<S.Shield onMouseDown={onClose} />, document.body)}
-      <NewWindow name="popup" open={true}>
+      <NewWindow name="popup">
         <S.Wrapper ref={ref}>{children}</S.Wrapper>
       </NewWindow>
     </>

@@ -504,6 +504,10 @@ const App: React.FC = () => {
     }
   }, [localScreenShareOn]);
 
+  const screenShareTrulyOn =
+    participants[localIdentity] &&
+    !!participants[localIdentity].screenVideoTrack;
+
   return (
     <>
       <S.GlobalStyles minimized={minimized} focused={appFocused} />
@@ -561,8 +565,12 @@ const App: React.FC = () => {
           }}
         ></WelcomePanel>
       </S.AppWrapper>
-      <ScreenShareToolbar></ScreenShareToolbar>
-      <ScreenShareOverlay />
+      {screenShareTrulyOn && (
+        <>
+          <ScreenShareToolbar></ScreenShareToolbar>
+          <ScreenShareOverlay />
+        </>
+      )}
     </>
   );
 };
