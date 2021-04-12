@@ -368,9 +368,9 @@ const createWindow = async () => {
 
       if (frameName === 'popup') {
         popupWindow = win;
-        win.on('ready-to-show', () => {
-          win.show();
-        });
+        // win.on('ready-to-show', () => {
+        //   win.show();
+        // });
       }
     }
   );
