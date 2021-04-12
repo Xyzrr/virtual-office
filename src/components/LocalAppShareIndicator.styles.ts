@@ -5,7 +5,7 @@ import Icon from './Icon';
 export const Wrapper = styled.div``;
 
 export const PlaceholderIcon = styled(Icon).attrs({ name: 'apps_outlined' })`
-  color: orange;
+  color: #ffa58c;
   background: rgba(0, 0, 0, 0.4);
   padding: 2px;
   font-size: 20px;
@@ -26,13 +26,18 @@ export const PopupContent = styled.div`
   h3 {
     margin-top: 4px;
     margin-bottom: 12px;
+    font-size: 16px;
+    font-weight: 600;
   }
 
   p {
     color: #999;
     margin-top: 0;
-    font-size: 16px;
+    font-size: 14px;
     margin-bottom: 16px;
+    &:last-child {
+      margin-bottom: 8px;
+    }
   }
 `;
 

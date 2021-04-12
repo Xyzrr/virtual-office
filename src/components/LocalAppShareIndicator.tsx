@@ -116,7 +116,7 @@ const LocalAppShareIndicator: React.FC = () => {
   if (appSharingOn && localApp) {
     popupContent = (
       <S.PopupContent>
-        <h3>You are currently using {localApp.name}.</h3>
+        <h3>Currently using {localApp.name}</h3>
         <p>You can stop sharing this info at any time in Settings.</p>
       </S.PopupContent>
     );
@@ -124,7 +124,11 @@ const LocalAppShareIndicator: React.FC = () => {
   }
 
   return (
-    <PopupTrigger popupContent={() => popupContent}>
+    <PopupTrigger
+      popupContent={() => popupContent}
+      anchorOrigin="bottom right"
+      transformOrigin="top right"
+    >
       {({ anchorAttributes, open }) => (
         <S.Wrapper {...anchorAttributes}>{appIcon}</S.Wrapper>
       )}
