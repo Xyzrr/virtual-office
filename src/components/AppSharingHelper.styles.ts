@@ -18,6 +18,6 @@ export const Wrapper = styled(Icon).attrs({ name: 'apps_outlined' })`
 
 export const PopupContent = styled.div`
   width: 100px;
-  height: 100px;
-  background: green;
+  padding: 12px;
+  background: white;
 `;

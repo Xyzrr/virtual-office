@@ -1,5 +1,6 @@
 import * as S from './Popup.styles';
 import React from 'react';
+import ReactDOM from 'react-dom';
 import useResizeObserver from 'use-resize-observer';
 import NewWindow from './NewWindow';
 import { ipcRenderer } from 'electron';
@@ -19,14 +20,16 @@ export interface PopupProps {
   x: number;
   y: number;
   origin?: Origin;
+  onClose?(): void;
 }
 
 const Popup: React.FC<PopupProps> = ({
   className,
   x,
   y,
-  origin = 'bottom center',
+  origin = 'top center',
   children,
+  onClose,
 }) => {
   const { ref, width, height } = useResizeObserver<HTMLDivElement>();
 
@@ -35,27 +38,51 @@ const Popup: React.FC<PopupProps> = ({
       return;
     }
 
-    ipcRenderer.send('showPopup', {
-      x,
-      y,
-      width,
-      height,
-    });
+    const [anchorOriginVert, anchorOriginHor] = origin.split(' ');
 
-    console.log('showing popup', {
-      x,
-      y,
+    let adjustedY = 0;
+    switch (anchorOriginVert) {
+      case 'top':
+        adjustedY = y;
+        break;
+      case 'center':
+        adjustedY = y - height / 2;
+        break;
+      case 'bottom':
+        adjustedY = y - height;
+        break;
+    }
+
+    let adjustedX = 0;
+    switch (anchorOriginHor) {
+      case 'left':
+        adjustedX = x;
+        break;
+      case 'center':
+        adjustedX = x - width / 2;
+        break;
+      case 'right':
+        adjustedX = x - width;
+        break;
+    }
+
+    ipcRenderer.send('showPopup', {
+      x: adjustedX,
+      y: adjustedY,
       width,
       height,
     });
-  }, [width, height]);
+  }, [width, height, origin]);
 
   console.log('popup render');
 
   return (
-    <NewWindow name="popup" open={true}>
-      <S.Wrapper ref={ref}>{children}</S.Wrapper>
-    </NewWindow>
+    <>
+      {ReactDOM.createPortal(<S.Shield onMouseDown={onClose} />, document.body)}
+      <NewWindow name="popup" open={true}>
+        <S.Wrapper ref={ref}>{children}</S.Wrapper>
+      </NewWindow>
+    </>
   );
 };
 

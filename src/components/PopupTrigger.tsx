@@ -13,7 +13,7 @@ export interface PopupTriggerProps {
   transformOrigin?: Origin;
   anchorOrigin?: Origin;
   children: TriggerGenerator;
-  popupContent(props: { close: () => void }): React.ReactNode;
+  popupContent(props: { onClose: () => void }): React.ReactNode;
 }
 
 const PopupTrigger: React.FC<PopupTriggerProps> = ({
@@ -29,8 +29,8 @@ const PopupTrigger: React.FC<PopupTriggerProps> = ({
     setAnchorEl(e.currentTarget);
   }, []);
 
-  const close = React.useCallback(() => {
-    setOpen(false);
+  const onClose = React.useCallback(() => {
+    setAnchorEl(null);
   }, []);
 
   return (
@@ -41,8 +41,9 @@ const PopupTrigger: React.FC<PopupTriggerProps> = ({
           transformOrigin={transformOrigin}
           anchorOrigin={anchorOrigin}
           anchorEl={anchorEl}
+          onClose={onClose}
         >
-          {popupContent({ close })}
+          {popupContent({ onClose })}
         </AnchoredPopup>
       )}
     </>

@@ -7,6 +7,7 @@ export interface AnchoredPopupProps {
   anchorEl: Element;
   transformOrigin?: Origin;
   anchorOrigin?: Origin;
+  onClose?(): void;
 }
 
 const AnchoredPopup: React.FC<AnchoredPopupProps> = ({
@@ -14,6 +15,7 @@ const AnchoredPopup: React.FC<AnchoredPopupProps> = ({
   anchorEl,
   transformOrigin,
   anchorOrigin = 'bottom center',
+  onClose,
   children,
 }) => {
   const [anchorRect, setAnchorRect] = React.useState<DOMRect | undefined>();
@@ -55,7 +57,13 @@ const AnchoredPopup: React.FC<AnchoredPopupProps> = ({
   }
 
   return (
-    <Popup className={className} origin={transformOrigin} x={x} y={y}>
+    <Popup
+      className={className}
+      origin={transformOrigin}
+      x={x}
+      y={y}
+      onClose={onClose}
+    >
       {children}
     </Popup>
   );
