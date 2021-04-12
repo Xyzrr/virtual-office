@@ -1,13 +1,9 @@
 import styled from 'styled-components';
 import Icon from './Icon';
 
-export const Wrapper = styled.div`
-  width: 24px;
-  height: 24px;
-`;
+export const Wrapper = styled.div``;
 
 export const PlaceholderIcon = styled(Icon).attrs({ name: 'apps_outlined' })`
-  color: white;
   color: orange;
   background: rgba(0, 0, 0, 0.4);
   padding: 2px;
