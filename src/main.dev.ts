@@ -191,7 +191,6 @@ const createWindow = async () => {
       return {
         action: 'allow',
         overrideBrowserWindowOptions: {
-          title: 'permission-helper-window',
           width: 640,
           height: 400,
           minWidth: undefined,
@@ -203,6 +202,25 @@ const createWindow = async () => {
           minimizable: false,
           backgroundColor: '#00000000',
           show: false,
+        },
+      };
+    }
+
+    if (frameName === 'popup') {
+      return {
+        action: 'allow',
+        overrideBrowserWindowOptions: {
+          width: 640,
+          height: 400,
+          minWidth: undefined,
+          minHeight: undefined,
+          resizable: false,
+          parent: mainWindow!,
+          maximizable: false,
+          minimizable: false,
+          backgroundColor: '#00000000',
+          show: false,
+          titleBarStyle: 'hidden',
         },
       };
     }
@@ -343,6 +361,13 @@ const createWindow = async () => {
       if (frameName === 'permission-helper-window') {
         permissionHelperWindow = win;
         centerOnParent(win);
+        win.on('ready-to-show', () => {
+          win.show();
+        });
+      }
+
+      if (frameName === 'popup') {
+        popupWindow = win;
         win.on('ready-to-show', () => {
           win.show();
         });
@@ -497,4 +522,14 @@ ipcMain.on(
   }
 );
 
-ipcMain.on('showPopup', (e, direction: string) => {});
+ipcMain.on('showPopup', (e, bounds: Electron.Rectangle) => {
+  if (popupWindow && mainWindow) {
+    const parentBounds = mainWindow.getBounds();
+    popupWindow.show();
+    popupWindow.setBounds({
+      ...bounds,
+      x: bounds.x + parentBounds.x,
+      y: bounds.y + parentBounds.y,
+    });
+  }
+});

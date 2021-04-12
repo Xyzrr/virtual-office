@@ -2,8 +2,9 @@ import * as S from './Popup.styles';
 import React from 'react';
 import useResizeObserver from 'use-resize-observer';
 import NewWindow from './NewWindow';
+import { ipcRenderer } from 'electron';
 
-export type PopupDirection =
+export type Origin =
   | 'top left'
   | 'top center'
   | 'top right'
@@ -17,14 +18,15 @@ export interface PopupProps {
   className?: string;
   x: number;
   y: number;
-  direction?: PopupDirection;
+  origin?: Origin;
 }
 
 const Popup: React.FC<PopupProps> = ({
   className,
   x,
   y,
-  direction = 'bottom center',
+  origin = 'bottom center',
+  children,
 }) => {
   const { ref, width, height } = useResizeObserver<HTMLDivElement>();
 
@@ -32,14 +34,28 @@ const Popup: React.FC<PopupProps> = ({
     if (width == null || height == null) {
       return;
     }
+
+    ipcRenderer.send('showPopup', {
+      x,
+      y,
+      width,
+      height,
+    });
+
+    console.log('showing popup', {
+      x,
+      y,
+      width,
+      height,
+    });
   }, [width, height]);
 
+  console.log('popup render');
+
   return (
-    <S.Wrapper className={className} ref={ref}>
-      <NewWindow name="popup" open={true}>
-        <S.Contents></S.Contents>
-      </NewWindow>
-    </S.Wrapper>
+    <NewWindow name="popup" open={true}>
+      <S.Wrapper ref={ref}>{children}</S.Wrapper>
+    </NewWindow>
   );
 };
 

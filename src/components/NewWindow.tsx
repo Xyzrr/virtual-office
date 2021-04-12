@@ -46,9 +46,11 @@ const NewWindow: React.FC<NewWindowProps> = ({
     document.createElement('div')
   );
   const newWindow = React.useRef<Window | null>(null);
+  console.log('wtf', open);
 
   React.useEffect(() => {
     if (open) {
+      console.log('new window render');
       newWindow.current = window.open('', name, features);
 
       if (newWindow.current != null) {

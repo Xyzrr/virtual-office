@@ -15,3 +15,9 @@ export const Wrapper = styled(Icon).attrs({ name: 'apps_outlined' })`
     background: rgba(0, 0, 0, 0.6);
   }
 `;
+
+export const PopupContent = styled.div`
+  width: 100px;
+  height: 100px;
+  background: green;
+`;
