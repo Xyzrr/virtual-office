@@ -65,6 +65,7 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
     localColor,
     setLocalColor,
     localApp,
+    appSharingOn,
   } = React.useContext(LocalInfoContext);
 
   const {
@@ -206,8 +207,10 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
   }, [localWhisperingTo]);
 
   React.useEffect(() => {
-    room?.send('appInfo', { ...localApp });
-  }, [localApp]);
+    if (appSharingOn) {
+      room?.send('appInfo', { ...localApp });
+    }
+  }, [localApp, appSharingOn]);
 
   return (
     <ColyseusContext.Provider
