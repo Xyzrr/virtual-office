@@ -1,5 +1,6 @@
 import React from 'react';
 import { v4 as uuid } from 'uuid';
+import { AppInfo, useAppTracker } from '../util/app-tracker/useAppTracker';
 
 interface LocalInfoContextValue {
   localIdentity: string;
@@ -13,6 +14,7 @@ interface LocalInfoContextValue {
   setLocalColor(color: number): void;
   appSharingOn?: boolean;
   setAppSharingOn(on: boolean): void;
+  localApp?: AppInfo;
 }
 
 export const LocalInfoContext = React.createContext<LocalInfoContextValue>(
@@ -31,6 +33,7 @@ export const LocalInfoContextProvider: React.FC = ({ children }) => {
   const [localWhisperingTo, setLocalWhisperingTo] = React.useState<string>();
   const [localColor, setLocalColor] = React.useState<number>();
   const [appSharingOn, setAppSharingOn] = React.useState<boolean>();
+  const localApp = useAppTracker();
 
   return (
     <LocalInfoContext.Provider
@@ -46,6 +49,7 @@ export const LocalInfoContextProvider: React.FC = ({ children }) => {
         setLocalColor,
         appSharingOn,
         setAppSharingOn,
+        localApp,
       }}
     >
       {children}

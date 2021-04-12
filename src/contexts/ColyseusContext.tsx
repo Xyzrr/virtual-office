@@ -64,6 +64,7 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
     localWhisperingTo,
     localColor,
     setLocalColor,
+    localApp,
   } = React.useContext(LocalInfoContext);
 
   const {
@@ -203,6 +204,10 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
   React.useEffect(() => {
     room?.send('updatePlayer', { whisperingTo: localWhisperingTo });
   }, [localWhisperingTo]);
+
+  React.useEffect(() => {
+    room?.send('appInfo', { ...localApp });
+  }, [localApp]);
 
   return (
     <ColyseusContext.Provider

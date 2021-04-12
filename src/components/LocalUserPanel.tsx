@@ -131,11 +131,7 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = React.memo(
               </S.StatusIcons>
               <S.Name>{localName}</S.Name>
             </S.InfoBarLeft>
-            {appSharingOn == null ? (
-              <AppSharingHelper></AppSharingHelper>
-            ) : (
-              sharedApp != null && <AppIndicator appInfo={sharedApp} />
-            )}
+            <AppSharingHelper />
           </S.InfoBar>
           <HoverMenu hidden={mouseIsIdle}>
             <HoverMenuStyles.MenuItem

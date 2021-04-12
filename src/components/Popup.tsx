@@ -67,10 +67,10 @@ const Popup: React.FC<PopupProps> = ({
     }
 
     ipcRenderer.send('showPopup', {
-      x: adjustedX,
-      y: adjustedY,
-      width,
-      height,
+      x: Math.round(adjustedX),
+      y: Math.round(adjustedY),
+      width: Math.round(width),
+      height: Math.round(height),
     });
   }, [width, height, origin]);
 
