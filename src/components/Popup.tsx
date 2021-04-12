@@ -74,6 +74,17 @@ const Popup: React.FC<PopupProps> = ({
     });
   }, [width, height, origin]);
 
+  React.useEffect(() => {
+    const onFocus = () => {
+      onClose?.();
+    };
+
+    window.addEventListener('focus', onFocus);
+    return () => {
+      window.removeEventListener('focus', onFocus);
+    };
+  });
+
   console.log('popup render');
 
   return (

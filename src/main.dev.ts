@@ -104,6 +104,7 @@ const createWindow = async () => {
       contextIsolation: false,
       nodeIntegration: true,
       nativeWindowOpen: true,
+      devTools: false,
     },
   });
 
@@ -221,6 +222,9 @@ const createWindow = async () => {
           backgroundColor: '#00000000',
           show: false,
           titleBarStyle: 'hidden',
+          webPreferences: {
+            devTools: false,
+          },
         },
       };
     }
@@ -368,6 +372,7 @@ const createWindow = async () => {
 
       if (frameName === 'popup') {
         popupWindow = win;
+        log.info(options);
       }
     }
   );
