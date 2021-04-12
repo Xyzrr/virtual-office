@@ -1,19 +1,12 @@
-import * as S from './AppSharingHelper.styles';
+import * as S from './LocalAppShareIndicator.styles';
 import React from 'react';
-import Icon from './Icon';
-import Popup from './Popup';
 import PopupTrigger from './PopupTrigger';
 import Button from './Button';
 import { LocalInfoContext } from '../contexts/LocalInfoContext';
 import { ipcRenderer } from 'electron';
-import { access } from 'fs';
 import AppIndicator from './AppIndicator';
 
-export interface AppSharingHelperProps {
-  className?: string;
-}
-
-const AppSharingHelper: React.FC<AppSharingHelperProps> = ({ className }) => {
+const LocalAppShareIndicator: React.FC = () => {
   console.log('sharing render');
   const { appSharingOn, setAppSharingOn, localApp } = React.useContext(
     LocalInfoContext
@@ -139,4 +132,4 @@ const AppSharingHelper: React.FC<AppSharingHelperProps> = ({ className }) => {
   );
 };
 
-export default AppSharingHelper;
+export default LocalAppShareIndicator;

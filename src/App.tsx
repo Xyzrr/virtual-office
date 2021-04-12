@@ -205,8 +205,6 @@ const App: React.FC = () => {
 
   const dragWindowsProps = useWindowsDrag();
 
-  const localApp = useAppTracker();
-
   const [minimized, setMinimized] = useFakeMinimize();
 
   const contentYOffset = minimized ? 0 : 40;
@@ -291,7 +289,6 @@ const App: React.FC = () => {
           width={width}
           height={height}
           minY={small && mapIsSmall ? 135 + 16 : undefined}
-          sharedApp={localApp}
           small={small}
           onSetExpanded={(value) => {
             if (value) {
