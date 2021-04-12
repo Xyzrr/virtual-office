@@ -22,7 +22,6 @@ const PopupTrigger: React.FC<PopupTriggerProps> = ({
   children,
   popupContent,
 }) => {
-  const [open, setOpen] = React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState<Element | null>(null);
 
   const onMouseDown = React.useCallback((e: React.MouseEvent) => {
