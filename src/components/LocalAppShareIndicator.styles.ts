@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import Button from './Button';
 import Icon from './Icon';
 
 export const Wrapper = styled.div``;
@@ -38,4 +39,10 @@ export const PopupContent = styled.div`
 export const Actions = styled.div`
   display: flex;
   justify-content: flex-end;
+`;
+
+export const ActionButton = styled(Button)`
+  &:not(:last-child) {
+    margin-right: 8px;
+  }
 `;

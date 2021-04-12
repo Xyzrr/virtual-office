@@ -17,7 +17,7 @@ export const Wrapper = styled.button<{
   -webkit-app-region: no-drag;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(128, 128, 128, 0.1);
   }
 
   ${(props) => {
@@ -26,7 +26,7 @@ export const Wrapper = styled.button<{
         ? new Color('#1b95e0')
         : props.color === 'danger'
         ? new Color('rgb(234, 71, 81)')
-        : new Color('#ccc');
+        : new Color('#aaa');
 
     if (props.variant === 'contained') {
       return css`

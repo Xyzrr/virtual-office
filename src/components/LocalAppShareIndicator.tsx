@@ -42,14 +42,14 @@ const LocalAppShareIndicator: React.FC = () => {
         </p>
         <p>You can change your mind at any time in Settings.</p>
         <S.Actions>
-          <Button
+          <S.ActionButton
             onClick={() => {
               setAppSharingOn(false);
             }}
           >
             No thanks
-          </Button>
-          <Button
+          </S.ActionButton>
+          <S.ActionButton
             color="primary"
             variant="contained"
             onClick={async () => {
@@ -60,7 +60,7 @@ const LocalAppShareIndicator: React.FC = () => {
             }}
           >
             Start sharing
-          </Button>
+          </S.ActionButton>
         </S.Actions>
       </S.PopupContent>
     );
