@@ -13,6 +13,8 @@ import { useMouseIsIdle } from '../util/useMouseIsIdle';
 import PanelWrapper from './PanelWrapper';
 import { DARK_BACKGROUND } from './constants';
 import { ColyseusContext, ColyseusEvent } from '../contexts/ColyseusContext';
+import * as THREE from 'three';
+import { useImmer } from 'use-immer';
 
 export interface MapPanelProps {
   className?: string;
@@ -54,11 +56,9 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
       | undefined
     >();
     const playerGraphicsRef = React.useRef<{
-      [identity: string]: PIXI.Graphics;
+      [identity: string]: THREE.Mesh;
     }>({});
-    const worldObjectGraphicsRef = React.useRef(
-      new WeakMap<any, PIXI.Graphics>()
-    );
+    const worldObjectGraphicsRef = React.useRef(new WeakMap<any, THREE.Mesh>());
     const wrapperRef = React.useRef<HTMLDivElement>(null);
     const windowSize = React.useRef<{ width: number; height: number }>({
       width: window.innerWidth,
@@ -67,20 +67,24 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
 
     const scaleRef = React.useRef(1);
 
-    const pixiApp = React.useMemo(() => {
-      const app = new PIXI.Application({
-        width: windowSize.current.width,
-        height: windowSize.current.height,
-        antialias: !process.env.LOW_POWER,
-        resolution: process.env.LOW_POWER ? 1 : window.devicePixelRatio,
-        autoDensity: true,
-        backgroundColor: DARK_BACKGROUND.rgbNumber(),
-      });
-      app.stage.sortableChildren = true;
+    const glRenderer = React.useMemo(() => {
+      const glRenderer = new THREE.WebGLRenderer();
+      glRenderer.setPixelRatio(window.devicePixelRatio);
+      glRenderer.setSize(window.innerWidth, window.innerHeight);
+      glRenderer.shadowMap.enabled = true;
+      console.log('Creating THREE renderer', glRenderer);
+      return glRenderer;
+    }, []);
 
-      console.log('Creating PIXI app', app);
+    const scene = React.useMemo(() => {
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0xffffff);
+      return scene;
+    }, []);
 
-      return app;
+    const camera = React.useMemo(() => {
+      const camera = new THREE.OrthographicCamera(-50, 50, -50, 50);
+      return camera;
     }, []);
 
     const mapWorldCoordToPixiCoord = (x: number, y: number) => {
@@ -90,40 +94,28 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
       return [mappedX, mappedY];
     };
 
-    const centerCameraAround = React.useCallback(
-      (x: number, y: number) => {
-        pixiApp.stage.scale.x = scaleRef.current;
-        pixiApp.stage.scale.y = scaleRef.current;
-        pixiApp.stage.position.x =
-          -x * scaleRef.current + windowSize.current.width / 2;
-        pixiApp.stage.position.y =
-          -y * scaleRef.current + windowSize.current.height / 2;
-      },
-      [colyseusRoom, pixiApp]
-    );
-
     React.useEffect(() => {
       scaleRef.current = small ? 0.5 : 1;
     }, [small]);
 
-    useResizeObserver({
-      ref: wrapperRef,
-      onResize(size) {
-        if (size.width != null && size.height != null) {
-          windowSize.current = { width: size.width, height: size.height };
-          pixiApp.renderer.resize(size.width, size.height);
+    // useResizeObserver({
+    //   ref: wrapperRef,
+    //   onResize(size) {
+    //     if (size.width != null && size.height != null) {
+    //       windowSize.current = { width: size.width, height: size.height };
+    //       pixiApp.renderer.resize(size.width, size.height);
 
-          if (localPlayerRef.current) {
-            const [mappedX, mappedY] = mapWorldCoordToPixiCoord(
-              localPlayerRef.current.x,
-              localPlayerRef.current.y
-            );
+    //       if (localPlayerRef.current) {
+    //         const [mappedX, mappedY] = mapWorldCoordToPixiCoord(
+    //           localPlayerRef.current.x,
+    //           localPlayerRef.current.y
+    //         );
 
-            centerCameraAround(mappedX, mappedY);
-          }
-        }
-      },
-    });
+    //         centerCameraAround(mappedX, mappedY);
+    //       }
+    //     }
+    //   },
+    // });
 
     React.useEffect(() => {
       if (!colyseusRoom) {
@@ -174,10 +166,12 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
             localPlayer.x,
             localPlayer.y
           );
-          playerGraphicsRef.current[localPlayerIdentity].x = mappedX;
-          playerGraphicsRef.current[localPlayerIdentity].y = mappedY;
-
-          centerCameraAround(mappedX, mappedY);
+          playerGraphicsRef.current[localPlayerIdentity].position.setX(
+            localPlayer.x
+          );
+          playerGraphicsRef.current[localPlayerIdentity].position.setY(
+            localPlayer.y
+          );
 
           colyseusRoom.send('setPlayerPosition', {
             x: localPlayer.x,
@@ -187,10 +181,12 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
 
         TWEEN.update(time);
 
+        glRenderer.render(scene, camera);
+
         requestAnimationFrame(animate);
       };
       requestAnimationFrame(animate);
-    }, [colyseusRoom, pixiApp, centerCameraAround]);
+    }, [colyseusRoom, glRenderer]);
 
     React.useEffect(() => {
       if (!colyseusRoom) {
@@ -215,59 +211,22 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
               };
             }
 
-            const graphic = new PIXI.Graphics()
-              .beginFill(player.color)
-              .drawCircle(0, 0, 16)
-              .endFill();
-            // const text = new PIXI.Text(
-            //   'John',
-            //   new PIXI.TextStyle({
-            //     fill: '#fff',
-            //     fontSize: 14,
-            //     align: 'center',
-            //     dropShadow: true,
-            //     dropShadowColor: '#f00',
-            //     dropShadowBlur: 4,
-            //   })
-            // );
-            // text.anchor.x = 0.5;
-            // text.x = 0;
-            // text.y = -40;
-            // graphic.addChild(text);
-            playerGraphicsRef.current[identity] = graphic;
-            pixiApp.stage.addChild(graphic);
+            const geometry = new THREE.SphereGeometry(5, 32, 32);
+            const material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+            const sphere = new THREE.Mesh(geometry, material);
 
-            const [mappedX, mappedY] = mapWorldCoordToPixiCoord(
-              player.x,
-              player.y
-            );
-            graphic.x = mappedX;
-            graphic.y = mappedY;
+            playerGraphicsRef.current[identity] = sphere;
+            scene.add(sphere);
+
+            sphere.position.setX(player.x);
+            sphere.position.setY(player.y);
           }
 
           const graphic = playerGraphicsRef.current[identity];
 
-          // TODO: This is super inefficient.
-          graphic
-            .clear()
-            .beginFill(player.color)
-            .drawCircle(0, 0, 16)
-            .endFill();
-
           if (identity !== localPlayerIdentity) {
-            const [mappedX, mappedY] = mapWorldCoordToPixiCoord(
-              player.x,
-              player.y
-            );
-
-            if (mappedX !== graphic.x || mappedY != graphic.y) {
-              new TWEEN.Tween(graphic)
-                .to({ x: mappedX, y: mappedY }, 80)
-                .easing(TWEEN.Easing.Linear.None)
-                .start();
-
-              console.log('Remote player changed', Date.now(), player);
-            }
+            graphic.position.setX(player.x);
+            graphic.position.setY(player.y);
           }
         }
 
@@ -275,7 +234,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
           playerGraphicsRef.current
         )) {
           if (!colyseusRoom.state.players.has(identity)) {
-            pixiApp?.stage.removeChild(playerGraphicsRef.current[identity]);
+            scene.remove(playerGraphicsRef.current[identity]);
             delete playerGraphicsRef.current[identity];
           }
         }
@@ -288,29 +247,21 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
       }
 
       colyseusRoom.state.worldObjects.onAdd = (worldObject: any) => {
-        const graphic = new PIXI.Graphics();
+        const geometry = new THREE.SphereGeometry(5, 32, 32);
+        const material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+        const sphere = new THREE.Mesh(geometry, material);
 
-        graphic.beginFill(0x444444);
-        graphic.drawEllipse(0, 0, 2 * Math.sqrt(3), 2);
-        graphic.endFill();
-        graphic.zIndex = -1;
+        scene.add(sphere);
+        sphere.position.setX(worldObject.x);
+        sphere.position.setY(worldObject.y);
 
-        const [mappedX, mappedY] = mapWorldCoordToPixiCoord(
-          worldObject.x,
-          worldObject.y
-        );
-        graphic.x = mappedX;
-        graphic.y = mappedY;
-
-        pixiApp.stage.addChild(graphic);
-
-        worldObjectGraphicsRef.current.set(worldObject, graphic);
+        worldObjectGraphicsRef.current.set(worldObject, sphere);
       };
 
       colyseusRoom.state.worldObjects.onRemove = (worldObject: any) => {
         const graphic = worldObjectGraphicsRef.current.get(worldObject);
         if (graphic != null) {
-          pixiApp?.stage.removeChild(graphic);
+          scene.remove(graphic);
           worldObjectGraphicsRef.current.delete(worldObject);
         }
       };
@@ -320,16 +271,16 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
           removeColyseusListener(event, onPlayersUpdated);
         }
       };
-    }, [colyseusRoom, pixiApp]);
+    }, [colyseusRoom, scene]);
 
     React.useEffect(() => {
-      wrapperRef.current?.appendChild(pixiApp.view);
+      wrapperRef.current?.appendChild(glRenderer.domElement);
 
       return () => {
-        wrapperRef.current?.removeChild(pixiApp.view);
-        pixiApp.destroy();
+        wrapperRef.current?.removeChild(glRenderer.domElement);
+        glRenderer.dispose();
       };
-    }, [pixiApp]);
+    }, [glRenderer]);
 
     const heldCommands = React.useRef<{ [key: string]: boolean }>({});
 
