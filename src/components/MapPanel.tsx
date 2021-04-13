@@ -70,7 +70,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
     const glRenderer = React.useMemo(() => {
       const glRenderer = new THREE.WebGLRenderer();
       glRenderer.setPixelRatio(window.devicePixelRatio);
-      glRenderer.setSize(window.innerWidth, window.innerHeight);
+      glRenderer.setSize(width, height);
       glRenderer.shadowMap.enabled = true;
       console.log('Creating THREE renderer', glRenderer);
       return glRenderer;
@@ -83,7 +83,18 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
     }, []);
 
     const camera = React.useMemo(() => {
-      const camera = new THREE.OrthographicCamera(-50, 50, -50, 50);
+      const camera = new THREE.OrthographicCamera(
+        -width / 20,
+        width / 20,
+        height / 20,
+        -height / 20,
+        1,
+        1000
+      );
+      // const camera = new THREE.PerspectiveCamera(75, 2, 1, 1000);
+      camera.position.set(100, -100, 100);
+      camera.rotateZ(Math.PI / 4);
+      camera.rotateX(Math.PI / 3);
       return camera;
     }, []);
 
@@ -132,7 +143,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
         if (localPlayer) {
           localPlayer.x +=
             localPlayer.speed * Math.cos(localPlayer.dir) * delta;
-          localPlayer.y -=
+          localPlayer.y +=
             localPlayer.speed * Math.sin(localPlayer.dir) * delta;
 
           for (const [
@@ -212,7 +223,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
             }
 
             const geometry = new THREE.SphereGeometry(5, 32, 32);
-            const material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+            const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
             const sphere = new THREE.Mesh(geometry, material);
 
             playerGraphicsRef.current[identity] = sphere;
@@ -247,8 +258,8 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
       }
 
       colyseusRoom.state.worldObjects.onAdd = (worldObject: any) => {
-        const geometry = new THREE.SphereGeometry(5, 32, 32);
-        const material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+        const geometry = new THREE.SphereGeometry(1, 32, 32);
+        const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
         const sphere = new THREE.Mesh(geometry, material);
 
         scene.add(sphere);
