@@ -78,7 +78,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
 
     const scene = React.useMemo(() => {
       const scene = new THREE.Scene();
-      scene.background = new THREE.Color(0xffffff);
+      scene.background = new THREE.Color(DARK_BACKGROUND.rgbNumber());
       return scene;
     }, []);
 
@@ -223,7 +223,9 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
             }
 
             const geometry = new THREE.SphereGeometry(5, 32, 32);
-            const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+            const material = new THREE.MeshBasicMaterial({
+              color: player.color,
+            });
             const sphere = new THREE.Mesh(geometry, material);
 
             playerGraphicsRef.current[identity] = sphere;
@@ -234,6 +236,9 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
           }
 
           const graphic = playerGraphicsRef.current[identity];
+          (graphic.material as THREE.MeshBasicMaterial).color.setHex(
+            player.color
+          );
 
           if (identity !== localPlayerIdentity) {
             graphic.position.setX(player.x);
@@ -258,8 +263,8 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
       }
 
       colyseusRoom.state.worldObjects.onAdd = (worldObject: any) => {
-        const geometry = new THREE.SphereGeometry(1, 32, 32);
-        const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+        const geometry = new THREE.SphereGeometry(0.4, 8, 8);
+        const material = new THREE.MeshBasicMaterial({ color: 0x444444 });
         const sphere = new THREE.Mesh(geometry, material);
 
         scene.add(sphere);
