@@ -7,7 +7,7 @@ import * as TWEEN from '@tweenjs/tween.js';
 
 import HoverMenu from './HoverMenu';
 import { useMouseIsIdle } from '../util/useMouseIsIdle';
-import { DARK_BACKGROUND, LIGHT_BACKGROUND } from './constants';
+import { DARK_BACKGROUND, LIGHT_BACKGROUND, PLAYER_RADIUS } from './constants';
 import { ColyseusContext, ColyseusEvent } from '../contexts/ColyseusContext';
 import * as THREE from 'three';
 
@@ -145,7 +145,8 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
               (player.x - localPlayer.x) ** 2 + (player.y - localPlayer.y) ** 2
             );
 
-            if (dist < 0.8) {
+            if (dist < PLAYER_RADIUS * 2) {
+              console.log('DIST IS', dist);
               console.log('Pushed by:', identity, 'Self:', localPlayerIdentity);
 
               const atan = Math.atan(
@@ -153,7 +154,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
               );
               const dir = player.x > localPlayer.x ? atan : atan + Math.PI;
               const pushDir = dir + Math.PI;
-              const pushDist = 0.1 / (dist + 0.8);
+              const pushDist = (PLAYER_RADIUS * 2) / (dist + PLAYER_RADIUS);
 
               localPlayer.x += Math.cos(pushDir) * pushDist;
               localPlayer.y -= Math.sin(pushDir) * pushDist;
@@ -208,7 +209,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
               };
             }
 
-            const geometry = new THREE.SphereGeometry(16, 16, 16);
+            const geometry = new THREE.SphereGeometry(PLAYER_RADIUS, 16, 16);
             const material = new THREE.MeshBasicMaterial({
               color: player.color,
             });
