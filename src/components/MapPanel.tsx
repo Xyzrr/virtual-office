@@ -60,7 +60,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
     const adjustedZoomLevel = zoomLevel * (small ? 0.5 : 1);
 
     const glRenderer = React.useMemo(() => {
-      const glRenderer = new THREE.WebGLRenderer({ antialias: true });
+      const glRenderer = new THREE.WebGLRenderer();
       glRenderer.setPixelRatio(window.devicePixelRatio);
       glRenderer.setSize(width, height);
       glRenderer.shadowMap.enabled = true;
