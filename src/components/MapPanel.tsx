@@ -2,19 +2,14 @@ import * as S from './MapPanel.styles';
 import * as HoverMenuStyles from './HoverMenu.styles';
 
 import React from 'react';
-import * as PIXI from 'pixi.js';
-import * as Colyseus from 'colyseus.js';
-import useResizeObserver from 'use-resize-observer';
 import * as _ from 'lodash';
 import * as TWEEN from '@tweenjs/tween.js';
 
 import HoverMenu from './HoverMenu';
 import { useMouseIsIdle } from '../util/useMouseIsIdle';
-import PanelWrapper from './PanelWrapper';
 import { DARK_BACKGROUND } from './constants';
 import { ColyseusContext, ColyseusEvent } from '../contexts/ColyseusContext';
 import * as THREE from 'three';
-import { useImmer } from 'use-immer';
 
 export interface MapPanelProps {
   className?: string;
@@ -84,49 +79,46 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
 
     const camera = React.useMemo(() => {
       const camera = new THREE.OrthographicCamera(
-        -width / 20,
-        width / 20,
-        height / 20,
-        -height / 20,
+        -width / 2,
+        width / 2,
+        height / 2,
+        -height / 2,
         1,
-        1000
+        10000
       );
       // const camera = new THREE.PerspectiveCamera(75, 2, 1, 1000);
-      camera.position.set(100, -100, 100);
+      camera.position.set(1000, -1000, (1000 * Math.sqrt(2)) / Math.sqrt(3));
       camera.rotateZ(Math.PI / 4);
       camera.rotateX(Math.PI / 3);
       return camera;
     }, []);
 
-    const mapWorldCoordToPixiCoord = (x: number, y: number) => {
-      const angle = Math.PI / 6;
-      const mappedX = x * 32 * Math.cos(angle) - y * 32 * Math.cos(angle);
-      const mappedY = y * 32 * Math.sin(angle) + x * 32 * Math.sin(angle);
-      return [mappedX, mappedY];
+    const centerCameraOnPoint = (x: number, y: number) => {
+      camera.position.set(
+        1000 + x,
+        -1000 + y,
+        (1000 * Math.sqrt(2)) / Math.sqrt(3)
+      );
     };
+
+    React.useEffect(() => {
+      glRenderer.setSize(width, height);
+      camera.left = -width / 2;
+      camera.right = width / 2;
+      camera.bottom = -height / 2;
+      camera.top = height / 2;
+      camera.updateProjectionMatrix();
+
+      if (localPlayerRef.current == null) {
+        return;
+      }
+
+      centerCameraOnPoint(localPlayerRef.current.x, localPlayerRef.current.y);
+    }, [width, height]);
 
     React.useEffect(() => {
       scaleRef.current = small ? 0.5 : 1;
     }, [small]);
-
-    // useResizeObserver({
-    //   ref: wrapperRef,
-    //   onResize(size) {
-    //     if (size.width != null && size.height != null) {
-    //       windowSize.current = { width: size.width, height: size.height };
-    //       pixiApp.renderer.resize(size.width, size.height);
-
-    //       if (localPlayerRef.current) {
-    //         const [mappedX, mappedY] = mapWorldCoordToPixiCoord(
-    //           localPlayerRef.current.x,
-    //           localPlayerRef.current.y
-    //         );
-
-    //         centerCameraAround(mappedX, mappedY);
-    //       }
-    //     }
-    //   },
-    // });
 
     React.useEffect(() => {
       if (!colyseusRoom) {
@@ -173,16 +165,14 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
             }
           }
 
-          const [mappedX, mappedY] = mapWorldCoordToPixiCoord(
-            localPlayer.x,
-            localPlayer.y
-          );
           playerGraphicsRef.current[localPlayerIdentity].position.setX(
             localPlayer.x
           );
           playerGraphicsRef.current[localPlayerIdentity].position.setY(
             localPlayer.y
           );
+
+          centerCameraOnPoint(localPlayer.x, localPlayer.y);
 
           colyseusRoom.send('setPlayerPosition', {
             x: localPlayer.x,
@@ -223,7 +213,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
               };
             }
 
-            const geometry = new THREE.SphereGeometry(5, 32, 32);
+            const geometry = new THREE.SphereGeometry(16, 32, 32);
             const material = new THREE.MeshBasicMaterial({
               color: player.color,
             });
@@ -266,7 +256,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
       }
 
       colyseusRoom.state.worldObjects.onAdd = (worldObject: any) => {
-        const geometry = new THREE.SphereGeometry(0.4, 8, 8);
+        const geometry = new THREE.SphereGeometry(4, 8, 8);
         const material = new THREE.MeshBasicMaterial({ color: 0x444444 });
         const sphere = new THREE.Mesh(geometry, material);
 
@@ -335,7 +325,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
     const getSpeed = React.useCallback(() => {
       const commands = heldCommands.current;
       if (commands.right || commands.up || commands.left || commands.down) {
-        return 5;
+        return 128;
       }
       return 0;
     }, []);
