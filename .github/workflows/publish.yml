@@ -24,7 +24,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          yarn install
+          yarn install --network-timeout 100000
 
       - name: Publish releases
         env:
