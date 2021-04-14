@@ -212,6 +212,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
 
       const onPlayersUpdated = () => {
         for (const [identity, player] of colyseusRoom.state.players.entries()) {
+          // handle new players
           if (!playerGraphicsRef.current[identity]) {
             if (identity === localPlayerIdentity) {
               localPlayerRef.current = {
@@ -235,6 +236,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
             sphere.position.setY(player.y);
           }
 
+          // update players
           const graphic = playerGraphicsRef.current[identity];
           (graphic.material as THREE.MeshBasicMaterial).color.setHex(
             player.color
@@ -246,6 +248,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
           }
         }
 
+        // handle removed players
         for (const [identity, graphic] of Object.entries(
           playerGraphicsRef.current
         )) {
