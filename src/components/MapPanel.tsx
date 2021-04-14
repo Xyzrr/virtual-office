@@ -61,7 +61,9 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
 
     const glRenderer = React.useMemo(() => {
       const glRenderer = new THREE.WebGLRenderer();
-      glRenderer.setPixelRatio(window.devicePixelRatio);
+      glRenderer.setPixelRatio(
+        process.env.LOW_POWER ? 1 : window.devicePixelRatio
+      );
       glRenderer.setSize(width, height);
       glRenderer.shadowMap.enabled = true;
       console.log('Creating THREE renderer', glRenderer);
