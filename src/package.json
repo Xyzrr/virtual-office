@@ -16,6 +16,6 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@rize-io/active-win": "^6.3.0"
+    "active-win": "^7.1.0"
   }
 }

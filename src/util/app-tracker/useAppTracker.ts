@@ -1,5 +1,5 @@
 import React from 'react';
-import activeWin from '@rize-io/active-win';
+import activeWin from 'active-win';
 
 import iconFigma from './app-icons/figma.ico';
 import iconNotion from './app-icons/notion.ico';
