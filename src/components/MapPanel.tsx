@@ -55,15 +55,12 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
     }>({});
     const worldObjectGraphicsRef = React.useRef(new WeakMap<any, THREE.Mesh>());
     const wrapperRef = React.useRef<HTMLDivElement>(null);
-    const windowSize = React.useRef<{ width: number; height: number }>({
-      width: window.innerWidth,
-      height: window.innerHeight,
-    });
 
-    const scaleRef = React.useRef(1);
+    const [zoomLevel, setZoomLevel] = React.useState(1);
+    const adjustedZoomLevel = zoomLevel * (small ? 0.5 : 1);
 
     const glRenderer = React.useMemo(() => {
-      const glRenderer = new THREE.WebGLRenderer();
+      const glRenderer = new THREE.WebGLRenderer({ antialias: true });
       glRenderer.setPixelRatio(window.devicePixelRatio);
       glRenderer.setSize(width, height);
       glRenderer.shadowMap.enabled = true;
@@ -79,10 +76,10 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
 
     const camera = React.useMemo(() => {
       const camera = new THREE.OrthographicCamera(
-        -width / 2,
-        width / 2,
-        height / 2,
-        -height / 2,
+        -width / 2 / adjustedZoomLevel,
+        width / 2 / adjustedZoomLevel,
+        height / 2 / adjustedZoomLevel,
+        -height / 2 / adjustedZoomLevel,
         1,
         10000
       );
@@ -103,10 +100,10 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
 
     React.useEffect(() => {
       glRenderer.setSize(width, height);
-      camera.left = -width / 2;
-      camera.right = width / 2;
-      camera.bottom = -height / 2;
-      camera.top = height / 2;
+      camera.left = -width / 2 / adjustedZoomLevel;
+      camera.right = width / 2 / adjustedZoomLevel;
+      camera.bottom = -height / 2 / adjustedZoomLevel;
+      camera.top = height / 2 / adjustedZoomLevel;
       camera.updateProjectionMatrix();
 
       if (localPlayerRef.current == null) {
@@ -114,11 +111,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
       }
 
       centerCameraOnPoint(localPlayerRef.current.x, localPlayerRef.current.y);
-    }, [width, height]);
-
-    React.useEffect(() => {
-      scaleRef.current = small ? 0.5 : 1;
-    }, [small]);
+    }, [width, height, adjustedZoomLevel]);
 
     React.useEffect(() => {
       if (!colyseusRoom) {
@@ -213,7 +206,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
               };
             }
 
-            const geometry = new THREE.SphereGeometry(16, 32, 32);
+            const geometry = new THREE.SphereGeometry(16, 16, 16);
             const material = new THREE.MeshBasicMaterial({
               color: player.color,
             });
@@ -256,7 +249,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
       }
 
       colyseusRoom.state.worldObjects.onAdd = (worldObject: any) => {
-        const geometry = new THREE.SphereGeometry(4, 8, 8);
+        const geometry = new THREE.SphereGeometry(4);
         const material = new THREE.MeshBasicMaterial({ color: 0x444444 });
         const sphere = new THREE.Mesh(geometry, material);
 
