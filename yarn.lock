@@ -4759,13 +4759,13 @@ electron-debug@^3.1.0:
     electron-is-dev "^1.1.0"
     electron-localshortcut "^3.1.0"
 
-electron-devtools-installer@^3.1.1:
-  version "3.1.1"
-  resolved "https://registry.yarnpkg.com/electron-devtools-installer/-/electron-devtools-installer-3.1.1.tgz#7b56c8c86475c5e4e10de6917d150c53c9ceb55e"
-  integrity sha512-g2D4J6APbpsiIcnLkFMyKZ6bOpEJ0Ltcc2m66F7oKUymyGAt628OWeU9nRZoh1cNmUs/a6Cls2UfOmsZtE496Q==
+"electron-devtools-installer@git+https://github.com/MarshallOfSound/electron-devtools-installer.git":
+  version "0.0.0-development"
+  resolved "git+https://github.com/MarshallOfSound/electron-devtools-installer.git#19fd4dde8a8e3eb8a50ba4ca242bf3b52e878436"
   dependencies:
     rimraf "^3.0.2"
     semver "^7.2.1"
+    tslib "^2.1.0"
     unzip-crx-3 "^0.2.0"
 
 electron-is-accelerator@^0.1.0:
