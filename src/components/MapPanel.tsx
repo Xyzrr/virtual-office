@@ -7,7 +7,7 @@ import * as TWEEN from '@tweenjs/tween.js';
 
 import HoverMenu from './HoverMenu';
 import { useMouseIsIdle } from '../util/useMouseIsIdle';
-import { DARK_BACKGROUND } from './constants';
+import { DARK_BACKGROUND, LIGHT_BACKGROUND } from './constants';
 import { ColyseusContext, ColyseusEvent } from '../contexts/ColyseusContext';
 import * as THREE from 'three';
 
@@ -70,7 +70,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
 
     const scene = React.useMemo(() => {
       const scene = new THREE.Scene();
-      scene.background = new THREE.Color('rgb(196, 225, 202)');
+      scene.background = new THREE.Color(DARK_BACKGROUND.rgbNumber());
       return scene;
     }, []);
 
