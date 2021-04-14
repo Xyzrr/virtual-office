@@ -70,7 +70,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
 
     const scene = React.useMemo(() => {
       const scene = new THREE.Scene();
-      scene.background = new THREE.Color(DARK_BACKGROUND.rgbNumber());
+      scene.background = new THREE.Color('rgb(196, 225, 202)');
       return scene;
     }, []);
 

@@ -232,9 +232,9 @@ const App: React.FC = () => {
       nextSmallPanelY += height + 8;
     } else {
       x = 0;
-      y = contentYOffset;
+      y = 0;
       width = windowSize.width;
-      height = availableHeight;
+      height = windowSize.height;
     }
 
     panelElements.push(

@@ -87,7 +87,10 @@ export const TopBar = styled.div<{ focused: boolean; hide?: boolean }>`
   flex-grow: 0;
   height: 40px;
   background: ${(props) =>
-    props.focused ? LIGHT_BACKGROUND.toString() : '#222'};
+    props.focused
+      ? LIGHT_BACKGROUND.alpha(0.75).toString()
+      : LIGHT_BACKGROUND.alpha(0.65).toString()};
+  backdrop-filter: blur(4px);
   -webkit-app-region: drag;
   display: flex;
   justify-content: space-between;
