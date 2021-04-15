@@ -414,7 +414,10 @@ const App: React.FC = () => {
       let key = `remote-screen:${identity}`;
       let small = minimized || !expandedPanels.includes(key);
 
-      const scale = Math.min(1, 3 / (distance + 0.1));
+      const scale = Math.min(
+        1,
+        MAX_INTERACTION_DISTANCE / 2 / (distance + 0.1)
+      );
 
       if (small) {
         width = Math.floor(240 * scale);
