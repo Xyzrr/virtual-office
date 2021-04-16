@@ -21,13 +21,6 @@ import { VideoCallContext } from './contexts/VideoCallContext/VideoCallContext';
 import WelcomePanel from './WelcomePanel';
 import { LocalInfoContext } from './contexts/LocalInfoContext';
 
-let host: string;
-if (process.env.LOCAL) {
-  host = 'localhost:5000';
-} else {
-  host = 'virtual-office-server.herokuapp.com';
-}
-
 export interface NearbyPlayer {
   sid?: string;
   name: string;
