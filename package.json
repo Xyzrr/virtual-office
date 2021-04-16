@@ -96,6 +96,12 @@
       "provider": "github",
       "owner": "Xyzrr",
       "repo": "virtual-office"
+    },
+    "protocols": {
+      "name": "harbor-protocol",
+      "schemes": [
+        "harbor"
+      ]
     }
   },
   "repository": "github:Xyzrr/virtual-office",

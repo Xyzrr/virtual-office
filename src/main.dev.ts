@@ -73,6 +73,22 @@ const installExtensions = async () => {
     .catch(console.log);
 };
 
+let link: string | undefined;
+
+// This will catch clicks on links such as <a href="harbor://abc=1">open in harbor</a>
+app.on('open-url', function (event, data) {
+  event.preventDefault();
+  link = data;
+  console.log('opened via url', event, data);
+  mainWindow?.webContents.send('openUrl', data);
+});
+
+app.setAsDefaultProtocolClient('harbor');
+
+ipcMain.handle('getLink', () => {
+  return link;
+});
+
 const createWindow = async () => {
   if (
     process.env.NODE_ENV === 'development' ||

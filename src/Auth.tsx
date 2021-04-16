@@ -3,6 +3,7 @@ import React from 'react';
 import firebase from 'firebase';
 import * as firebaseui from 'firebaseui';
 import 'firebaseui/dist/firebaseui.css';
+import { ipcRenderer } from 'electron';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyA89oz2--yQCG8AieZNa_7j-gPcJsBFyEA',
@@ -41,25 +42,18 @@ export interface AuthProps {
 }
 
 const Auth: React.FC<AuthProps> = ({ className }) => {
-  const firebaseUiWrapperRef = React.useRef<HTMLDivElement>(null);
+  const [link, setLink] = React.useState<string>();
 
   React.useEffect(() => {
-    const firebaseUiWrapperEl = firebaseUiWrapperRef.current;
-    if (firebaseUiWrapperEl == null) {
-      return;
-    }
+    ipcRenderer.invoke('getLink').then(setLink);
 
-    const app = firebase.initializeApp(firebaseConfig, 'Harbor Web');
+    ipcRenderer.on('openUrl', (e, d) => {
+      console.log('Opened url', e, d);
+      setLink(d);
+    });
+  });
 
-    const ui = new firebaseui.auth.AuthUI(app.auth());
-    ui.start(firebaseUiWrapperEl, uiConfig);
-  }, []);
-
-  return (
-    <S.Wrapper className={className}>
-      Hello world<div ref={firebaseUiWrapperRef}></div>
-    </S.Wrapper>
-  );
+  return <S.Wrapper className={className}>Hello world {link}</S.Wrapper>;
 };
 
 export default Auth;
