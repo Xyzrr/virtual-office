@@ -48,10 +48,9 @@ const Auth: React.FC<AuthProps> = ({ className }) => {
     ipcRenderer.invoke('getLink').then(setLink);
 
     ipcRenderer.on('openUrl', (e, d) => {
-      console.log('Opened url', e, d);
       setLink(d);
     });
-  });
+  }, []);
 
   return <S.Wrapper className={className}>Hello world {link}</S.Wrapper>;
 };
