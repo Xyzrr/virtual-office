@@ -10,7 +10,7 @@ const Routes: React.FC = () => {
       <GlobalStyles />
       <Router>
         <Switch>
-          <Route path="/" component={AppWithContexts} />
+          <Route path="/" component={Auth} />
         </Switch>
       </Router>
     </>
