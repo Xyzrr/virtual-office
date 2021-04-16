@@ -146,103 +146,107 @@ const createWindow = async () => {
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
 
-  mainWindow.webContents.setWindowOpenHandler(({ frameName, features }) => {
-    if (frameName === 'screen-share-picker') {
-      return {
-        action: 'allow',
-        overrideBrowserWindowOptions: {
-          width: 840,
-          height: 600,
-          minWidth: undefined,
-          minHeight: undefined,
-          resizable: false,
-          transparent: false,
-          parent: mainWindow!,
-          backgroundColor: '#222',
-          maximizable: false,
-          minimizable: false,
-          show: false,
-        },
-      };
+  mainWindow.webContents.setWindowOpenHandler(
+    ({ frameName, features, url }) => {
+      if (frameName === 'screen-share-picker') {
+        return {
+          action: 'allow',
+          overrideBrowserWindowOptions: {
+            width: 840,
+            height: 600,
+            minWidth: undefined,
+            minHeight: undefined,
+            resizable: false,
+            transparent: false,
+            parent: mainWindow!,
+            backgroundColor: '#222',
+            maximizable: false,
+            minimizable: false,
+            show: false,
+          },
+        };
+      }
+
+      if (frameName === 'screen-share-toolbar') {
+        const workAreaBounds = screen.getPrimaryDisplay().workArea;
+
+        return {
+          action: 'allow',
+          overrideBrowserWindowOptions: {
+            width: 252,
+            height: 52,
+            x: workAreaBounds.x + workAreaBounds.width / 2 - 252 / 2,
+            y: workAreaBounds.y + workAreaBounds.height - 52 - 8,
+            minWidth: undefined,
+            minHeight: undefined,
+            resizable: false,
+            transparent: false,
+            vibrancy: 'menu',
+            focusable: false,
+            alwaysOnTop: true,
+            titleBarStyle: 'hidden',
+            show: false,
+          },
+        };
+      }
+
+      if (frameName === 'screen-share-overlay') {
+        return {
+          action: 'allow',
+          overrideBrowserWindowOptions: {
+            transparent: true,
+            minWidth: undefined,
+            minHeight: undefined,
+            titleBarStyle: 'hidden',
+            hasShadow: false,
+            show: false,
+          },
+        };
+      }
+
+      if (frameName === 'permission-helper-window') {
+        return {
+          action: 'allow',
+          overrideBrowserWindowOptions: {
+            width: 640,
+            height: 400,
+            minWidth: undefined,
+            minHeight: undefined,
+            resizable: false,
+            transparent: false,
+            parent: mainWindow!,
+            maximizable: false,
+            minimizable: false,
+            backgroundColor: '#00000000',
+            show: false,
+          },
+        };
+      }
+
+      if (frameName === 'popup') {
+        return {
+          action: 'allow',
+          overrideBrowserWindowOptions: {
+            width: 640,
+            height: 400,
+            minWidth: undefined,
+            minHeight: undefined,
+            resizable: false,
+            parent: mainWindow!,
+            maximizable: false,
+            minimizable: false,
+            backgroundColor: '#00000000',
+            show: false,
+            titleBarStyle: 'hidden',
+          },
+        };
+      }
+
+      shell.openExternal(url);
+
+      return { action: 'deny' };
     }
-
-    if (frameName === 'screen-share-toolbar') {
-      const workAreaBounds = screen.getPrimaryDisplay().workArea;
-
-      return {
-        action: 'allow',
-        overrideBrowserWindowOptions: {
-          width: 252,
-          height: 52,
-          x: workAreaBounds.x + workAreaBounds.width / 2 - 252 / 2,
-          y: workAreaBounds.y + workAreaBounds.height - 52 - 8,
-          minWidth: undefined,
-          minHeight: undefined,
-          resizable: false,
-          transparent: false,
-          vibrancy: 'menu',
-          focusable: false,
-          alwaysOnTop: true,
-          titleBarStyle: 'hidden',
-          show: false,
-        },
-      };
-    }
-
-    if (frameName === 'screen-share-overlay') {
-      return {
-        action: 'allow',
-        overrideBrowserWindowOptions: {
-          transparent: true,
-          minWidth: undefined,
-          minHeight: undefined,
-          titleBarStyle: 'hidden',
-          hasShadow: false,
-          show: false,
-        },
-      };
-    }
-
-    if (frameName === 'permission-helper-window') {
-      return {
-        action: 'allow',
-        overrideBrowserWindowOptions: {
-          width: 640,
-          height: 400,
-          minWidth: undefined,
-          minHeight: undefined,
-          resizable: false,
-          transparent: false,
-          parent: mainWindow!,
-          maximizable: false,
-          minimizable: false,
-          backgroundColor: '#00000000',
-          show: false,
-        },
-      };
-    }
-
-    if (frameName === 'popup') {
-      return {
-        action: 'allow',
-        overrideBrowserWindowOptions: {
-          width: 640,
-          height: 400,
-          minWidth: undefined,
-          minHeight: undefined,
-          resizable: false,
-          parent: mainWindow!,
-          maximizable: false,
-          minimizable: false,
-          backgroundColor: '#00000000',
-          show: false,
-          titleBarStyle: 'hidden',
-        },
-      };
-    }
-
-    return { action: 'deny' };
-  });
+  );
 
   mainWindow.webContents.on(
     'did-create-window',

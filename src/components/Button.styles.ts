@@ -1,12 +1,14 @@
 import styled, { css } from 'styled-components';
 import Color from 'color';
 
-export const Wrapper = styled.button<{
+export const Wrapper = styled.a<{
   variant?: string;
   color?: string;
   disabled?: boolean;
   size?: string;
 }>`
+  display: block;
+  text-align: center;
   outline: none;
   border: none;
   border-radius: 4px;
