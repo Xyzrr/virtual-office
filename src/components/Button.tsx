@@ -3,7 +3,7 @@ import React from 'react';
 
 export type ButtonProps = Omit<React.ComponentProps<'a'>, 'ref'> & {
   variant?: 'contained' | 'outlined';
-  color?: 'primary' | 'danger';
+  color?: 'primary' | 'danger' | 'secondary';
   size?: 'small' | 'medium' | 'large';
   disabled?: boolean;
 };
@@ -11,7 +11,7 @@ export type ButtonProps = Omit<React.ComponentProps<'a'>, 'ref'> & {
 const Button: React.FC<ButtonProps> = React.forwardRef<
   HTMLAnchorElement,
   ButtonProps
->(({ variant, color, disabled, size, ...standardProps }, ref) => {
+>(({ variant, color = 'secondary', disabled, size, ...standardProps }, ref) => {
   return (
     <S.Wrapper
       {...standardProps}

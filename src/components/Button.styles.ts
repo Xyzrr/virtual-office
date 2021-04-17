@@ -17,6 +17,8 @@ export const Wrapper = styled.a<{
   padding: 6px 12px;
   font-size: 16px;
   -webkit-app-region: no-drag;
+  text-decoration: none;
+  cursor: default;
 
   &:hover {
     background: rgba(128, 128, 128, 0.1);
@@ -31,10 +33,15 @@ export const Wrapper = styled.a<{
         : new Color('#aaa');
 
     if (props.variant === 'contained') {
+      let bgColor = color;
+      if (props.color === 'secondary') {
+        bgColor = new Color('#444');
+      }
+
       return css`
-        background: ${color.string()};
+        background: ${bgColor.string()};
         &:hover {
-          background: ${color.lighten(0.1).string()};
+          background: ${bgColor.lighten(0.1).string()};
         }
       `;
     }
