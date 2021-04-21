@@ -20,6 +20,7 @@ import { ColyseusContext, ColyseusEvent } from './contexts/ColyseusContext';
 import { VideoCallContext } from './contexts/VideoCallContext/VideoCallContext';
 import WelcomePanel from './WelcomePanel';
 import { LocalInfoContext } from './contexts/LocalInfoContext';
+import FakeMacOSFrame from './components/FakeMacOSFrame';
 
 export interface NearbyPlayer {
   sid?: string;
@@ -513,7 +514,7 @@ const App: React.FC = () => {
         minimized={minimized}
         focused={appFocused}
       >
-        {process.platform === 'darwin' && !minimized && <S.FakeMacOSFrame />}
+        {!minimized && <FakeMacOSFrame />}
         {!minimized && (
           <S.TopBar focused={appFocused} hide={appState === 'welcome'}>
             <S.LeftButtons>

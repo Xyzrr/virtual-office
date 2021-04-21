@@ -7,6 +7,7 @@ import { HOST } from './components/constants';
 import { useHistory } from 'react-router-dom';
 import Loader from './components/Loader';
 import Button from './components/Button';
+import FakeMacOSFrame from './components/FakeMacOSFrame';
 
 export const firebaseConfig = {
   apiKey: 'AIzaSyA89oz2--yQCG8AieZNa_7j-gPcJsBFyEA',
@@ -77,41 +78,44 @@ const Auth: React.FC<AuthProps> = ({ className }) => {
   }, [link]);
 
   return (
-    <S.Wrapper className={className}>
-      <S.Logo>Harbor</S.Logo>
-      {link == null ? (
-        <S.Buttons>
-          <S.LoginButton
-            variant="contained"
-            color="primary"
-            size="large"
-            href="http://www.meet.harbor.chat"
-            target="_blank"
-          >
-            Sign in via browser
-          </S.LoginButton>
-          <S.GuestButton variant="contained">Enter as guest</S.GuestButton>
-        </S.Buttons>
-      ) : error ? (
-        <S.ErrorWrapper>
-          <S.ErrorTitle>Could not sign in</S.ErrorTitle>
-          <S.ErrorDetails>{error.message}</S.ErrorDetails>
-          <Button
-            variant="contained"
-            onClick={() => {
-              setLink(undefined);
-              setError(undefined);
-            }}
-          >
-            Try again
-          </Button>
-        </S.ErrorWrapper>
-      ) : (
-        <S.LoaderWrapper>
-          <Loader />
-        </S.LoaderWrapper>
-      )}
-    </S.Wrapper>
+    <>
+      <FakeMacOSFrame />
+      <S.Wrapper className={className}>
+        <S.Logo>Harbor</S.Logo>
+        {link == null ? (
+          <S.Buttons>
+            <S.LoginButton
+              variant="contained"
+              color="primary"
+              size="large"
+              href="http://www.meet.harbor.chat"
+              target="_blank"
+            >
+              Sign in via browser
+            </S.LoginButton>
+            <S.GuestButton variant="contained">Enter as guest</S.GuestButton>
+          </S.Buttons>
+        ) : error ? (
+          <S.ErrorWrapper>
+            <S.ErrorTitle>Could not sign in</S.ErrorTitle>
+            <S.ErrorDetails>{error.message}</S.ErrorDetails>
+            <Button
+              variant="contained"
+              onClick={() => {
+                setLink(undefined);
+                setError(undefined);
+              }}
+            >
+              Try again
+            </Button>
+          </S.ErrorWrapper>
+        ) : (
+          <S.LoaderWrapper>
+            <Loader />
+          </S.LoaderWrapper>
+        )}
+      </S.Wrapper>
+    </>
   );
 };
 
