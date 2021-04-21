@@ -5,6 +5,8 @@ import { ipcRenderer } from 'electron';
 import firebase from 'firebase';
 import { HOST } from './components/constants';
 import { useHistory } from 'react-router-dom';
+import Loader from './components/Loader';
+import Button from './components/Button';
 
 export const firebaseConfig = {
   apiKey: 'AIzaSyA89oz2--yQCG8AieZNa_7j-gPcJsBFyEA',
@@ -23,6 +25,7 @@ export interface AuthProps {
 const Auth: React.FC<AuthProps> = ({ className }) => {
   const [link, setLink] = React.useState<string>();
   const history = useHistory();
+  const [error, setError] = React.useState<Error>();
 
   React.useEffect(() => {
     ipcRenderer.invoke('getLink').then(setLink);
@@ -43,9 +46,26 @@ const Auth: React.FC<AuthProps> = ({ className }) => {
     fetch(`http://${HOST}/create-custom-token?id=${token}`).then(
       async (response) => {
         console.log('RESPONSE:', response);
-        const text = await response.text();
+
+        let text: string;
+
+        try {
+          text = await response.text();
+        } catch (e) {
+          setError(e);
+          return;
+        }
+
         console.log('TEXT:', text);
-        const user = await app.auth().signInWithCustomToken(text);
+
+        let user: firebase.auth.UserCredential;
+        try {
+          user = await app.auth().signInWithCustomToken(text);
+        } catch (e) {
+          setError(e);
+          return;
+        }
+
         console.log('USER:', user);
         history.push('/home');
       }
@@ -54,20 +74,39 @@ const Auth: React.FC<AuthProps> = ({ className }) => {
 
   return (
     <S.Wrapper className={className}>
-      <S.Buttons>
-        <S.Logo>Harbor</S.Logo>
-        {link}
-        <S.LoginButton
-          variant="contained"
-          color="primary"
-          size="large"
-          href="http://www.meet.harbor.chat"
-          target="_blank"
-        >
-          Sign in via browser
-        </S.LoginButton>
-        <S.GuestButton variant="contained">Enter as guest</S.GuestButton>
-      </S.Buttons>
+      <S.Logo>Harbor</S.Logo>
+      {link == null ? (
+        <S.Buttons>
+          <S.LoginButton
+            variant="contained"
+            color="primary"
+            size="large"
+            href="http://www.meet.harbor.chat"
+            target="_blank"
+          >
+            Sign in via browser
+          </S.LoginButton>
+          <S.GuestButton variant="contained">Enter as guest</S.GuestButton>
+        </S.Buttons>
+      ) : error ? (
+        <S.ErrorWrapper>
+          <S.ErrorTitle>Could not sign in</S.ErrorTitle>
+          <S.ErrorDetails>{error.message}</S.ErrorDetails>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setLink(undefined);
+              setError(undefined);
+            }}
+          >
+            Try again
+          </Button>
+        </S.ErrorWrapper>
+      ) : (
+        <S.LoaderWrapper>
+          <Loader />
+        </S.LoaderWrapper>
+      )}
     </S.Wrapper>
   );
 };
