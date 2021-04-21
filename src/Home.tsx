@@ -32,6 +32,13 @@ const Home: React.FC<HomeProps> = ({ className }) => {
           <S.Space>
             <S.SpaceName>Welcome area</S.SpaceName>
           </S.Space>
+          <S.Space>
+            <S.SpaceName>Midnight lounge</S.SpaceName>
+          </S.Space>
+          <S.CreateSpace>
+            <S.CreateSpaceTitle>Create new space</S.CreateSpaceTitle>
+            <S.CreateSpaceSubTitle>Coming soon!</S.CreateSpaceSubTitle>
+          </S.CreateSpace>
         </S.Spaces>
       </S.Wrapper>
     </>
