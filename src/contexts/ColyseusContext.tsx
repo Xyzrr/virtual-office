@@ -3,6 +3,7 @@ import React from 'react';
 import * as Colyseus from 'colyseus.js';
 import { LocalMediaContext } from './LocalMediaContext';
 import { LocalInfoContext } from './LocalInfoContext';
+import { HOST } from '../components/constants';
 
 interface PlayerAddedEvent {
   identity: string;
@@ -81,14 +82,7 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
   >();
 
   const join = React.useCallback(async (roomName: string, identity: string) => {
-    let host: string;
-    if (process.env.LOCAL) {
-      host = 'localhost:5000';
-    } else {
-      host = 'virtual-office-server.herokuapp.com';
-    }
-
-    const client = new Colyseus.Client(`ws://${host}`);
+    const client = new Colyseus.Client(`ws://${HOST}`);
 
     const r: Colyseus.Room<any> = await client.joinOrCreate(roomName, {
       identity,
