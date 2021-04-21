@@ -3,6 +3,7 @@ import React from 'react';
 import firebase from 'firebase';
 import { ipcRenderer } from 'electron';
 import FakeMacOSFrame from './components/FakeMacOSFrame';
+import { useHistory } from 'react-router-dom';
 
 export interface HomeProps {
   className?: string;
@@ -12,6 +13,8 @@ const Home: React.FC<HomeProps> = ({ className }) => {
   React.useEffect(() => {
     ipcRenderer.send('setWindowSize', { width: 720, height: 480 });
   }, []);
+
+  const history = useHistory();
 
   const user = firebase.auth().currentUser;
 
@@ -29,10 +32,18 @@ const Home: React.FC<HomeProps> = ({ className }) => {
           )}
         </S.TopBar>
         <S.Spaces>
-          <S.Space>
-            <S.SpaceName>Welcome area</S.SpaceName>
+          <S.Space
+            onClick={() => {
+              history.push('/space');
+            }}
+          >
+            <S.SpaceName>Welcome harbor</S.SpaceName>
           </S.Space>
-          <S.Space>
+          <S.Space
+            onClick={() => {
+              history.push('/space');
+            }}
+          >
             <S.SpaceName>Midnight lounge</S.SpaceName>
           </S.Space>
           <S.CreateSpace>

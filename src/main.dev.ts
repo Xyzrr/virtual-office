@@ -556,15 +556,13 @@ ipcMain.on('showPopup', (e, bounds: Electron.Rectangle) => {
 
 ipcMain.on('setWindowSize', (e, size: { width: number; height: number }) => {
   if (mainWindow) {
-    mainWindow.hide();
     mainWindow.setMinimumSize(size.width, size.height);
     const bounds = mainWindow.getBounds();
     mainWindow.setBounds({
-      x: bounds.x + bounds.width - size.width,
-      y: bounds.y + bounds.height - size.height,
+      x: bounds.x + (bounds.width - size.width) / 2,
+      y: bounds.y + (bounds.height - size.height) / 2,
       width: size.width,
       height: size.height,
     });
-    mainWindow.show();
   }
 });

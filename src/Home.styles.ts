@@ -37,8 +37,8 @@ export const UserInfo = styled.div`
 `;
 
 export const UserName = styled.div`
-  font-size: 14px;
-  color: #888;
+  font-size: 13px;
+  color: #777;
 `;
 
 export const UserPhoto = styled.img`

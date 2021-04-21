@@ -28,7 +28,7 @@ export const Wrapper = styled.div<{ hide?: boolean }>`
 export const Title = styled.div`
   color: white;
   font-size: 32px;
-  margin-top: 32px;
+  margin-top: 16px;
   margin-bottom: 4px;
 `;
 
@@ -44,7 +44,7 @@ export const GreenDot = styled.div`
 export const Subtitle = styled.div`
   font-size: 14px;
   color: #ccc;
-  margin-bottom: 16px;
+  margin-bottom: 24px;
   display: flex;
   align-items: center;
 `;
