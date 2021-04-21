@@ -33,6 +33,10 @@ export interface NearbyPlayer {
 }
 
 const App: React.FC = () => {
+  React.useEffect(() => {
+    electron.ipcRenderer.send('setWindowSize', { width: 768, height: 432 });
+  }, []);
+
   const wasMinimizedWhenStartedScreenSharing = React.useRef(false);
 
   const [appState, setAppState] = React.useState<'welcome' | 'normal'>(

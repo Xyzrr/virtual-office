@@ -108,10 +108,8 @@ const createWindow = async () => {
   mainWindow = new BrowserWindow({
     title: 'Harbor',
     show: false,
-    width: 1280,
-    height: 720,
-    minWidth: 800,
-    minHeight: 450,
+    width: 420,
+    height: 420,
     icon: getAssetPath('icon.png'),
     frame: false,
     transparent: true,
@@ -553,5 +551,20 @@ ipcMain.on('showPopup', (e, bounds: Electron.Rectangle) => {
       x: bounds.x + parentBounds.x,
       y: bounds.y + parentBounds.y,
     });
+  }
+});
+
+ipcMain.on('setWindowSize', (e, size: { width: number; height: number }) => {
+  if (mainWindow) {
+    mainWindow.hide();
+    mainWindow.setMinimumSize(size.width, size.height);
+    const bounds = mainWindow.getBounds();
+    mainWindow.setBounds({
+      x: bounds.x + bounds.width - size.width,
+      y: bounds.y + bounds.height - size.height,
+      width: size.width,
+      height: size.height,
+    });
+    mainWindow.show();
   }
 });

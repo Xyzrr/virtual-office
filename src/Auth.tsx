@@ -28,6 +28,10 @@ const Auth: React.FC<AuthProps> = ({ className }) => {
   const [error, setError] = React.useState<Error>();
 
   React.useEffect(() => {
+    ipcRenderer.send('setWindowSize', { width: 420, height: 420 });
+  }, []);
+
+  React.useEffect(() => {
     ipcRenderer.invoke('getLink').then(setLink);
 
     ipcRenderer.on('openUrl', (e, d) => {
