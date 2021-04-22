@@ -13,7 +13,7 @@ const Routes: React.FC = () => {
       <GlobalStyles />
       <Router>
         <Switch>
-          <Route path="/space" component={AppWithContexts} />
+          <Route path="/s/:spaceId" component={AppWithContexts} />
           <Route path="/home" component={Home} />
           <Route path="/" component={Auth} />
         </Switch>

@@ -261,6 +261,8 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
         sphere.position.setY(worldObject.y);
 
         worldObjectGraphicsRef.current.set(worldObject, sphere);
+
+        console.log('ADDED WORLD OBJECT', worldObject);
       };
 
       colyseusRoom.state.worldObjects.onRemove = (worldObject: any) => {

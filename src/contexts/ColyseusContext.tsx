@@ -4,6 +4,7 @@ import * as Colyseus from 'colyseus.js';
 import { LocalMediaContext } from './LocalMediaContext';
 import { LocalInfoContext } from './LocalInfoContext';
 import { HOST } from '../components/constants';
+import { useParams } from 'react-router-dom';
 
 interface PlayerAddedEvent {
   identity: string;
@@ -75,6 +76,10 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
     localScreenShareOn,
   } = React.useContext(LocalMediaContext);
 
+  const params = useParams();
+
+  console.log('PARAMS', params);
+
   const listeners = React.useRef<
     {
       [key in ColyseusEvent]?: Set<ColyseusListener<key>>;
@@ -89,6 +94,7 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
       audioInputOn: localAudioInputOn,
       videoInputOn: localVideoInputOn,
     });
+    console.log('AVAIL ROOMS', await client.getAvailableRooms());
 
     console.log('Joined or created Colyseus room:', r);
 

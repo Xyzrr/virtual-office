@@ -34,14 +34,14 @@ const Home: React.FC<HomeProps> = ({ className }) => {
         <S.Spaces>
           <S.Space
             onClick={() => {
-              history.push('/space');
+              history.push('/s/welcome');
             }}
           >
             <S.SpaceName>Welcome harbor</S.SpaceName>
           </S.Space>
           <S.Space
             onClick={() => {
-              history.push('/space');
+              history.push('/s/midnight');
             }}
           >
             <S.SpaceName>Midnight lounge</S.SpaceName>
