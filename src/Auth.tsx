@@ -25,10 +25,18 @@ export interface AuthProps {
 
 const Auth: React.FC<AuthProps> = ({ className }) => {
   const [link, setLink] = React.useState<string>();
+  const [guest, setGuest] = React.useState(false);
   const history = useHistory();
   const [error, setError] = React.useState<Error>();
 
   const app = React.useMemo(() => firebase.initializeApp(firebaseConfig), []);
+
+  React.useEffect(() => {
+    if (app.auth().currentUser != null) {
+      console.log('Already signed in');
+      history.push('/home');
+    }
+  }, [app]);
 
   React.useEffect(() => {
     ipcRenderer.send('setWindowSize', { width: 360, height: 360 });
@@ -83,7 +91,7 @@ const Auth: React.FC<AuthProps> = ({ className }) => {
       <FakeMacOSFrame />
       <S.Wrapper className={className}>
         <S.Logo>Harbor</S.Logo>
-        {link == null ? (
+        {link == null && !guest ? (
           <S.Buttons>
             <S.LoginButton
               variant="contained"
@@ -97,7 +105,14 @@ const Auth: React.FC<AuthProps> = ({ className }) => {
             <S.GuestButton
               variant="contained"
               onClick={async () => {
-                const user = await app.auth().signInAnonymously();
+                setGuest(true);
+                let user: firebase.auth.UserCredential;
+                try {
+                  user = await app.auth().signInAnonymously();
+                } catch (e) {
+                  setError(e);
+                  return;
+                }
                 console.log('ANONYMOUS USER:', user);
                 history.push('/home');
               }}
@@ -114,6 +129,7 @@ const Auth: React.FC<AuthProps> = ({ className }) => {
               onClick={() => {
                 setLink(undefined);
                 setError(undefined);
+                setGuest(false);
               }}
             >
               Try again
