@@ -28,6 +28,8 @@ const Auth: React.FC<AuthProps> = ({ className }) => {
   const history = useHistory();
   const [error, setError] = React.useState<Error>();
 
+  const app = React.useMemo(() => firebase.initializeApp(firebaseConfig), []);
+
   React.useEffect(() => {
     ipcRenderer.send('setWindowSize', { width: 360, height: 360 });
   }, []);
@@ -45,7 +47,6 @@ const Auth: React.FC<AuthProps> = ({ className }) => {
       return;
     }
 
-    const app = firebase.initializeApp(firebaseConfig);
     const token = link.split('=')[1];
     console.log('trying token', token);
     fetch(`http://${HOST}/create-custom-token?id=${token}`).then(
@@ -93,7 +94,16 @@ const Auth: React.FC<AuthProps> = ({ className }) => {
             >
               Sign in via browser
             </S.LoginButton>
-            <S.GuestButton variant="contained">Enter as guest</S.GuestButton>
+            <S.GuestButton
+              variant="contained"
+              onClick={async () => {
+                const user = await app.auth().signInAnonymously();
+                console.log('ANONYMOUS USER:', user);
+                history.push('/home');
+              }}
+            >
+              Enter as guest
+            </S.GuestButton>
           </S.Buttons>
         ) : error ? (
           <S.ErrorWrapper>
