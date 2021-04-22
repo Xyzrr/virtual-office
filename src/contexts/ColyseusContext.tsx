@@ -94,7 +94,10 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
       audioInputOn: localAudioInputOn,
       videoInputOn: localVideoInputOn,
     });
-    console.log('AVAIL ROOMS', await client.getAvailableRooms());
+
+    client.getAvailableRooms().then((rooms) => {
+      console.log('AVAILABLE ROOMS:', rooms);
+    });
 
     console.log('Joined or created Colyseus room:', r);
 
