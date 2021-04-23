@@ -95,6 +95,7 @@ const WelcomePanel: React.FC<WelcomePanelProps> = ({
   }
 
   const submitDisabled = localName === '';
+  console.log('ROOM', room);
 
   return (
     <S.Wrapper
@@ -105,7 +106,11 @@ const WelcomePanel: React.FC<WelcomePanelProps> = ({
       }}
     >
       <S.Title>
-        Ready to join <strong>Harbor</strong>?
+        {room && (
+          <>
+            Ready to join <S.SpaceName>{room.state.spaceName}</S.SpaceName>?
+          </>
+        )}
       </S.Title>
       <S.Subtitle>
         {playerCount > 0 && <S.GreenDot />}

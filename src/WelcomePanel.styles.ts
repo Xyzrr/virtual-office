@@ -27,9 +27,15 @@ export const Wrapper = styled.div<{ hide?: boolean }>`
 
 export const Title = styled.div`
   color: white;
-  font-size: 32px;
+  font-size: 24px;
   margin-top: 16px;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
+  font-weight: 300;
+`;
+
+export const SpaceName = styled.span`
+  color: white;
+  font-weight: 600;
 `;
 
 export const GreenDot = styled.div`
@@ -43,7 +49,7 @@ export const GreenDot = styled.div`
 
 export const Subtitle = styled.div`
   font-size: 14px;
-  color: #ccc;
+  color: #bbb;
   margin-bottom: 24px;
   display: flex;
   align-items: center;
@@ -77,7 +83,7 @@ export const InputToolbar = styled.div`
 
 export const Label = styled.div`
   font-size: 14px;
-  color: #ccc;
+  color: #bbb;
   margin-bottom: 12px;
 `;
 
