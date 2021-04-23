@@ -6,13 +6,14 @@ import FakeMacOSFrame from './components/FakeMacOSFrame';
 import { useHistory } from 'react-router-dom';
 import { HOST } from './components/constants';
 import * as Colyseus from 'colyseus.js';
+import { useImmer } from 'use-immer';
 
 export interface HomeProps {
   className?: string;
 }
 
 const Home: React.FC<HomeProps> = ({ className }) => {
-  const [spaces, setSpaces] = React.useState<Colyseus.RoomAvailable[]>([]);
+  const [spaces, setSpaces] = useImmer<Colyseus.RoomAvailable[]>([]);
 
   React.useEffect(() => {
     ipcRenderer.send('setWindowSize', { width: 720, height: 480 });
@@ -23,6 +24,29 @@ const Home: React.FC<HomeProps> = ({ className }) => {
     client.joinOrCreate('lobby').then((lobby) => {
       lobby.onMessage('rooms', (rooms) => {
         setSpaces(rooms);
+      });
+
+      lobby.onMessage('+', ([roomId, room]) => {
+        setSpaces((draft) => {
+          const spaceIndex = draft.findIndex(
+            (space) => space.roomId === roomId
+          );
+
+          if (spaceIndex === -1) {
+            draft.push(room);
+          } else {
+            draft[spaceIndex] = room;
+          }
+        });
+      });
+
+      lobby.onMessage('-', (roomId) => {
+        setSpaces((draft) => {
+          const spaceIndex = draft.findIndex(
+            (space) => space.roomId === roomId
+          );
+          delete draft[spaceIndex];
+        });
       });
     });
   }, []);

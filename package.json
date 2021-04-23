@@ -271,7 +271,7 @@
     "source-map-support": "^0.5.19",
     "styled-components": "^5.2.1",
     "three": "^0.127.0",
-    "use-immer": "^0.4.2",
+    "use-immer": "^0.5.1",
     "use-resize-observer": "^7.0.0",
     "uuid": "^8.3.2"
   },
