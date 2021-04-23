@@ -1,7 +1,7 @@
 import React from 'react';
 import { v4 as uuid } from 'uuid';
 import { AppInfo, useAppTracker } from '../util/app-tracker/useAppTracker';
-import firebase from 'firebase/auth';
+import firebase from 'firebase';
 
 interface LocalInfoContextValue {
   localIdentity: string;
@@ -24,8 +24,8 @@ export const LocalInfoContext = React.createContext<LocalInfoContextValue>(
 
 export const LocalInfoContextProvider: React.FC = ({ children }) => {
   const localIdentity = React.useMemo(() => {
-    const result = `cool-person-${uuid()}`;
-    console.log('Local identity:', result);
+    const result = firebase.auth().currentUser?.uid || 'ERROR';
+    console.log('LOCAL IDENTITY', result);
     return result;
   }, []);
 
