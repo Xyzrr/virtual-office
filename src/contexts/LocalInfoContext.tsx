@@ -25,11 +25,14 @@ export const LocalInfoContext = React.createContext<LocalInfoContextValue>(
 export const LocalInfoContextProvider: React.FC = ({ children }) => {
   const localIdentity = React.useMemo(() => {
     const result = firebase.auth().currentUser?.uid || 'ERROR';
+    console.log('USER', firebase.auth().currentUser);
     console.log('LOCAL IDENTITY', result);
     return result;
   }, []);
 
-  const [localName, setLocalName] = React.useState('');
+  const [localName, setLocalName] = React.useState(
+    firebase.auth().currentUser?.displayName || ''
+  );
   const [localGhost, setLocalGhost] = React.useState(true);
   const [localWhisperingTo, setLocalWhisperingTo] = React.useState<string>();
   const [localColor, setLocalColor] = React.useState<number>();
