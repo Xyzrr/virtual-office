@@ -1,5 +1,9 @@
 import styled from 'styled-components';
-import { DARK_BACKGROUND, LIGHT_BACKGROUND } from './components/constants';
+import {
+  DARK_BACKGROUND,
+  HIGHLIGHT,
+  LIGHT_BACKGROUND,
+} from './components/constants';
 
 export const Wrapper = styled.div`
   width: 100vw;
@@ -75,6 +79,23 @@ export const SpaceName = styled.h2`
   font-weight: 500;
   font-size: 16px;
   margin-top: 0;
+  margin-bottom: 4px;
+`;
+
+export const GreenDot = styled.div`
+  background: ${HIGHLIGHT.toString()};
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 8px;
+  margin-left: 1px;
+`;
+
+export const SpaceActivity = styled.div`
+  color: #aaa;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
 `;
 
 export const CreateSpace = styled.div`

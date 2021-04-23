@@ -70,21 +70,9 @@ const App: React.FC = () => {
 
   const {
     room: colyseusRoom,
-    join: joinColyseus,
-    leave: leaveColyseus,
     addListener: addColyseusListener,
     removeListener: removeColyseusListener,
   } = React.useContext(ColyseusContext);
-
-  React.useEffect(() => {
-    joinColyseus('main', localIdentity);
-  }, [joinColyseus]);
-
-  React.useEffect(() => {
-    return () => {
-      leaveColyseus();
-    };
-  }, [leaveColyseus]);
 
   React.useEffect(() => {
     if (!colyseusRoom) {

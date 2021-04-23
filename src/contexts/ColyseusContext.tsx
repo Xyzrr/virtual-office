@@ -76,7 +76,7 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
     localScreenShareOn,
   } = React.useContext(LocalMediaContext);
 
-  const params = useParams();
+  const params = useParams() as any;
 
   console.log('PARAMS', params);
 
@@ -86,17 +86,14 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
     }
   >();
 
-  const join = React.useCallback(async (roomName: string, identity: string) => {
+  const join = React.useCallback(async (roomName: string) => {
     const client = new Colyseus.Client(`ws://${HOST}`);
 
     const r: Colyseus.Room<any> = await client.joinOrCreate(roomName, {
-      identity,
+      identity: localIdentity,
       audioInputOn: localAudioInputOn,
       videoInputOn: localVideoInputOn,
-    });
-
-    client.getAvailableRooms().then((rooms) => {
-      console.log('AVAILABLE ROOMS:', rooms);
+      spaceId: params.spaceId,
     });
 
     console.log('Joined or created Colyseus room:', r);
@@ -157,6 +154,16 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
 
     room.leave();
   }, [room]);
+
+  React.useEffect(() => {
+    join('main');
+  }, [join]);
+
+  React.useEffect(() => {
+    return () => {
+      leave();
+    };
+  }, [leave]);
 
   const addListener = React.useCallback<ColyseusContextValue['addListener']>(
     (type, listener) => {
