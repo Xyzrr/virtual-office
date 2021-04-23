@@ -59,7 +59,10 @@ const Auth: React.FC<AuthProps> = ({ className }) => {
     console.log('trying token', token);
     fetch(`http://${HOST}/create-custom-token?id=${token}`).then(
       async (response) => {
-        console.log('RESPONSE:', response);
+        if (response.status === 500) {
+          setError(new Error('Your token may have expired. Please try again.'));
+          return;
+        }
 
         let text: string;
 
@@ -69,8 +72,6 @@ const Auth: React.FC<AuthProps> = ({ className }) => {
           setError(e);
           return;
         }
-
-        console.log('TEXT:', text);
 
         let user: firebase.auth.UserCredential;
         try {
@@ -82,6 +83,9 @@ const Auth: React.FC<AuthProps> = ({ className }) => {
 
         console.log('USER:', user);
         history.push('/home');
+      },
+      (error) => {
+        console.log('ERRORED OUT', error);
       }
     );
   }, [link]);
