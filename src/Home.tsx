@@ -1,6 +1,5 @@
 import * as S from './Home.styles';
 import React from 'react';
-import firebase from 'firebase';
 import { ipcRenderer } from 'electron';
 import FakeMacOSFrame from './components/FakeMacOSFrame';
 import { useHistory } from 'react-router-dom';
@@ -8,6 +7,8 @@ import { HOST } from './components/constants';
 import * as Colyseus from 'colyseus.js';
 import { useImmer } from 'use-immer';
 import PopupTrigger from './components/PopupTrigger';
+import { Menu, MenuItem, MenuList, Paper } from '@material-ui/core';
+import { FirebaseContext } from './contexts/FirebaseContext';
 
 export interface HomeProps {
   className?: string;
@@ -15,6 +16,8 @@ export interface HomeProps {
 
 const Home: React.FC<HomeProps> = ({ className }) => {
   const [spaces, setSpaces] = useImmer<Colyseus.RoomAvailable[]>([]);
+
+  const { app: firebaseApp } = React.useContext(FirebaseContext);
 
   React.useEffect(() => {
     ipcRenderer.send('setWindowSize', { width: 720, height: 480 });
@@ -56,7 +59,7 @@ const Home: React.FC<HomeProps> = ({ className }) => {
 
   const history = useHistory();
 
-  const user = firebase.auth().currentUser;
+  const user = firebaseApp.auth().currentUser;
 
   return (
     <>
@@ -69,7 +72,22 @@ const Home: React.FC<HomeProps> = ({ className }) => {
               anchorOrigin="bottom right"
               transformOrigin="top right"
               popupContent={() => {
-                return <S.UserInfoPopup>Sign out</S.UserInfoPopup>;
+                return (
+                  <Paper>
+                    <MenuList dense>
+                      <MenuItem>Profile</MenuItem>
+                      <MenuItem>Account settings</MenuItem>
+                      <MenuItem
+                        onClick={async () => {
+                          await firebaseApp.auth().signOut();
+                          history.push('/');
+                        }}
+                      >
+                        Sign out
+                      </MenuItem>
+                    </MenuList>
+                  </Paper>
+                );
               }}
             >
               {({ anchorAttributes, open }) => {

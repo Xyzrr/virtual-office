@@ -1,7 +1,6 @@
 import React from 'react';
-import { v4 as uuid } from 'uuid';
 import { AppInfo, useAppTracker } from '../util/app-tracker/useAppTracker';
-import firebase from 'firebase';
+import { FirebaseContext } from './FirebaseContext';
 
 interface LocalInfoContextValue {
   localIdentity: string;
@@ -23,15 +22,17 @@ export const LocalInfoContext = React.createContext<LocalInfoContextValue>(
 );
 
 export const LocalInfoContextProvider: React.FC = ({ children }) => {
+  const { app: firebaseApp } = React.useContext(FirebaseContext);
+
   const localIdentity = React.useMemo(() => {
-    const result = firebase.auth().currentUser?.uid || 'ERROR';
-    console.log('USER', firebase.auth().currentUser);
+    const result = firebaseApp.auth().currentUser?.uid || 'ERROR';
+    console.log('USER', firebaseApp.auth().currentUser);
     console.log('LOCAL IDENTITY', result);
     return result;
   }, []);
 
   const [localName, setLocalName] = React.useState(
-    firebase.auth().currentUser?.displayName || ''
+    firebaseApp.auth().currentUser?.displayName || ''
   );
   const [localGhost, setLocalGhost] = React.useState(true);
   const [localWhisperingTo, setLocalWhisperingTo] = React.useState<string>();

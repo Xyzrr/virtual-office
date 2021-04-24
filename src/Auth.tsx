@@ -1,5 +1,5 @@
 import * as S from './Auth.styles';
-import React from 'react';
+import React, { useContext } from 'react';
 import 'firebaseui/dist/firebaseui.css';
 import { ipcRenderer } from 'electron';
 import firebase from 'firebase';
@@ -8,16 +8,7 @@ import { useHistory } from 'react-router-dom';
 import Loader from './components/Loader';
 import Button from './components/Button';
 import FakeMacOSFrame from './components/FakeMacOSFrame';
-
-export const firebaseConfig = {
-  apiKey: 'AIzaSyA89oz2--yQCG8AieZNa_7j-gPcJsBFyEA',
-  authDomain: 'harbor-chat.firebaseapp.com',
-  projectId: 'harbor-chat',
-  storageBucket: 'harbor-chat.appspot.com',
-  messagingSenderId: '222349427903',
-  appId: '1:222349427903:web:6433be4de99f7c5df5720a',
-  measurementId: 'G-5C5J3GGJ06',
-};
+import { FirebaseContext } from './contexts/FirebaseContext';
 
 export interface AuthProps {
   className?: string;
@@ -29,7 +20,7 @@ const Auth: React.FC<AuthProps> = ({ className }) => {
   const history = useHistory();
   const [error, setError] = React.useState<Error>();
 
-  const app = React.useMemo(() => firebase.initializeApp(firebaseConfig), []);
+  const { app } = useContext(FirebaseContext);
 
   React.useEffect(() => {
     if (app.auth().currentUser != null) {
