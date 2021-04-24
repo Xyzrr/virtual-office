@@ -11,8 +11,10 @@ import HoverMenu from './HoverMenu';
 import { MAX_INTERACTION_DISTANCE } from './constants';
 import { useMouseIsIdle } from '../util/useMouseIsIdle';
 import PanelWrapper from './PanelWrapper';
-import { LocalInfoContext } from '../contexts/LocalInfoContext';
 import Loader from './Loader';
+
+import { ColyseusContext } from '../contexts/ColyseusContext';
+import { LocalInfoContext } from '../contexts/LocalInfoContext';
 
 export interface YoutubeProps {
   className?: string;
@@ -47,6 +49,7 @@ const YoutubePanel: React.FC<YoutubeProps> = React.memo(
   }) => {
     const wrapperRef = React.useRef<HTMLDivElement>(null);
     const { localIdentity } = React.useContext(LocalInfoContext);
+    const { room: colyseusRoom } = React.useContext(ColyseusContext);
 
     const [videoSize, setVideoSize] = React.useState<{
       width: number;
@@ -55,7 +58,9 @@ const YoutubePanel: React.FC<YoutubeProps> = React.memo(
     const [clientPlayer, setClientPlayer] = React.useState<YT.Player>(undefined);
     const [playerReady, setPlayerReady] = React.useState<boolean>(false);
 
-    const [playlist, setPlayerlist] = useImmer()
+    const [playlist, setPlaylist] = useImmer<{
+      [index: string]: string
+    }>({});
 
     const videoOpacity = small
       ? 1
@@ -78,7 +83,9 @@ const YoutubePanel: React.FC<YoutubeProps> = React.memo(
           events: {
             'onReady': (e) => setPlayerReady(true),
             'onStateChange': (e) => {
-              console.log(e.data === YT.PlayerState.ENDED)
+              if (e.data === YT.PlayerState.ENDED) {
+                colyseusRoom?.send('endVideo', { id: youtubePlayer.id, videoId: youtubePlayer.currentVideo });
+              }
             },
           }
         }));
@@ -95,9 +102,24 @@ const YoutubePanel: React.FC<YoutubeProps> = React.memo(
         return;
       }
 
-      clientPlayer.loadVideoById(youtubePlayer.currentVideo);
+      youtubePlayer.onChange = (changes: any) => {
+        for (let c of changes) {
+          if (c.field === 'currentVideo') {
+            clientPlayer.loadVideoById(c.value)
+          }
+        }
+      }
 
-      youtubePlayer.videoQueue.onAdd = (videoId: string) => {
+      youtubePlayer.videoQueue.onRemove = (videoId: any, i: any) => {
+        setPlaylist(draft => {
+          delete draft[i];
+        });
+      }
+
+      youtubePlayer.videoQueue.onAdd = (videoId: string, i: any) => {
+        setPlaylist(draft => {
+          draft[i] = videoId;
+        });
       };
       youtubePlayer.triggerAll()
 
