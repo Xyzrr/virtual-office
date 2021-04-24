@@ -125,8 +125,11 @@ export const Input = styled.input`
 
 export const Buttons = styled.div`
   display: flex;
+  justify-content: flex-end;
 `;
 
 export const StyledButton = styled(Button)`
-  margin-right: 8px;
+  &:not(:last-child) {
+    margin-right: 8px;
+  }
 `;

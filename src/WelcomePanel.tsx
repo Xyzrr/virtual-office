@@ -7,6 +7,8 @@ import AudioInputControl from './components/AudioInputControl';
 import VideoInputControl from './components/VideoInputControl';
 import { ColyseusContext } from './contexts/ColyseusContext';
 import { LocalInfoContext } from './contexts/LocalInfoContext';
+import Button from './components/Button';
+import { useHistory } from 'react-router-dom';
 
 const COLORS = [
   0x800000,
@@ -43,6 +45,7 @@ const WelcomePanel: React.FC<WelcomePanelProps> = ({
   open,
   onJoin,
 }) => {
+  const history = useHistory();
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const { localVideoTrack } = React.useContext(LocalMediaContext);
   const [playerCount, setPlayerCount] = React.useState(0);
@@ -157,6 +160,13 @@ const WelcomePanel: React.FC<WelcomePanelProps> = ({
         }}
       ></S.Input>
       <S.Buttons>
+        <S.StyledButton
+          onClick={() => {
+            history.push('/home');
+          }}
+        >
+          Go back
+        </S.StyledButton>
         <S.StyledButton
           color="primary"
           variant="contained"
