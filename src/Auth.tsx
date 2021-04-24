@@ -20,14 +20,14 @@ const Auth: React.FC<AuthProps> = ({ className }) => {
   const history = useHistory();
   const [error, setError] = React.useState<Error>();
 
-  const { app } = useContext(FirebaseContext);
+  const { app: firebaseApp } = useContext(FirebaseContext);
 
   React.useEffect(() => {
-    if (app.auth().currentUser != null) {
+    if (firebaseApp.auth().currentUser != null) {
       console.log('Already signed in');
       history.push('/home');
     }
-  }, [app]);
+  }, [firebaseApp]);
 
   React.useEffect(() => {
     ipcRenderer.send('setWindowSize', { width: 360, height: 360 });
@@ -66,7 +66,7 @@ const Auth: React.FC<AuthProps> = ({ className }) => {
 
         let user: firebase.auth.UserCredential;
         try {
-          user = await app.auth().signInWithCustomToken(text);
+          user = await firebaseApp.auth().signInWithCustomToken(text);
         } catch (e) {
           setError(e);
           return;
@@ -103,7 +103,7 @@ const Auth: React.FC<AuthProps> = ({ className }) => {
                 setGuest(true);
                 let user: firebase.auth.UserCredential;
                 try {
-                  user = await app.auth().signInAnonymously();
+                  user = await firebaseApp.auth().signInAnonymously();
                 } catch (e) {
                   setError(e);
                   return;

@@ -17,7 +17,7 @@ export interface HomeProps {
 const Home: React.FC<HomeProps> = ({ className }) => {
   const [spaces, setSpaces] = useImmer<Colyseus.RoomAvailable[]>([]);
 
-  const { app: firebaseApp } = React.useContext(FirebaseContext);
+  const { app: firebaseApp, user } = React.useContext(FirebaseContext);
 
   React.useEffect(() => {
     ipcRenderer.send('setWindowSize', { width: 720, height: 480 });
@@ -58,8 +58,6 @@ const Home: React.FC<HomeProps> = ({ className }) => {
   console.log('SPACES', spaces);
 
   const history = useHistory();
-
-  const user = firebaseApp.auth().currentUser;
 
   return (
     <>

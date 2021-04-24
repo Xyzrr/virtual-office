@@ -1,5 +1,6 @@
 import React from 'react';
 import firebase from 'firebase';
+import { AddOperation } from 'three';
 
 export const firebaseConfig = {
   apiKey: 'AIzaSyA89oz2--yQCG8AieZNa_7j-gPcJsBFyEA',
@@ -13,15 +14,21 @@ export const firebaseConfig = {
 
 interface FirebaseContextValue {
   app: firebase.app.App;
+  user: firebase.User | null;
 }
 
 export const FirebaseContext = React.createContext<FirebaseContextValue>(null!);
 
 export const FirebaseContextProvider: React.FC = ({ children }) => {
   const app = React.useMemo(() => firebase.initializeApp(firebaseConfig), []);
+  const [user, setUser] = React.useState<firebase.User | null>(null);
+
+  app.auth().onAuthStateChanged((u) => {
+    setUser(u);
+  });
 
   return (
-    <FirebaseContext.Provider value={{ app }}>
+    <FirebaseContext.Provider value={{ app, user }}>
       {children}
     </FirebaseContext.Provider>
   );
