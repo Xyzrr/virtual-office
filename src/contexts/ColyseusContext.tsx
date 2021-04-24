@@ -66,6 +66,16 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
   const [room, setRoom] = React.useState<Colyseus.Room | undefined>();
 
   const {
+    localIdentity,
+    localName,
+    localWhisperingTo,
+    localColor,
+    setLocalColor,
+    localApp,
+    appSharingOn,
+  } = React.useContext(LocalInfoContext);
+
+  const {
     localAudioInputOn,
     localVideoInputOn,
     localScreenShareOn,
@@ -98,6 +108,10 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
 
     r.state.players.onAdd = (player: any, identity: string) => {
       console.log('Colyseus player added:', identity);
+
+      if (identity === localIdentity) {
+        setLocalColor(player.color);
+      }
 
       const addListeners = listeners.current?.['player-added'];
 
@@ -202,7 +216,9 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
     room?.send('updatePlayer', { screenShareOn: localScreenShareOn });
   }, [localScreenShareOn]);
 
-  const { localName, localWhisperingTo } = React.useContext(LocalInfoContext);
+  React.useEffect(() => {
+    room?.send('updatePlayer', { color: localColor });
+  }, [localColor]);
 
   React.useEffect(() => {
     room?.send('updatePlayer', { name: localName });
@@ -211,6 +227,12 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
   React.useEffect(() => {
     room?.send('updatePlayer', { whisperingTo: localWhisperingTo });
   }, [localWhisperingTo]);
+
+  React.useEffect(() => {
+    if (appSharingOn) {
+      room?.send('appInfo', { ...localApp });
+    }
+  }, [localApp, appSharingOn]);
 
   return (
     <ColyseusContext.Provider

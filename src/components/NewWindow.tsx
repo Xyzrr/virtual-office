@@ -1,8 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { StyleSheetManager } from 'styled-components';
-import electron from 'electron';
-import { ipcRenderer } from 'electron/renderer';
 
 function copyStyles(sourceDoc: Document, targetDoc: Document) {
   Array.from(sourceDoc.styleSheets).forEach((styleSheet) => {
@@ -30,14 +28,12 @@ function copyStyles(sourceDoc: Document, targetDoc: Document) {
 export interface NewWindowProps {
   className?: string;
   name: string;
-  open: boolean;
   features?: string;
   onClose?(): void;
 }
 
 const NewWindow: React.FC<NewWindowProps> = ({
   name,
-  open,
   features,
   children,
   onClose,
@@ -48,35 +44,30 @@ const NewWindow: React.FC<NewWindowProps> = ({
   const newWindow = React.useRef<Window | null>(null);
 
   React.useEffect(() => {
-    if (open) {
-      newWindow.current = window.open('', name, features);
+    newWindow.current = window.open('', name, features);
 
-      if (newWindow.current != null) {
-        // Need a new container because React bindings get lost somehow
-        // when reusing the same container.
-        const temp = document.createElement('div');
-        setContainerEl(temp);
+    if (newWindow.current != null) {
+      // Need a new container because React bindings get lost somehow
+      // when reusing the same container.
+      const temp = document.createElement('div');
+      setContainerEl(temp);
 
-        newWindow.current.document.body.appendChild(temp);
+      newWindow.current.document.body.appendChild(temp);
 
-        copyStyles(window.document, newWindow.current.document);
+      copyStyles(window.document, newWindow.current.document);
 
-        newWindow.current.addEventListener('beforeunload', () => {
-          onClose?.();
-        });
-      }
-    } else {
+      newWindow.current.addEventListener('beforeunload', () => {
+        onClose?.();
+      });
+    }
+
+    return () => {
       if (newWindow.current != null) {
         newWindow.current.close();
         newWindow.current = null;
       }
-    }
-  }, [open]);
-
-  // TODO(john): figure out how to save memory without white-screening?
-  // if (!open) {
-  //   return null;
-  // }
+    };
+  }, []);
 
   return (
     <StyleSheetManager target={newWindow.current?.document.body}>

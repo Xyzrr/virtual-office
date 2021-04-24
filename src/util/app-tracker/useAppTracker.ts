@@ -1,5 +1,5 @@
 import React from 'react';
-import activeWin from '@rize-io/active-win';
+import activeWin from 'active-win';
 
 import iconFigma from './app-icons/figma.ico';
 import iconNotion from './app-icons/notion.ico';
@@ -113,27 +113,16 @@ export interface AppInfo {
 }
 
 export const useAppTracker = () => {
-  const [localApp, setLocalApp] = React.useState<AppInfo | undefined>(
-    undefined
-  );
-
-  const promptedRef = React.useRef(false);
-
-  const { room: colyseusRoom } = React.useContext(ColyseusContext);
+  const [localApp, setLocalApp] = React.useState<AppInfo>();
 
   React.useEffect(() => {
-    if (!colyseusRoom) {
-      return;
-    }
-
     const interval = window.setInterval(async () => {
       if (
         !(await electron.ipcRenderer.invoke(
           'isTrustedAccessibilityClient',
-          !promptedRef.current
+          false
         ))
       ) {
-        promptedRef.current = true;
         return;
       }
 
@@ -157,7 +146,6 @@ export const useAppTracker = () => {
           };
 
           setLocalApp(appInfo);
-          colyseusRoom.send('appInfo', { ...appInfo });
         }
       }
     }, 2000);
@@ -165,7 +153,7 @@ export const useAppTracker = () => {
     return () => {
       window.clearInterval(interval);
     };
-  }, [colyseusRoom]);
+  }, []);
 
   return localApp;
 };

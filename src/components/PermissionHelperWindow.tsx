@@ -8,18 +8,13 @@ import { desktopCapturer } from 'electron';
 
 export interface PermissionHelperWindowProps {
   className?: string;
-  open: boolean;
   onClose?(): void;
   onGranted?(): void;
 }
 
 const PermissionHelperWindow: React.FC<PermissionHelperWindowProps> = React.memo(
-  ({ className, open, onClose, onGranted }) => {
+  ({ className, onClose, onGranted }) => {
     React.useEffect(() => {
-      if (!open) {
-        return;
-      }
-
       desktopCapturer.getSources({
         types: ['screen', 'window'],
       });
@@ -38,10 +33,10 @@ const PermissionHelperWindow: React.FC<PermissionHelperWindowProps> = React.memo
       return () => {
         window.clearInterval(interval);
       };
-    }, [open]);
+    }, []);
 
     return (
-      <NewWindow name="permission-helper-window" open={open} onClose={onClose}>
+      <NewWindow name="permission-helper-window" onClose={onClose}>
         <S.Wrapper>
           <S.TopBar>
             <Button size="small" onClick={onClose}>

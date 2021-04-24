@@ -19,17 +19,17 @@ import {
   ipcMain,
   systemPreferences,
 } from 'electron';
-import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { electron } from 'process';
 import { Rectangle } from 'electron/main';
 import { centerOnParent } from './util/electron-helpers';
 import ScreenSharePicker from './components/ScreenSharePicker';
-import activeWin from '@rize-io/active-win';
+import activeWin from 'active-win';
 import * as _ from 'lodash';
 import { LIGHT_BACKGROUND } from './components/constants';
 import { openSystemPreferences } from 'electron-util';
+import { autoUpdater } from 'electron-updater';
 
 export default class AppUpdater {
   constructor() {
@@ -44,6 +44,7 @@ let screenSharePicker: BrowserWindow | undefined;
 let screenShareToolbar: BrowserWindow | undefined;
 let screenShareOverlay: BrowserWindow | undefined;
 let permissionHelperWindow: BrowserWindow | undefined;
+let popupWindow: BrowserWindow | undefined;
 
 let screenShareOverlayInterval: NodeJS.Timeout | undefined;
 
@@ -67,7 +68,7 @@ const installExtensions = async () => {
   return installer
     .default(
       extensions.map((name) => installer[name]),
-      forceDownload
+      { loadExtensionOptions: { allowFileAccess: true }, forceDownload }
     )
     .catch(console.log);
 };
@@ -190,7 +191,6 @@ const createWindow = async () => {
       return {
         action: 'allow',
         overrideBrowserWindowOptions: {
-          title: 'permission-helper-window',
           width: 640,
           height: 400,
           minWidth: undefined,
@@ -202,6 +202,25 @@ const createWindow = async () => {
           minimizable: false,
           backgroundColor: '#00000000',
           show: false,
+        },
+      };
+    }
+
+    if (frameName === 'popup') {
+      return {
+        action: 'allow',
+        overrideBrowserWindowOptions: {
+          width: 640,
+          height: 400,
+          minWidth: undefined,
+          minHeight: undefined,
+          resizable: false,
+          parent: mainWindow!,
+          maximizable: false,
+          minimizable: false,
+          backgroundColor: '#00000000',
+          show: false,
+          titleBarStyle: 'hidden',
         },
       };
     }
@@ -265,7 +284,7 @@ const createWindow = async () => {
           win.setAlwaysOnTop(true, 'floating', -1);
 
           try {
-            const aw = activeWin.sync({ screenRecordingPermission: false });
+            const aw = activeWin.sync();
 
             if (aw && aw.id === sourceIdNumber) {
               win.show();
@@ -345,6 +364,11 @@ const createWindow = async () => {
         win.on('ready-to-show', () => {
           win.show();
         });
+      }
+
+      if (frameName === 'popup') {
+        popupWindow = win;
+        win.setWindowButtonVisibility(false);
       }
     }
   );
@@ -495,3 +519,15 @@ ipcMain.on(
     openSystemPreferences(pane, section as any);
   }
 );
+
+ipcMain.on('showPopup', (e, bounds: Electron.Rectangle) => {
+  if (popupWindow && mainWindow) {
+    const parentBounds = mainWindow.getBounds();
+    popupWindow.show();
+    popupWindow.setBounds({
+      ...bounds,
+      x: bounds.x + parentBounds.x,
+      y: bounds.y + parentBounds.y,
+    });
+  }
+});

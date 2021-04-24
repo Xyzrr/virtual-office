@@ -241,8 +241,6 @@ const App: React.FC = () => {
 
   const dragWindowsProps = useWindowsDrag();
 
-  const localApp = useAppTracker();
-
   const [minimized, setMinimized] = useFakeMinimize();
 
   const contentYOffset = minimized ? 0 : 40;
@@ -270,9 +268,9 @@ const App: React.FC = () => {
       nextSmallPanelY += height + 8;
     } else {
       x = 0;
-      y = contentYOffset;
+      y = 0;
       width = windowSize.width;
-      height = availableHeight;
+      height = windowSize.height;
     }
 
     panelElements.push(
@@ -327,7 +325,6 @@ const App: React.FC = () => {
           width={width}
           height={height}
           minY={small && mapIsSmall ? 135 + 16 : undefined}
-          sharedApp={localApp}
           small={small}
           onSetExpanded={(value) => {
             if (value) {
@@ -586,6 +583,10 @@ const App: React.FC = () => {
     }
   }, [localScreenShareOn]);
 
+  const screenShareTrulyOn =
+    participants[localIdentity] &&
+    !!participants[localIdentity].screenVideoTrack;
+
   return (
     <>
       <S.GlobalStyles minimized={minimized} focused={appFocused} />
@@ -643,8 +644,12 @@ const App: React.FC = () => {
           }}
         ></WelcomePanel>
       </S.AppWrapper>
-      <ScreenShareToolbar></ScreenShareToolbar>
-      <ScreenShareOverlay />
+      {screenShareTrulyOn && (
+        <>
+          <ScreenShareToolbar></ScreenShareToolbar>
+          <ScreenShareOverlay />
+        </>
+      )}
     </>
   );
 };

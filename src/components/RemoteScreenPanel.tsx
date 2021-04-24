@@ -71,6 +71,10 @@ const RemoteScreenPanel: React.FC<RemoteScreenPanelProps> = React.memo(
     }, [videoTrack]);
 
     React.useEffect(() => {
+      if (!videoTrack) {
+        return;
+      }
+
       const videoEl = videoRef.current;
       if (videoEl == null) {
         return;
@@ -88,7 +92,7 @@ const RemoteScreenPanel: React.FC<RemoteScreenPanelProps> = React.memo(
       return () => {
         videoEl?.removeEventListener('resize', onResize);
       };
-    }, []);
+    }, [videoTrack]);
 
     const mouseIsIdle = useMouseIsIdle({ containerRef: wrapperRef });
 

@@ -56,6 +56,9 @@ module.exports = (api) => {
       [require('@babel/plugin-proposal-class-properties'), { loose: true }],
       require('@babel/plugin-proposal-json-strings'),
 
+      // Added by me!
+      require('babel-plugin-styled-components'),
+
       ...(development ? developmentPlugins : productionPlugins),
     ],
   };

@@ -135,31 +135,31 @@ const MainToolbar: React.FC<MainToolbarProps> = React.memo(
             name={localScreenShareOn ? 'stop_screen_share' : 'screen_share'}
           ></IconButtonStyles.IconButtonIcon>
         </IconButtonStyles.IconButton>
-        
         <YoutubeControl minimized={minimized}/>
-
-        <PermissionHelperWindow
-          open={screenPermissionHelperOpen}
-          onClose={() => {
-            setScreenPermissionHelperOpen(false);
-          }}
-          onGranted={() => {
-            setScreenPermissionHelperOpen(false);
-            setScreenSharePickerOpen(true);
-          }}
-        ></PermissionHelperWindow>
-        <ScreenSharePicker
-          open={screenSharePickerOpen}
-          onClose={() => {
-            setScreenSharePickerOpen(false);
-          }}
-          onStart={(id) => {
-            console.log('Started sharing screen', id);
-            setScreenSharePickerOpen(false);
-            setLocalScreenShareSourceId(id);
-            setLocalScreenShareOn(true);
-          }}
-        ></ScreenSharePicker>
+        {screenPermissionHelperOpen && (
+          <PermissionHelperWindow
+            onClose={() => {
+              setScreenPermissionHelperOpen(false);
+            }}
+            onGranted={() => {
+              setScreenPermissionHelperOpen(false);
+              setScreenSharePickerOpen(true);
+            }}
+          />
+        )}
+        {screenSharePickerOpen && (
+          <ScreenSharePicker
+            onClose={() => {
+              setScreenSharePickerOpen(false);
+            }}
+            onStart={(id) => {
+              console.log('Started sharing screen', id);
+              setScreenSharePickerOpen(false);
+              setLocalScreenShareSourceId(id);
+              setLocalScreenShareOn(true);
+            }}
+          />
+        )}
       </S.Wrapper>
     );
   }

@@ -39,6 +39,7 @@ export const StatusIcons = styled.div`
 `;
 
 export const StatusIcon = styled(Icon)`
+  user-select: none;
   padding: 4px;
   padding-left: 0;
   color: red;
@@ -85,4 +86,13 @@ export const LoaderWrapper = styled.div`
   .MuiCircularProgress-colorPrimary {
     color: rgba(128, 128, 128, 0.7);
   }
+`;
+
+export const ColorIndicator = styled.div<{ color: string }>`
+  position; absolute;
+  width: 8px;
+  height: 8px;
+  left: -4px;
+  bottom: 8px;
+  background: ${(props) => props.color};
 `;

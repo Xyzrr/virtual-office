@@ -10,6 +10,8 @@ import { AppInfo } from '../util/app-tracker/useAppTracker';
 import AppIndicator from './AppIndicator';
 import { LocalInfoContext } from '../contexts/LocalInfoContext';
 import Loader from './Loader';
+import Color from 'color';
+import LocalAppShareIndicator from './LocalAppShareIndicator';
 
 export interface LocalUserPanelProps {
   className?: string;
@@ -19,24 +21,13 @@ export interface LocalUserPanelProps {
   width: number;
   height: number;
   minY?: number;
-  sharedApp?: AppInfo;
 
   small?: boolean;
   onSetExpanded(value: boolean): void;
 }
 
 const LocalUserPanel: React.FC<LocalUserPanelProps> = React.memo(
-  ({
-    className,
-    x,
-    y,
-    width,
-    height,
-    minY,
-    sharedApp,
-    small,
-    onSetExpanded,
-  }) => {
+  ({ className, x, y, width, height, minY, small, onSetExpanded }) => {
     const wrapperRef = React.useRef<HTMLDivElement>(null);
     const videoRef = React.useRef<HTMLVideoElement>(null);
     const [recentlyLoud, setRecentlyLoud] = React.useState(false);
@@ -51,7 +42,9 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = React.memo(
       localVideoInputOn,
     } = React.useContext(LocalMediaContext);
 
-    const { localName } = React.useContext(LocalInfoContext);
+    const { localName, localColor, appSharingOn } = React.useContext(
+      LocalInfoContext
+    );
 
     React.useEffect(() => {
       if (videoRef.current && localVideoTrack) {
@@ -113,6 +106,11 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = React.memo(
             ></video>
           )}
           {localVideoInputOn && !videoStreaming && <Loader />}
+          {/* {localColor != null && (
+            <S.ColorIndicator
+              color={Color(localColor).toString()}
+            ></S.ColorIndicator>
+          )} */}
           <S.InfoBar>
             <S.InfoBarLeft>
               <S.StatusIcons>
@@ -122,7 +120,7 @@ const LocalUserPanel: React.FC<LocalUserPanelProps> = React.memo(
               </S.StatusIcons>
               <S.Name>{localName}</S.Name>
             </S.InfoBarLeft>
-            {sharedApp != null && <AppIndicator appInfo={sharedApp} />}
+            <LocalAppShareIndicator />
           </S.InfoBar>
           <HoverMenu hidden={mouseIsIdle}>
             <HoverMenuStyles.MenuItem

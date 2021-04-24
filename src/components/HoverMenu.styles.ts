@@ -22,9 +22,9 @@ export const Wrapper = styled.div<{ hidden?: boolean }>`
 
 export const MenuItem = styled(Icon)`
   color: white;
-  cursor: pointer;
   opacity: 0.5;
   font-size: 28px;
+  user-select: none;
   &:hover {
     opacity: 1;
   }

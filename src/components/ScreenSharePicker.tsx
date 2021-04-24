@@ -7,13 +7,12 @@ import NewWindow from './NewWindow';
 
 export interface ScreenSharePickerProps {
   className?: string;
-  open: boolean;
   onClose?(): void;
   onStart?(id: string): void;
 }
 
 const ScreenSharePicker: React.FC<ScreenSharePickerProps> = React.memo(
-  ({ className, open, onClose, onStart }) => {
+  ({ className, onClose, onStart }) => {
     const [screenSources, setScreenSources] = React.useState<
       DesktopCapturerSource[]
     >([]);
@@ -25,10 +24,6 @@ const ScreenSharePicker: React.FC<ScreenSharePickerProps> = React.memo(
     >(null);
 
     React.useEffect(() => {
-      if (!open) {
-        return;
-      }
-
       desktopCapturer
         .getSources({
           types: ['screen'],
@@ -47,12 +42,12 @@ const ScreenSharePicker: React.FC<ScreenSharePickerProps> = React.memo(
         .then((s) => {
           setWindowSources(s);
         });
-    }, [open]);
+    }, []);
 
     console.log('sources', windowSources);
 
     return (
-      <NewWindow name="screen-share-picker" open={open} onClose={onClose}>
+      <NewWindow name="screen-share-picker" onClose={onClose}>
         <S.Wrapper className={className}>
           <S.TopBar>Screen Share</S.TopBar>
 
