@@ -1,8 +1,6 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import Button from './Button';
 import Icon from './Icon';
-
-export const Wrapper = styled.div``;
 
 export const PlaceholderIcon = styled(Icon).attrs({ name: 'apps_outlined' })`
   color: #ffa58c;
@@ -50,4 +48,14 @@ export const ActionButton = styled(Button)`
   &:not(:last-child) {
     margin-right: 8px;
   }
+`;
+
+export const Wrapper = styled.div<{ open?: boolean }>`
+  ${(props) =>
+    props.open &&
+    css`
+      ${PlaceholderIcon} {
+        background: rgba(0, 0, 0, 0.6);
+      }
+    `}
 `;

@@ -85,8 +85,6 @@ const Popup: React.FC<PopupProps> = ({
     };
   });
 
-  console.log('popup render');
-
   return (
     <>
       {ReactDOM.createPortal(<S.Shield onMouseDown={onClose} />, document.body)}

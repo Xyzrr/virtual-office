@@ -7,6 +7,7 @@ import { useHistory } from 'react-router-dom';
 import { HOST } from './components/constants';
 import * as Colyseus from 'colyseus.js';
 import { useImmer } from 'use-immer';
+import PopupTrigger from './components/PopupTrigger';
 
 export interface HomeProps {
   className?: string;
@@ -64,10 +65,24 @@ const Home: React.FC<HomeProps> = ({ className }) => {
         <S.TopBar>
           <S.Heading>Spaces</S.Heading>
           {user && (
-            <S.UserInfo>
-              <S.UserName>{user.displayName}</S.UserName>
-              {user.photoURL && <S.UserPhoto src={user.photoURL}></S.UserPhoto>}
-            </S.UserInfo>
+            <PopupTrigger
+              anchorOrigin="bottom right"
+              transformOrigin="top right"
+              popupContent={() => {
+                return <S.UserInfoPopup>Sign out</S.UserInfoPopup>;
+              }}
+            >
+              {({ anchorAttributes, open }) => {
+                return (
+                  <S.UserInfo {...anchorAttributes} open={open}>
+                    <S.UserName>{user.displayName}</S.UserName>
+                    {user.photoURL && (
+                      <S.UserPhoto src={user.photoURL}></S.UserPhoto>
+                    )}
+                  </S.UserInfo>
+                );
+              }}
+            </PopupTrigger>
           )}
         </S.TopBar>
         <S.Spaces>
