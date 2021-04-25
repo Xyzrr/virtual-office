@@ -9,55 +9,21 @@ import { useImmer } from 'use-immer';
 import PopupTrigger from './components/PopupTrigger';
 import { Menu, MenuItem, MenuList, Paper } from '@material-ui/core';
 import { FirebaseContext } from './contexts/FirebaseContext';
+import useSpaces from './hooks/useSpaces';
 
 export interface HomeProps {
   className?: string;
 }
 
 const Home: React.FC<HomeProps> = ({ className }) => {
-  const [spaces, setSpaces] = useImmer<Colyseus.RoomAvailable[]>([]);
-
   const { app: firebaseApp, user } = React.useContext(FirebaseContext);
 
   React.useEffect(() => {
     ipcRenderer.send('setWindowSize', { width: 720, height: 480 });
   }, []);
 
-  React.useEffect(() => {
-    const client = new Colyseus.Client(`ws://${HOST}`);
-    client.joinOrCreate('lobby').then((lobby) => {
-      lobby.onMessage('rooms', (rooms) => {
-        setSpaces(rooms);
-      });
-
-      lobby.onMessage('+', ([roomId, room]) => {
-        setSpaces((draft) => {
-          const spaceIndex = draft.findIndex(
-            (space) => space.roomId === roomId
-          );
-
-          if (spaceIndex === -1) {
-            draft.push(room);
-          } else {
-            draft[spaceIndex] = room;
-          }
-        });
-      });
-
-      lobby.onMessage('-', (roomId) => {
-        setSpaces((draft) => {
-          const spaceIndex = draft.findIndex(
-            (space) => space.roomId === roomId
-          );
-          delete draft[spaceIndex];
-        });
-      });
-    });
-  }, []);
-
-  console.log('SPACES', spaces);
-
   const history = useHistory();
+  const spaces = useSpaces();
 
   return (
     <>

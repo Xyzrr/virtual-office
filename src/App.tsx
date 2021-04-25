@@ -21,6 +21,9 @@ import { VideoCallContext } from './contexts/VideoCallContext/VideoCallContext';
 import WelcomePanel from './WelcomePanel';
 import { LocalInfoContext } from './contexts/LocalInfoContext';
 import FakeMacOSFrame from './components/FakeMacOSFrame';
+import PopupTrigger from './components/PopupTrigger';
+import SpaceSwitcher from './components/SpaceSwitcher';
+import { initials } from './util/text';
 
 export interface NearbyPlayer {
   sid?: string;
@@ -506,6 +509,21 @@ const App: React.FC = () => {
         {!minimized && (
           <S.TopBar focused={appFocused} hide={appState === 'welcome'}>
             <S.LeftButtons>
+              <PopupTrigger
+                anchorOrigin="top left"
+                transformOrigin="top left"
+                popupContent={() => <SpaceSwitcher></SpaceSwitcher>}
+              >
+                {({ anchorAttributes, open }) => {
+                  return (
+                    <S.SpaceSwitcher {...anchorAttributes}>
+                      {colyseusRoom?.state.spaceName &&
+                        initials(colyseusRoom?.state.spaceName)}
+                    </S.SpaceSwitcher>
+                  );
+                }}
+              </PopupTrigger>
+
               {/* <S.ExitButton name="logout"></S.ExitButton> */}
             </S.LeftButtons>
             <S.MiddleButtons>
