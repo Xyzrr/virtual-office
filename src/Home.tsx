@@ -11,6 +11,7 @@ import PopupTrigger from './components/PopupTrigger';
 import { Menu, MenuItem, MenuList, Paper } from '@material-ui/core';
 import { FirebaseContext } from './contexts/FirebaseContext';
 import useSpaces from './hooks/useSpaces';
+import UserAvatar from './components/UserAvatar';
 
 export interface HomeProps {
   className?: string;
@@ -107,9 +108,10 @@ const Home: React.FC<HomeProps> = ({ className }) => {
                 return (
                   <S.UserInfo {...anchorAttributes} open={open}>
                     <S.UserName>{user.displayName}</S.UserName>
-                    {user.photoURL && (
-                      <S.UserPhoto src={user.photoURL}></S.UserPhoto>
-                    )}
+                    <S.StyledUserAvatar
+                      photoUrl={user.photoURL || undefined}
+                      userName={user.displayName || undefined}
+                    ></S.StyledUserAvatar>
                   </S.UserInfo>
                 );
               }}

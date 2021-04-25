@@ -4,6 +4,7 @@ import {
   HIGHLIGHT,
   LIGHT_BACKGROUND,
 } from './components/constants';
+import UserAvatar from './components/UserAvatar';
 
 export const Wrapper = styled.div`
   width: 100vw;
@@ -66,6 +67,10 @@ export const UserInfo = styled.div<{ open?: boolean }>`
 export const UserPhoto = styled.img`
   border-radius: 50%;
   width: 24px;
+  margin-left: 8px;
+`;
+
+export const StyledUserAvatar = styled(UserAvatar)`
   margin-left: 8px;
 `;
 
