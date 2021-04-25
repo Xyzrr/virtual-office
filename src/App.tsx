@@ -25,6 +25,7 @@ import PopupTrigger from './components/PopupTrigger';
 import SpaceSwitcher from './components/SpaceSwitcher';
 import { initials } from './util/text';
 import SpaceAvatar from './components/SpaceAvatar';
+import { useHistory } from 'react-router-dom';
 
 export interface NearbyPlayer {
   sid?: string;
@@ -38,6 +39,7 @@ export interface NearbyPlayer {
 }
 
 const App: React.FC = () => {
+  const history = useHistory();
   React.useEffect(() => {
     electron.ipcRenderer.send('setWindowSize', { width: 1152, height: 648 });
   }, []);

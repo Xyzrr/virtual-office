@@ -6,8 +6,10 @@ import { HOST } from '../components/constants';
 const useSpaces = () => {
   const [spaces, setSpaces] = useImmer<Colyseus.RoomAvailable[] | null>(null);
   React.useEffect(() => {
+    let l: Colyseus.Room;
     const client = new Colyseus.Client(`ws://${HOST}`);
     client.joinOrCreate('lobby').then((lobby) => {
+      l = lobby;
       lobby.onMessage('rooms', (rooms) => {
         console.log('rooms');
         setSpaces(rooms);
@@ -41,6 +43,9 @@ const useSpaces = () => {
         });
       });
     });
+    return () => {
+      l?.leave();
+    };
   }, []);
 
   return spaces;
