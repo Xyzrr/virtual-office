@@ -14,8 +14,8 @@ const AppWithContexts: React.FC<AppWithContextsProps> = () => {
 
   return (
     <LocalInfoContextProvider>
-      <LocalMediaContextProvider key={params.spaceId}>
-        <ColyseusContextProvider>
+      <LocalMediaContextProvider>
+        <ColyseusContextProvider key={params.spaceId}>
           <DailyVideoCallContextProvider>
             <App></App>
           </DailyVideoCallContextProvider>
