@@ -150,7 +150,7 @@ export const CreateSpaceSubTitle = styled.h3`
   margin-top: 0;
 `;
 
-export const GuestSignInButton = styled.a`
+export const GuestSignInButton = styled.div`
   text-decoration: none;
   font-size: 13px;
   margin-right: 12px;

@@ -39,6 +39,10 @@ const Auth: React.FC<AuthProps> = ({ className }) => {
     ipcRenderer.on('openUrl', (e, d) => {
       setUrl(d);
     });
+
+    return () => {
+      ipcRenderer.removeAllListeners();
+    };
   }, []);
 
   React.useEffect(() => {

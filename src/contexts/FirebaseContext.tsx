@@ -27,11 +27,13 @@ export const FirebaseContextProvider: React.FC = ({ children }) => {
 
   React.useEffect(() => {
     app.auth().onAuthStateChanged((u) => {
+      console.log('AUTH STATE CHANGED');
       setLoadingUser(false);
       setUser(u);
     });
 
     app.auth().onIdTokenChanged((u) => {
+      console.log('ID TOKEN CHANGED');
       setUser(u);
     });
   }, []);

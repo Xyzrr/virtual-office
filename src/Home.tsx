@@ -26,11 +26,16 @@ const Home: React.FC<HomeProps> = ({ className }) => {
   const history = useHistory();
   const spaces = useSpaces();
 
+  // TODO: This is meant to enable upgrading from an anonymous account to
+  // a permanent one, it turns out I need to build a custom auth UI to actually
+  // get that working.
   React.useEffect(() => {
     ipcRenderer.on('openUrl', async (e, url) => {
       ipcRenderer.send('clearUrl');
       let hasCredential = url.substr(0, 20).includes('credential');
+      console.log('OPENED WITH URL:', url);
       if (hasCredential && user?.isAnonymous) {
+        console.log('FOUND CREDENTIAL');
         const encodedCredential = url.split('=')[1];
         const credentialJSON = JSON.parse(
           decodeURIComponent(encodedCredential)
@@ -66,9 +71,12 @@ const Home: React.FC<HomeProps> = ({ className }) => {
         <S.TopBar>
           <S.Heading>Spaces</S.Heading>
           {user.isAnonymous ? (
+            // TODO: This should instead open a URL to start the upgrade path.
             <S.GuestSignInButton
-              href="http://www.meet.harbor.chat"
-              target="_blank"
+              onClick={async () => {
+                await firebaseApp.auth().signOut();
+                history.push('/');
+              }}
             >
               Sign in
             </S.GuestSignInButton>
