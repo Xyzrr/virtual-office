@@ -15,22 +15,23 @@ const SpaceSwitcher: React.FC<SpaceSwitcherProps> = ({ className }) => {
   return (
     <Paper>
       <MenuList dense>
-        {spaces.length === 0 && (
+        {spaces ? (
+          spaces.map((space) => {
+            return (
+              <MenuItem
+                onClick={() => {
+                  history.push('/s/' + space.metadata.spaceId);
+                }}
+              >
+                {space.metadata.spaceName}
+              </MenuItem>
+            );
+          })
+        ) : (
           <S.LoaderMenuItem>
             <Loader></Loader>
           </S.LoaderMenuItem>
         )}
-        {spaces.map((space) => {
-          return (
-            <MenuItem
-              onClick={() => {
-                history.push('/s/' + space.metadata.spaceId);
-              }}
-            >
-              {space.metadata.spaceName}
-            </MenuItem>
-          );
-        })}
         <Divider></Divider>
         <MenuItem
           onClick={() => {

@@ -68,23 +68,25 @@ const Home: React.FC<HomeProps> = ({ className }) => {
           )}
         </S.TopBar>
         <S.Spaces>
-          {spaces.map((space) => {
-            return (
-              <S.Space
-                onClick={() => {
-                  history.push(`/s/${space.metadata.spaceId}`);
-                }}
-              >
-                <S.SpaceName>{space.metadata.spaceName}</S.SpaceName>
-                {space.clients > 0 && (
-                  <S.SpaceActivity>
-                    <S.GreenDot />
-                    {space.clients} user{space.clients === 1 ? '' : 's'} online
-                  </S.SpaceActivity>
-                )}
-              </S.Space>
-            );
-          })}
+          {spaces &&
+            spaces.map((space) => {
+              return (
+                <S.Space
+                  onClick={() => {
+                    history.push(`/s/${space.metadata.spaceId}`);
+                  }}
+                >
+                  <S.SpaceName>{space.metadata.spaceName}</S.SpaceName>
+                  {space.clients > 0 && (
+                    <S.SpaceActivity>
+                      <S.GreenDot />
+                      {space.clients} user{space.clients === 1 ? '' : 's'}{' '}
+                      online
+                    </S.SpaceActivity>
+                  )}
+                </S.Space>
+              );
+            })}
           <S.CreateSpace>
             <S.CreateSpaceTitle>Create new space</S.CreateSpaceTitle>
             <S.CreateSpaceSubTitle>Coming soon!</S.CreateSpaceSubTitle>
