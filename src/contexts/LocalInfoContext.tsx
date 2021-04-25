@@ -15,6 +15,8 @@ interface LocalInfoContextValue {
   appSharingOn?: boolean;
   setAppSharingOn(on: boolean): void;
   localApp?: AppInfo;
+  gotReady: boolean;
+  setGotReady(ready: boolean): void;
 }
 
 export const LocalInfoContext = React.createContext<LocalInfoContextValue>(
@@ -38,6 +40,7 @@ export const LocalInfoContextProvider: React.FC = ({ children }) => {
   const [localWhisperingTo, setLocalWhisperingTo] = React.useState<string>();
   const [localColor, setLocalColor] = React.useState<number>();
   const [appSharingOn, setAppSharingOn] = React.useState<boolean>();
+  const [gotReady, setGotReady] = React.useState(false);
   const localApp = useAppTracker();
 
   return (
@@ -55,6 +58,8 @@ export const LocalInfoContextProvider: React.FC = ({ children }) => {
         appSharingOn,
         setAppSharingOn,
         localApp,
+        gotReady,
+        setGotReady,
       }}
     >
       {children}

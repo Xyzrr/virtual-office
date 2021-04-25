@@ -9,7 +9,7 @@ import { MapPanelWrapper } from './components/MapPanel.styles';
 import { LocalUserPanelWrapper } from './components/LocalUserPanel.styles';
 
 export const AppWrapper = styled.div<{
-  appState: string;
+  welcomePanelOpen: boolean;
   minimized: boolean;
   focused: boolean;
 }>`
@@ -20,7 +20,7 @@ export const AppWrapper = styled.div<{
   flex-direction: column;
 
   ${(props) =>
-    props.appState === 'welcome' &&
+    props.welcomePanelOpen &&
     css`
       ${MapPanelWrapper} {
         right: -200px;

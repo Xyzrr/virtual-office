@@ -43,10 +43,6 @@ const App: React.FC = () => {
 
   const wasMinimizedWhenStartedScreenSharing = React.useRef(false);
 
-  const [appState, setAppState] = React.useState<'welcome' | 'normal'>(
-    'welcome'
-  );
-
   const [nearbyPlayers, setNearbyPlayers] = useImmer<{
     [identity: string]: NearbyPlayer;
   }>({});
@@ -63,9 +59,13 @@ const App: React.FC = () => {
     localScreenShareOn,
   } = React.useContext(LocalMediaContext);
 
-  const { localIdentity, setLocalGhost, localWhisperingTo } = React.useContext(
-    LocalInfoContext
-  );
+  const {
+    localIdentity,
+    setLocalGhost,
+    localWhisperingTo,
+    gotReady,
+    setGotReady,
+  } = React.useContext(LocalInfoContext);
 
   const { participants } = React.useContext(VideoCallContext);
 
@@ -501,13 +501,13 @@ const App: React.FC = () => {
     <>
       <S.AppWrapper
         {...(minimized && dragWindowsProps)}
-        appState={appState}
+        welcomePanelOpen={!gotReady}
         minimized={minimized}
         focused={appFocused}
       >
         {!minimized && <FakeMacOSFrame />}
         {!minimized && (
-          <S.TopBar focused={appFocused} hide={appState === 'welcome'}>
+          <S.TopBar focused={appFocused} hide={!gotReady}>
             <S.LeftButtons>
               <PopupTrigger
                 anchorOrigin="top left"
@@ -561,13 +561,13 @@ const App: React.FC = () => {
         )}
         <S.AppContents>
           {panelElements}
-          <MainToolbar minimized={minimized} hide={appState === 'welcome'} />
+          <MainToolbar minimized={minimized} hide={!gotReady} />
           {showNetworkPanel && <NetworkPanel />}
         </S.AppContents>
         <WelcomePanel
-          open={appState === 'welcome'}
+          open={!gotReady}
           onJoin={() => {
-            setAppState('normal');
+            setGotReady(true);
             setLocalGhost(false);
           }}
         ></WelcomePanel>
