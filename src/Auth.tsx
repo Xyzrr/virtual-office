@@ -20,7 +20,7 @@ const Auth: React.FC<AuthProps> = ({ className }) => {
   const history = useHistory();
   const [error, setError] = React.useState<Error>();
 
-  const { app: firebaseApp, user } = useContext(FirebaseContext);
+  const { app: firebaseApp, user, loadingUser } = useContext(FirebaseContext);
 
   React.useEffect(() => {
     if (user) {
@@ -82,6 +82,14 @@ const Auth: React.FC<AuthProps> = ({ className }) => {
       }
     );
   }, [link]);
+
+  if (loadingUser) {
+    return (
+      <S.Wrapper>
+        <Loader />
+      </S.Wrapper>
+    );
+  }
 
   return (
     <>

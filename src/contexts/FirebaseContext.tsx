@@ -14,6 +14,7 @@ export const firebaseConfig = {
 interface FirebaseContextValue {
   app: firebase.app.App;
   user: firebase.User | null;
+  loadingUser: boolean;
 }
 
 export const FirebaseContext = React.createContext<FirebaseContextValue>(null!);
@@ -22,13 +23,15 @@ const app = firebase.initializeApp(firebaseConfig);
 
 export const FirebaseContextProvider: React.FC = ({ children }) => {
   const [user, setUser] = React.useState<firebase.User | null>(null);
+  const [loadingUser, setLoadingUser] = React.useState(true);
 
   app.auth().onAuthStateChanged((u) => {
+    setLoadingUser(false);
     setUser(u);
   });
 
   return (
-    <FirebaseContext.Provider value={{ app, user }}>
+    <FirebaseContext.Provider value={{ app, user, loadingUser }}>
       {children}
     </FirebaseContext.Provider>
   );
