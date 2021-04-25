@@ -3,6 +3,8 @@ import React from 'react';
 import * as Colyseus from 'colyseus.js';
 import { LocalMediaContext } from './LocalMediaContext';
 import { LocalInfoContext } from './LocalInfoContext';
+import { HOST } from '../components/constants';
+import { useParams } from 'react-router-dom';
 
 interface PlayerAddedEvent {
   identity: string;
@@ -63,7 +65,6 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
     localName,
     localWhisperingTo,
     localColor,
-    setLocalColor,
     localApp,
     appSharingOn,
   } = React.useContext(LocalInfoContext);
@@ -74,26 +75,25 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
     localScreenShareOn,
   } = React.useContext(LocalMediaContext);
 
+  const params = useParams() as any;
+
+  console.log('PARAMS', params);
+
   const listeners = React.useRef<
     {
       [key in ColyseusEvent]?: Set<ColyseusListener<key>>;
     }
   >();
 
-  const join = React.useCallback(async (roomName: string, identity: string) => {
-    let host: string;
-    if (process.env.LOCAL) {
-      host = 'localhost:5000';
-    } else {
-      host = 'virtual-office-server.herokuapp.com';
-    }
-
-    const client = new Colyseus.Client(`ws://${host}`);
+  const join = React.useCallback(async (roomName: string) => {
+    const client = new Colyseus.Client(`ws://${HOST}`);
 
     const r: Colyseus.Room<any> = await client.joinOrCreate(roomName, {
-      identity,
+      identity: localIdentity,
+      color: localColor,
       audioInputOn: localAudioInputOn,
       videoInputOn: localVideoInputOn,
+      spaceId: params.spaceId,
     });
 
     console.log('Joined or created Colyseus room:', r);
@@ -102,10 +102,6 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
 
     r.state.players.onAdd = (player: any, identity: string) => {
       console.log('Colyseus player added:', identity);
-
-      if (identity === localIdentity) {
-        setLocalColor(player.color);
-      }
 
       const addListeners = listeners.current?.['player-added'];
 
@@ -154,6 +150,16 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
 
     room.leave();
   }, [room]);
+
+  React.useEffect(() => {
+    join('main');
+  }, [join]);
+
+  React.useEffect(() => {
+    return () => {
+      leave();
+    };
+  }, [leave]);
 
   const addListener = React.useCallback<ColyseusContextValue['addListener']>(
     (type, listener) => {

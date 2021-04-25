@@ -29,7 +29,10 @@ const PopupTrigger: React.FC<PopupTriggerProps> = ({
   }, []);
 
   const onClose = React.useCallback(() => {
-    setAnchorEl(null);
+    // The timeout fixes an insane race condition caused when you click the trigger twice.
+    window.setTimeout(() => {
+      setAnchorEl(null);
+    });
   }, []);
 
   return (

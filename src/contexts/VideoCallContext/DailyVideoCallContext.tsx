@@ -16,8 +16,11 @@ import {
   VideoCallContext,
   VideoCallDebugContext,
 } from './VideoCallContext';
+import { useParams } from 'react-router-dom';
 
 export const DailyVideoCallContextProvider: React.FC = ({ children }) => {
+  const params = useParams() as any;
+
   const callObject = React.useMemo(
     () =>
       DailyIframe.createCallObject({
@@ -85,7 +88,8 @@ export const DailyVideoCallContextProvider: React.FC = ({ children }) => {
     if (localGhost) {
       leave();
     } else {
-      join('dev');
+      // TODO: enable multiple call rooms per space
+      join(params.spaceId);
     }
   }, [localGhost, join, leave]);
 

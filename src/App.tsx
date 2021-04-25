@@ -20,13 +20,12 @@ import { ColyseusContext, ColyseusEvent } from './contexts/ColyseusContext';
 import { VideoCallContext } from './contexts/VideoCallContext/VideoCallContext';
 import WelcomePanel from './WelcomePanel';
 import { LocalInfoContext } from './contexts/LocalInfoContext';
-
-let host: string;
-if (process.env.LOCAL) {
-  host = 'localhost:5000';
-} else {
-  host = 'virtual-office-server.herokuapp.com';
-}
+import FakeMacOSFrame from './components/FakeMacOSFrame';
+import PopupTrigger from './components/PopupTrigger';
+import SpaceSwitcher from './components/SpaceSwitcher';
+import { initials } from './util/text';
+import SpaceAvatar from './components/SpaceAvatar';
+import { useHistory } from 'react-router-dom';
 
 export interface NearbyPlayer {
   sid?: string;
@@ -40,11 +39,12 @@ export interface NearbyPlayer {
 }
 
 const App: React.FC = () => {
-  const wasMinimizedWhenStartedScreenSharing = React.useRef(false);
+  const history = useHistory();
+  React.useEffect(() => {
+    electron.ipcRenderer.send('setWindowSize', { width: 1152, height: 648 });
+  }, []);
 
-  const [appState, setAppState] = React.useState<'welcome' | 'normal'>(
-    'welcome'
-  );
+  const wasMinimizedWhenStartedScreenSharing = React.useRef(false);
 
   const [nearbyPlayers, setNearbyPlayers] = useImmer<{
     [identity: string]: NearbyPlayer;
@@ -62,9 +62,13 @@ const App: React.FC = () => {
     localScreenShareOn,
   } = React.useContext(LocalMediaContext);
 
-  const { localIdentity, setLocalGhost, localWhisperingTo } = React.useContext(
-    LocalInfoContext
-  );
+  const {
+    localIdentity,
+    setLocalGhost,
+    localWhisperingTo,
+    gotReady,
+    setGotReady,
+  } = React.useContext(LocalInfoContext);
 
   const { participants } = React.useContext(VideoCallContext);
 
@@ -72,21 +76,9 @@ const App: React.FC = () => {
 
   const {
     room: colyseusRoom,
-    join: joinColyseus,
-    leave: leaveColyseus,
     addListener: addColyseusListener,
     removeListener: removeColyseusListener,
   } = React.useContext(ColyseusContext);
-
-  React.useEffect(() => {
-    joinColyseus('main', localIdentity);
-  }, [joinColyseus]);
-
-  React.useEffect(() => {
-    return () => {
-      leaveColyseus();
-    };
-  }, [leaveColyseus]);
 
   React.useEffect(() => {
     if (!colyseusRoom) {
@@ -414,7 +406,10 @@ const App: React.FC = () => {
       let key = `remote-screen:${identity}`;
       let small = minimized || !expandedPanels.includes(key);
 
-      const scale = Math.min(1, 3 / (distance + 0.1));
+      const scale = Math.min(
+        1,
+        MAX_INTERACTION_DISTANCE / 2 / (distance + 0.1)
+      );
 
       if (small) {
         width = Math.floor(240 * scale);
@@ -507,13 +502,32 @@ const App: React.FC = () => {
 
   return (
     <>
-      <S.GlobalStyles minimized={minimized} focused={appFocused} />
-
-      <S.AppWrapper {...(minimized && dragWindowsProps)} appState={appState}>
-        {process.platform === 'darwin' && !minimized && <S.FakeMacOSFrame />}
+      <S.AppWrapper
+        {...(minimized && dragWindowsProps)}
+        welcomePanelOpen={!gotReady}
+        minimized={minimized}
+        focused={appFocused}
+      >
+        {!minimized && <FakeMacOSFrame />}
         {!minimized && (
-          <S.TopBar focused={appFocused} hide={appState === 'welcome'}>
+          <S.TopBar focused={appFocused} hide={!gotReady}>
             <S.LeftButtons>
+              <PopupTrigger
+                anchorOrigin="top left"
+                transformOrigin="top left"
+                popupContent={() => <SpaceSwitcher></SpaceSwitcher>}
+              >
+                {({ anchorAttributes }) => {
+                  return (
+                    <span {...anchorAttributes}>
+                      <SpaceAvatar
+                        spaceName={colyseusRoom?.state.spaceName}
+                      ></SpaceAvatar>
+                    </span>
+                  );
+                }}
+              </PopupTrigger>
+
               {/* <S.ExitButton name="logout"></S.ExitButton> */}
             </S.LeftButtons>
             <S.MiddleButtons>
@@ -551,13 +565,13 @@ const App: React.FC = () => {
         )}
         <S.AppContents>
           {panelElements}
-          <MainToolbar minimized={minimized} hide={appState === 'welcome'} />
+          <MainToolbar minimized={minimized} hide={!gotReady} />
           {showNetworkPanel && <NetworkPanel />}
         </S.AppContents>
         <WelcomePanel
-          open={appState === 'welcome'}
+          open={!gotReady}
           onJoin={() => {
-            setAppState('normal');
+            setGotReady(true);
             setLocalGhost(false);
           }}
         ></WelcomePanel>

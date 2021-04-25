@@ -1,17 +1,17 @@
 import * as S from './Button.styles';
 import React from 'react';
 
-export type ButtonProps = Omit<React.ComponentProps<'button'>, 'ref'> & {
+export type ButtonProps = Omit<React.ComponentProps<'a'>, 'ref'> & {
   variant?: 'contained' | 'outlined';
-  color?: 'primary' | 'danger';
+  color?: 'primary' | 'danger' | 'secondary';
   size?: 'small' | 'medium' | 'large';
   disabled?: boolean;
 };
 
 const Button: React.FC<ButtonProps> = React.forwardRef<
-  HTMLButtonElement,
+  HTMLAnchorElement,
   ButtonProps
->(({ variant, color, disabled, size, ...standardProps }, ref) => {
+>(({ variant, color = 'secondary', disabled, size, ...standardProps }, ref) => {
   return (
     <S.Wrapper
       {...standardProps}

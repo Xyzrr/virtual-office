@@ -38,21 +38,20 @@ const NewWindow: React.FC<NewWindowProps> = ({
   children,
   onClose,
 }) => {
-  const [containerEl, setContainerEl] = React.useState(() =>
-    document.createElement('div')
-  );
+  React.useEffect(() => {
+    console.log('MOUNTED NEWWIN');
+    return () => {
+      console.log('UNMOUNTED NEWWIN');
+    };
+  }, []);
+  const containerEl = React.useMemo(() => document.createElement('div'), []);
   const newWindow = React.useRef<Window | null>(null);
 
   React.useEffect(() => {
     newWindow.current = window.open('', name, features);
 
     if (newWindow.current != null) {
-      // Need a new container because React bindings get lost somehow
-      // when reusing the same container.
-      const temp = document.createElement('div');
-      setContainerEl(temp);
-
-      newWindow.current.document.body.appendChild(temp);
+      newWindow.current.document.body.appendChild(containerEl);
 
       copyStyles(window.document, newWindow.current.document);
 
@@ -68,6 +67,8 @@ const NewWindow: React.FC<NewWindowProps> = ({
       }
     };
   }, []);
+
+  console.log('CONTAINER MOUNT', containerEl);
 
   return (
     <StyleSheetManager target={newWindow.current?.document.body}>

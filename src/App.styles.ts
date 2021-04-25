@@ -1,4 +1,4 @@
-import styled, { createGlobalStyle, css } from 'styled-components';
+import styled, { css } from 'styled-components';
 import Icon from './components/Icon';
 import {
   LIGHT_BACKGROUND,
@@ -8,45 +8,11 @@ import {
 import { MapPanelWrapper } from './components/MapPanel.styles';
 import { LocalUserPanelWrapper } from './components/LocalUserPanel.styles';
 
-export const GlobalStyles = createGlobalStyle<{
-  minimized?: boolean;
-  focused?: boolean;
+export const AppWrapper = styled.div<{
+  welcomePanelOpen: boolean;
+  minimized: boolean;
+  focused: boolean;
 }>`
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-  }
-  * {
-    box-sizing: border-box;
-  }
-  ${(props) =>
-    props.minimized
-      ? css`
-          ${AppWrapper} {
-            -webkit-app-region: ${process.platform === 'win32'
-              ? 'no-drag'
-              : 'drag'};
-            &:hover {
-              background: rgba(80, 80, 80, 0.25);
-            }
-          }
-        `
-      : css`
-          ${AppWrapper} {
-            background: ${DARK_BACKGROUND.toString()} !important;
-          }
-        `}
-      ${(props) =>
-        props.focused &&
-        css`
-          ${AppWrapper} {
-            && {
-              background: rgba(80, 80, 80, 0.4);
-            }
-          }
-        `}
-`;
-
-export const AppWrapper = styled.div<{ appState: string }>`
   height: 100vh;
   position: relative;
   overflow: hidden;
@@ -54,7 +20,7 @@ export const AppWrapper = styled.div<{ appState: string }>`
   flex-direction: column;
 
   ${(props) =>
-    props.appState === 'welcome' &&
+    props.welcomePanelOpen &&
     css`
       ${MapPanelWrapper} {
         right: -200px;
@@ -63,19 +29,28 @@ export const AppWrapper = styled.div<{ appState: string }>`
         opacity: 0;
       }
     `}
-`;
 
-export const FakeMacOSFrame = styled.div`
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.1),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
-  z-index: 100;
-  pointer-events: none;
+  ${(props) =>
+    props.minimized
+      ? css`
+          -webkit-app-region: ${process.platform === 'win32'
+            ? 'no-drag'
+            : 'drag'};
+          &:hover {
+            background: rgba(80, 80, 80, 0.25);
+          }
+        `
+      : css`
+          background: ${DARK_BACKGROUND.toString()} !important;
+        `}
+
+  ${(props) =>
+    props.focused &&
+    css`
+      && {
+        background: rgba(80, 80, 80, 0.4);
+      }
+    `}
 `;
 
 export const AppContents = styled.div`
@@ -106,7 +81,7 @@ export const TopBar = styled.div<{ focused: boolean; hide?: boolean }>`
 
 export const TabIcon = styled(Icon)`
   color: #bbb;
-  font-size: 15px;
+  font-size: 16px;
   margin-right: 4px;
 `;
 

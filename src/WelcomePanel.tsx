@@ -7,30 +7,9 @@ import AudioInputControl from './components/AudioInputControl';
 import VideoInputControl from './components/VideoInputControl';
 import { ColyseusContext } from './contexts/ColyseusContext';
 import { LocalInfoContext } from './contexts/LocalInfoContext';
-
-const COLORS = [
-  0x800000,
-  0xe6194b,
-  0xf58231,
-  0xffe119,
-  0xbcf60c,
-  0xaaffc3,
-  0x46f0f0,
-  0xe6beff,
-  0xf032e6,
-  0x911eb4,
-
-  0xfffac8,
-  0xffd8b1,
-  0xfabebe,
-  0x008080,
-  0x4363d8,
-  0x3cb44b,
-  0x808080,
-  0x9a6324,
-  0x808000,
-  0x000075,
-];
+import Button from './components/Button';
+import { useHistory } from 'react-router-dom';
+import { COLOR_OPTIONS } from './components/constants';
 
 export interface WelcomePanelProps {
   className?: string;
@@ -43,6 +22,7 @@ const WelcomePanel: React.FC<WelcomePanelProps> = ({
   open,
   onJoin,
 }) => {
+  const history = useHistory();
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const { localVideoTrack } = React.useContext(LocalMediaContext);
   const [playerCount, setPlayerCount] = React.useState(0);
@@ -95,6 +75,7 @@ const WelcomePanel: React.FC<WelcomePanelProps> = ({
   }
 
   const submitDisabled = localName === '';
+  console.log('ROOM', room);
 
   return (
     <S.Wrapper
@@ -105,7 +86,11 @@ const WelcomePanel: React.FC<WelcomePanelProps> = ({
       }}
     >
       <S.Title>
-        Ready to join <strong>Harbor</strong>?
+        {room && (
+          <>
+            Ready to join <S.SpaceName>{room.state.spaceName}</S.SpaceName>?
+          </>
+        )}
       </S.Title>
       <S.Subtitle>
         {playerCount > 0 && <S.GreenDot />}
@@ -125,7 +110,7 @@ const WelcomePanel: React.FC<WelcomePanelProps> = ({
       </S.VideoWrapper>
       <S.Label>Your color</S.Label>
       <S.ColorOptions>
-        {COLORS.map((c) => (
+        {COLOR_OPTIONS.map((c) => (
           <S.ColorOption
             key={c}
             color={new Color(c).toString()}
@@ -152,6 +137,13 @@ const WelcomePanel: React.FC<WelcomePanelProps> = ({
         }}
       ></S.Input>
       <S.Buttons>
+        <S.StyledButton
+          onClick={() => {
+            history.push('/home');
+          }}
+        >
+          Go back
+        </S.StyledButton>
         <S.StyledButton
           color="primary"
           variant="contained"

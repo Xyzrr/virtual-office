@@ -130,7 +130,9 @@ const LocalAppShareIndicator: React.FC = () => {
       transformOrigin="top right"
     >
       {({ anchorAttributes, open }) => (
-        <S.Wrapper {...anchorAttributes}>{appIcon}</S.Wrapper>
+        <S.Wrapper {...anchorAttributes} open={open}>
+          {appIcon}
+        </S.Wrapper>
       )}
     </PopupTrigger>
   );

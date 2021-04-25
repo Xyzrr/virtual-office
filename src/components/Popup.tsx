@@ -34,6 +34,13 @@ const Popup: React.FC<PopupProps> = ({
   const { ref, width, height } = useResizeObserver<HTMLDivElement>();
 
   React.useEffect(() => {
+    console.log('MOUNTED POPUP');
+    return () => {
+      console.log('UNMOUNTED POPUP');
+    };
+  }, []);
+
+  React.useEffect(() => {
     if (width == null || height == null) {
       return;
     }
@@ -84,8 +91,6 @@ const Popup: React.FC<PopupProps> = ({
       window.removeEventListener('focus', onFocus);
     };
   });
-
-  console.log('popup render');
 
   return (
     <>

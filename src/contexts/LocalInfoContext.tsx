@@ -1,6 +1,8 @@
 import React from 'react';
-import { v4 as uuid } from 'uuid';
+import { COLOR_OPTIONS } from '../components/constants';
 import { AppInfo, useAppTracker } from '../util/app-tracker/useAppTracker';
+import { FirebaseContext } from './FirebaseContext';
+import * as _ from 'lodash';
 
 interface LocalInfoContextValue {
   localIdentity: string;
@@ -15,6 +17,8 @@ interface LocalInfoContextValue {
   appSharingOn?: boolean;
   setAppSharingOn(on: boolean): void;
   localApp?: AppInfo;
+  gotReady: boolean;
+  setGotReady(ready: boolean): void;
 }
 
 export const LocalInfoContext = React.createContext<LocalInfoContextValue>(
@@ -22,17 +26,26 @@ export const LocalInfoContext = React.createContext<LocalInfoContextValue>(
 );
 
 export const LocalInfoContextProvider: React.FC = ({ children }) => {
+  const { app: firebaseApp } = React.useContext(FirebaseContext);
+
   const localIdentity = React.useMemo(() => {
-    const result = `cool-person-${uuid()}`;
-    console.log('Local identity:', result);
+    const result = firebaseApp.auth().currentUser?.uid || 'ERROR';
+    console.log('USER', firebaseApp.auth().currentUser);
+    console.log('LOCAL IDENTITY', result);
     return result;
   }, []);
 
-  const [localName, setLocalName] = React.useState('');
+  const [localName, setLocalName] = React.useState(
+    firebaseApp.auth().currentUser?.displayName || ''
+  );
   const [localGhost, setLocalGhost] = React.useState(true);
   const [localWhisperingTo, setLocalWhisperingTo] = React.useState<string>();
-  const [localColor, setLocalColor] = React.useState<number>();
+  const [localColor, setLocalColor] = React.useState<number>(
+    () => _.sample(COLOR_OPTIONS) as number
+  );
+  console.log('COLOR', localColor);
   const [appSharingOn, setAppSharingOn] = React.useState<boolean>();
+  const [gotReady, setGotReady] = React.useState(false);
   const localApp = useAppTracker();
 
   return (
@@ -50,6 +63,8 @@ export const LocalInfoContextProvider: React.FC = ({ children }) => {
         appSharingOn,
         setAppSharingOn,
         localApp,
+        gotReady,
+        setGotReady,
       }}
     >
       {children}

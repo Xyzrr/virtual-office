@@ -120,6 +120,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
         return;
       }
 
+      let animationFrame: number;
       let lastFrameTime = Date.now();
       const animate = (time: number) => {
         const delta = (time - lastFrameTime) / 1000;
@@ -180,9 +181,13 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
 
         glRenderer.render(scene, camera);
 
-        requestAnimationFrame(animate);
+        animationFrame = requestAnimationFrame(animate);
       };
-      requestAnimationFrame(animate);
+      animationFrame = requestAnimationFrame(animate);
+
+      return () => {
+        cancelAnimationFrame(animationFrame);
+      };
     }, [colyseusRoom, glRenderer]);
 
     React.useEffect(() => {
@@ -261,6 +266,8 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
         sphere.position.setY(worldObject.y);
 
         worldObjectGraphicsRef.current.set(worldObject, sphere);
+
+        console.log('ADDED WORLD OBJECT', worldObject);
       };
 
       colyseusRoom.state.worldObjects.onRemove = (worldObject: any) => {

@@ -96,6 +96,12 @@
       "provider": "github",
       "owner": "Xyzrr",
       "repo": "virtual-office"
+    },
+    "protocols": {
+      "name": "harbor-protocol",
+      "schemes": [
+        "harbor"
+      ]
     }
   },
   "repository": "github:Xyzrr/virtual-office",
@@ -251,6 +257,8 @@
     "electron-log": "^4.2.4",
     "electron-updater": "^4.3.8",
     "electron-util": "^0.14.2",
+    "firebase": "^8.4.1",
+    "firebaseui": "^4.8.0",
     "history": "^5.0.0",
     "immer": "^8.0.1",
     "is-hotkey": "^0.2.0",
@@ -263,7 +271,7 @@
     "source-map-support": "^0.5.19",
     "styled-components": "^5.2.1",
     "three": "^0.127.0",
-    "use-immer": "^0.4.2",
+    "use-immer": "^0.5.1",
     "use-resize-observer": "^7.0.0",
     "uuid": "^8.3.2"
   },

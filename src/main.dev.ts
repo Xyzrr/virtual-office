@@ -73,6 +73,26 @@ const installExtensions = async () => {
     .catch(console.log);
 };
 
+let link: string | undefined;
+
+// This will catch clicks on links such as <a href="harbor://abc=1">open in harbor</a>
+app.on('open-url', function (event, data) {
+  event.preventDefault();
+  link = data;
+  console.log('opened via url', event, data);
+  mainWindow?.webContents.send('openUrl', data);
+});
+
+app.setAsDefaultProtocolClient('harbor');
+
+ipcMain.handle('getUrl', () => {
+  return link;
+});
+
+ipcMain.on('clearUrl', () => {
+  link = undefined;
+});
+
 const createWindow = async () => {
   if (
     process.env.NODE_ENV === 'development' ||
@@ -92,10 +112,8 @@ const createWindow = async () => {
   mainWindow = new BrowserWindow({
     title: 'Harbor',
     show: false,
-    width: 1280,
-    height: 720,
-    minWidth: 800,
-    minHeight: 450,
+    width: 420,
+    height: 420,
     icon: getAssetPath('icon.png'),
     frame: false,
     transparent: true,
@@ -108,6 +126,10 @@ const createWindow = async () => {
   });
 
   mainWindow.loadURL(`file://${__dirname}/index.html`);
+
+  mainWindow.webContents.on('did-fail-load', () => {
+    mainWindow?.loadURL(`file://${__dirname}/index.html`);
+  });
 
   // @TODO: Use 'ready-to-show' event
   //        https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event
@@ -130,103 +152,107 @@ const createWindow = async () => {
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
 
-  mainWindow.webContents.setWindowOpenHandler(({ frameName, features }) => {
-    if (frameName === 'screen-share-picker') {
-      return {
-        action: 'allow',
-        overrideBrowserWindowOptions: {
-          width: 840,
-          height: 600,
-          minWidth: undefined,
-          minHeight: undefined,
-          resizable: false,
-          transparent: false,
-          parent: mainWindow!,
-          backgroundColor: '#222',
-          maximizable: false,
-          minimizable: false,
-          show: false,
-        },
-      };
+  mainWindow.webContents.setWindowOpenHandler(
+    ({ frameName, features, url }) => {
+      if (frameName === 'screen-share-picker') {
+        return {
+          action: 'allow',
+          overrideBrowserWindowOptions: {
+            width: 840,
+            height: 600,
+            minWidth: undefined,
+            minHeight: undefined,
+            resizable: false,
+            transparent: false,
+            parent: mainWindow!,
+            backgroundColor: '#222',
+            maximizable: false,
+            minimizable: false,
+            show: false,
+          },
+        };
+      }
+
+      if (frameName === 'screen-share-toolbar') {
+        const workAreaBounds = screen.getPrimaryDisplay().workArea;
+
+        return {
+          action: 'allow',
+          overrideBrowserWindowOptions: {
+            width: 252,
+            height: 52,
+            x: workAreaBounds.x + workAreaBounds.width / 2 - 252 / 2,
+            y: workAreaBounds.y + workAreaBounds.height - 52 - 8,
+            minWidth: undefined,
+            minHeight: undefined,
+            resizable: false,
+            transparent: false,
+            vibrancy: 'menu',
+            focusable: false,
+            alwaysOnTop: true,
+            titleBarStyle: 'hidden',
+            show: false,
+          },
+        };
+      }
+
+      if (frameName === 'screen-share-overlay') {
+        return {
+          action: 'allow',
+          overrideBrowserWindowOptions: {
+            transparent: true,
+            minWidth: undefined,
+            minHeight: undefined,
+            titleBarStyle: 'hidden',
+            hasShadow: false,
+            show: false,
+          },
+        };
+      }
+
+      if (frameName === 'permission-helper-window') {
+        return {
+          action: 'allow',
+          overrideBrowserWindowOptions: {
+            width: 640,
+            height: 400,
+            minWidth: undefined,
+            minHeight: undefined,
+            resizable: false,
+            transparent: false,
+            parent: mainWindow!,
+            maximizable: false,
+            minimizable: false,
+            backgroundColor: '#00000000',
+            show: false,
+          },
+        };
+      }
+
+      if (frameName === 'popup') {
+        return {
+          action: 'allow',
+          overrideBrowserWindowOptions: {
+            width: 640,
+            height: 400,
+            minWidth: undefined,
+            minHeight: undefined,
+            resizable: false,
+            parent: mainWindow!,
+            maximizable: false,
+            minimizable: false,
+            backgroundColor: '#00000000',
+            show: false,
+            titleBarStyle: 'hidden',
+          },
+        };
+      }
+
+      shell.openExternal(url);
+
+      return { action: 'deny' };
     }
-
-    if (frameName === 'screen-share-toolbar') {
-      const workAreaBounds = screen.getPrimaryDisplay().workArea;
-
-      return {
-        action: 'allow',
-        overrideBrowserWindowOptions: {
-          width: 252,
-          height: 52,
-          x: workAreaBounds.x + workAreaBounds.width / 2 - 252 / 2,
-          y: workAreaBounds.y + workAreaBounds.height - 52 - 8,
-          minWidth: undefined,
-          minHeight: undefined,
-          resizable: false,
-          transparent: false,
-          vibrancy: 'menu',
-          focusable: false,
-          alwaysOnTop: true,
-          titleBarStyle: 'hidden',
-          show: false,
-        },
-      };
-    }
-
-    if (frameName === 'screen-share-overlay') {
-      return {
-        action: 'allow',
-        overrideBrowserWindowOptions: {
-          transparent: true,
-          minWidth: undefined,
-          minHeight: undefined,
-          titleBarStyle: 'hidden',
-          hasShadow: false,
-          show: false,
-        },
-      };
-    }
-
-    if (frameName === 'permission-helper-window') {
-      return {
-        action: 'allow',
-        overrideBrowserWindowOptions: {
-          width: 640,
-          height: 400,
-          minWidth: undefined,
-          minHeight: undefined,
-          resizable: false,
-          transparent: false,
-          parent: mainWindow!,
-          maximizable: false,
-          minimizable: false,
-          backgroundColor: '#00000000',
-          show: false,
-        },
-      };
-    }
-
-    if (frameName === 'popup') {
-      return {
-        action: 'allow',
-        overrideBrowserWindowOptions: {
-          width: 640,
-          height: 400,
-          minWidth: undefined,
-          minHeight: undefined,
-          resizable: false,
-          parent: mainWindow!,
-          maximizable: false,
-          minimizable: false,
-          backgroundColor: '#00000000',
-          show: false,
-          titleBarStyle: 'hidden',
-        },
-      };
-    }
-
-    return { action: 'deny' };
-  });
+  );
 
   mainWindow.webContents.on(
     'did-create-window',
@@ -528,6 +554,19 @@ ipcMain.on('showPopup', (e, bounds: Electron.Rectangle) => {
       ...bounds,
       x: bounds.x + parentBounds.x,
       y: bounds.y + parentBounds.y,
+    });
+  }
+});
+
+ipcMain.on('setWindowSize', (e, size: { width: number; height: number }) => {
+  if (mainWindow) {
+    mainWindow.setMinimumSize(size.width, size.height);
+    const bounds = mainWindow.getBounds();
+    mainWindow.setBounds({
+      x: bounds.x + (bounds.width - size.width) / 2,
+      y: bounds.y + (bounds.height - size.height) / 2,
+      width: size.width,
+      height: size.height,
     });
   }
 });
