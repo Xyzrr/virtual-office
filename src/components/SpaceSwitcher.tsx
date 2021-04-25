@@ -15,6 +15,13 @@ const SpaceSwitcher: React.FC<SpaceSwitcherProps> = ({ className }) => {
   const history = useHistory();
   const params = useParams() as any;
 
+  React.useEffect(() => {
+    console.log('MOUNTED');
+    return () => {
+      console.log('UNMOUNTED');
+    };
+  }, []);
+
   const resortedSpaces = spaces?.sort((a, b) =>
     a.metadata.spaceId === params.spaceId
       ? -1

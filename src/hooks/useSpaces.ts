@@ -5,11 +5,11 @@ import { HOST } from '../components/constants';
 
 const useSpaces = () => {
   const [spaces, setSpaces] = useImmer<Colyseus.RoomAvailable[] | null>(null);
-
   React.useEffect(() => {
     const client = new Colyseus.Client(`ws://${HOST}`);
     client.joinOrCreate('lobby').then((lobby) => {
       lobby.onMessage('rooms', (rooms) => {
+        console.log('rooms');
         setSpaces(rooms);
       });
 
@@ -18,11 +18,9 @@ const useSpaces = () => {
           if (draft == null) {
             return;
           }
-
           const spaceIndex = draft.findIndex(
             (space) => space.roomId === roomId
           );
-
           if (spaceIndex === -1) {
             draft.push(room);
           } else {
@@ -36,7 +34,6 @@ const useSpaces = () => {
           if (draft == null) {
             return;
           }
-
           const spaceIndex = draft.findIndex(
             (space) => space.roomId === roomId
           );
