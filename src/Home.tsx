@@ -31,7 +31,7 @@ const Home: React.FC<HomeProps> = ({ className }) => {
   // a permanent one, it turns out I need to build a custom auth UI to actually
   // get that working.
   React.useEffect(() => {
-    ipcRenderer.on('openUrl', async (e, url) => {
+    const onOpenUrl = async (e: Electron.IpcRendererEvent, url: string) => {
       ipcRenderer.send('clearUrl');
       let hasCredential = url.substr(0, 20).includes('credential');
       console.log('OPENED WITH URL:', url);
@@ -58,8 +58,14 @@ const Home: React.FC<HomeProps> = ({ className }) => {
           return;
         }
       }
-    });
-  });
+    };
+
+    ipcRenderer.on('openUrl', onOpenUrl);
+
+    return () => {
+      ipcRenderer.off('openUrl', onOpenUrl);
+    };
+  }, [user]);
 
   if (!user) {
     return <Redirect to="/" />;

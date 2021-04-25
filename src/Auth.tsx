@@ -9,6 +9,7 @@ import Loader from './components/Loader';
 import Button from './components/Button';
 import FakeMacOSFrame from './components/FakeMacOSFrame';
 import { FirebaseContext } from './contexts/FirebaseContext';
+import electronDebug from 'electron-debug';
 
 export interface AuthProps {
   className?: string;
@@ -36,12 +37,14 @@ const Auth: React.FC<AuthProps> = ({ className }) => {
   React.useEffect(() => {
     ipcRenderer.invoke('getUrl').then(setUrl);
 
-    ipcRenderer.on('openUrl', (e, d) => {
-      setUrl(d);
-    });
+    const onOpenUrl = (e: Electron.IpcRendererEvent, url: string) => {
+      setUrl(url);
+    };
+
+    ipcRenderer.on('openUrl', onOpenUrl);
 
     return () => {
-      ipcRenderer.removeAllListeners();
+      ipcRenderer.off('openUrl', onOpenUrl);
     };
   }, []);
 
