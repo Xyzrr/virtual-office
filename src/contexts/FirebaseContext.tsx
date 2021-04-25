@@ -18,8 +18,9 @@ interface FirebaseContextValue {
 
 export const FirebaseContext = React.createContext<FirebaseContextValue>(null!);
 
+const app = firebase.initializeApp(firebaseConfig);
+
 export const FirebaseContextProvider: React.FC = ({ children }) => {
-  const app = React.useMemo(() => firebase.initializeApp(firebaseConfig), []);
   const [user, setUser] = React.useState<firebase.User | null>(null);
 
   app.auth().onAuthStateChanged((u) => {
