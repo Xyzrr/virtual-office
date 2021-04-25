@@ -9,30 +9,7 @@ import { ColyseusContext } from './contexts/ColyseusContext';
 import { LocalInfoContext } from './contexts/LocalInfoContext';
 import Button from './components/Button';
 import { useHistory } from 'react-router-dom';
-
-const COLORS = [
-  0x800000,
-  0xe6194b,
-  0xf58231,
-  0xffe119,
-  0xbcf60c,
-  0xaaffc3,
-  0x46f0f0,
-  0xe6beff,
-  0xf032e6,
-  0x911eb4,
-
-  0xfffac8,
-  0xffd8b1,
-  0xfabebe,
-  0x008080,
-  0x4363d8,
-  0x3cb44b,
-  0x808080,
-  0x9a6324,
-  0x808000,
-  0x000075,
-];
+import { COLOR_OPTIONS } from './components/constants';
 
 export interface WelcomePanelProps {
   className?: string;
@@ -133,7 +110,7 @@ const WelcomePanel: React.FC<WelcomePanelProps> = ({
       </S.VideoWrapper>
       <S.Label>Your color</S.Label>
       <S.ColorOptions>
-        {COLORS.map((c) => (
+        {COLOR_OPTIONS.map((c) => (
           <S.ColorOption
             key={c}
             color={new Color(c).toString()}

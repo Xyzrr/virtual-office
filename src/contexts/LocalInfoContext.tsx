@@ -1,6 +1,8 @@
 import React from 'react';
+import { COLOR_OPTIONS } from '../components/constants';
 import { AppInfo, useAppTracker } from '../util/app-tracker/useAppTracker';
 import { FirebaseContext } from './FirebaseContext';
+import * as _ from 'lodash';
 
 interface LocalInfoContextValue {
   localIdentity: string;
@@ -38,7 +40,10 @@ export const LocalInfoContextProvider: React.FC = ({ children }) => {
   );
   const [localGhost, setLocalGhost] = React.useState(true);
   const [localWhisperingTo, setLocalWhisperingTo] = React.useState<string>();
-  const [localColor, setLocalColor] = React.useState<number>();
+  const [localColor, setLocalColor] = React.useState<number>(
+    () => _.sample(COLOR_OPTIONS) as number
+  );
+  console.log('COLOR', localColor);
   const [appSharingOn, setAppSharingOn] = React.useState<boolean>();
   const [gotReady, setGotReady] = React.useState(false);
   const localApp = useAppTracker();

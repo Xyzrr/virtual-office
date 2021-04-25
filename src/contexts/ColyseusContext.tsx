@@ -65,7 +65,6 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
     localName,
     localWhisperingTo,
     localColor,
-    setLocalColor,
     localApp,
     appSharingOn,
   } = React.useContext(LocalInfoContext);
@@ -91,6 +90,7 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
 
     const r: Colyseus.Room<any> = await client.joinOrCreate(roomName, {
       identity: localIdentity,
+      color: localColor,
       audioInputOn: localAudioInputOn,
       videoInputOn: localVideoInputOn,
       spaceId: params.spaceId,
@@ -102,10 +102,6 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
 
     r.state.players.onAdd = (player: any, identity: string) => {
       console.log('Colyseus player added:', identity);
-
-      if (identity === localIdentity) {
-        setLocalColor(player.color);
-      }
 
       const addListeners = listeners.current?.['player-added'];
 
