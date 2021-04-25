@@ -15,7 +15,11 @@ const SpaceAvatar: React.FC<SpaceAvatarProps> = ({
 }) => {
   return (
     <S.Wrapper className={className}>
-      {spaceName && initials(spaceName)}
+      {photoUrl ? (
+        <S.AvatarImage src={photoUrl} />
+      ) : (
+        spaceName && initials(spaceName)
+      )}
     </S.Wrapper>
   );
 };

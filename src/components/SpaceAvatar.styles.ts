@@ -14,3 +14,8 @@ export const Wrapper = styled.div`
     filter: brightness(1.1);
   }
 `;
+
+export const AvatarImage = styled.img`
+  width: 100%;
+  height: 100%;
+`;
