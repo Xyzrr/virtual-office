@@ -1,8 +1,9 @@
 import * as S from './SpaceSwitcher.styles';
 import React from 'react';
 import useSpaces from '../hooks/useSpaces';
-import { MenuItem, MenuList, Paper } from '@material-ui/core';
+import { Divider, MenuItem, MenuList, Paper } from '@material-ui/core';
 import Loader from './Loader';
+import { useHistory } from 'react-router-dom';
 
 export interface SpaceSwitcherProps {
   className?: string;
@@ -10,6 +11,7 @@ export interface SpaceSwitcherProps {
 
 const SpaceSwitcher: React.FC<SpaceSwitcherProps> = ({ className }) => {
   const spaces = useSpaces();
+  const history = useHistory();
   return (
     <Paper>
       <MenuList dense>
@@ -19,12 +21,27 @@ const SpaceSwitcher: React.FC<SpaceSwitcherProps> = ({ className }) => {
           </S.LoaderMenuItem>
         )}
         {spaces.map((space) => {
-          return <MenuItem>{space.metadata.spaceName}</MenuItem>;
+          return (
+            <MenuItem
+              onClick={() => {
+                history.push('/s/' + space.metadata.spaceId);
+              }}
+            >
+              {space.metadata.spaceName}
+            </MenuItem>
+          );
         })}
+        <Divider></Divider>
+        <MenuItem
+          onClick={() => {
+            history.push('/home');
+          }}
+        >
+          Exit
+        </MenuItem>
       </MenuList>
     </Paper>
   );
-  return <S.Wrapper className={className}>hello world</S.Wrapper>;
 };
 
 export default SpaceSwitcher;
