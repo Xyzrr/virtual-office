@@ -20,14 +20,14 @@ const Auth: React.FC<AuthProps> = ({ className }) => {
   const history = useHistory();
   const [error, setError] = React.useState<Error>();
 
-  const { app: firebaseApp } = useContext(FirebaseContext);
+  const { app: firebaseApp, user } = useContext(FirebaseContext);
 
   React.useEffect(() => {
-    if (firebaseApp.auth().currentUser != null) {
+    if (user) {
       console.log('Already signed in');
       history.push('/home');
     }
-  }, [firebaseApp]);
+  }, [user]);
 
   React.useEffect(() => {
     ipcRenderer.send('setWindowSize', { width: 360, height: 360 });
