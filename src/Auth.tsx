@@ -46,6 +46,8 @@ const Auth: React.FC<AuthProps> = ({ className }) => {
       return;
     }
 
+    ipcRenderer.send('clearLink');
+
     const token = link.split('=')[1];
     console.log('trying token', token);
     fetch(`http://${HOST}/create-custom-token?id=${token}`).then(

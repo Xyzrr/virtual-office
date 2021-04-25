@@ -1,6 +1,5 @@
 import React from 'react';
 import firebase from 'firebase';
-import { AddOperation } from 'three';
 
 export const firebaseConfig = {
   apiKey: 'AIzaSyA89oz2--yQCG8AieZNa_7j-gPcJsBFyEA',

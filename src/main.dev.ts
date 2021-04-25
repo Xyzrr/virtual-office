@@ -89,6 +89,10 @@ ipcMain.handle('getLink', () => {
   return link;
 });
 
+ipcMain.on('clearLink', () => {
+  link = undefined;
+});
+
 const createWindow = async () => {
   if (
     process.env.NODE_ENV === 'development' ||
