@@ -85,11 +85,11 @@ app.on('open-url', function (event, data) {
 
 app.setAsDefaultProtocolClient('harbor');
 
-ipcMain.handle('getLink', () => {
+ipcMain.handle('getUrl', () => {
   return link;
 });
 
-ipcMain.on('clearLink', () => {
+ipcMain.on('clearUrl', () => {
   link = undefined;
 });
 

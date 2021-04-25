@@ -15,7 +15,7 @@ export interface AuthProps {
 }
 
 const Auth: React.FC<AuthProps> = ({ className }) => {
-  const [link, setLink] = React.useState<string>();
+  const [url, setUrl] = React.useState<string>();
   const [guest, setGuest] = React.useState(false);
   const history = useHistory();
   const [error, setError] = React.useState<Error>();
@@ -34,54 +34,87 @@ const Auth: React.FC<AuthProps> = ({ className }) => {
   }, []);
 
   React.useEffect(() => {
-    ipcRenderer.invoke('getLink').then(setLink);
+    ipcRenderer.invoke('getUrl').then(setUrl);
 
     ipcRenderer.on('openUrl', (e, d) => {
-      setLink(d);
+      setUrl(d);
     });
   }, []);
 
   React.useEffect(() => {
-    if (link == null) {
-      return;
-    }
+    (async () => {
+      if (url == null) {
+        return;
+      }
 
-    ipcRenderer.send('clearLink');
+      ipcRenderer.send('clearUrl');
 
-    const token = link.split('=')[1];
-    console.log('trying token', token);
-    fetch(`http://${HOST}/create-custom-token?id=${token}`).then(
-      async (response) => {
-        if (response.status === 500) {
-          setError(new Error('Your token may have expired. Please try again.'));
-          return;
-        }
+      let hasCredential = url.substr(0, 20).includes('credential');
+      if (hasCredential) {
+        console.log('FOUND CREDENTIAL IN URL:', url);
+        const encodedCredential = url.split('=')[1];
+        const credentialJSON = JSON.parse(
+          decodeURIComponent(encodedCredential)
+        );
+        const credential = firebase.auth.AuthCredential.fromJSON(
+          credentialJSON
+        );
+        console.log('TRYING CREDENTIAL:', credential);
 
-        let text: string;
-
-        try {
-          text = await response.text();
-        } catch (e) {
-          setError(e);
+        if (credential == null) {
           return;
         }
 
         let user: firebase.auth.UserCredential;
         try {
-          user = await firebaseApp.auth().signInWithCustomToken(text);
+          user = await firebaseApp.auth().signInWithCredential(credential);
         } catch (e) {
           setError(e);
           return;
         }
 
-        console.log('USER:', user);
         history.push('/home');
-      },
-      (error) => {
-        console.log('ERRORED OUT', error);
+        return;
       }
-    );
-  }, [link]);
+
+      const token = url.split('=')[1];
+      console.log('TRYING TOKEN:', token);
+      let response: Response;
+      try {
+        response = await fetch(
+          `http://${HOST}/create-custom-token?id=${token}`
+        );
+      } catch (e) {
+        setError(e);
+        return;
+      }
+
+      if (response.status === 500) {
+        setError(new Error('Your token may have expired. Please try again.'));
+        return;
+      }
+
+      let text: string;
+
+      try {
+        text = await response.text();
+      } catch (e) {
+        setError(e);
+        return;
+      }
+
+      let user: firebase.auth.UserCredential;
+      try {
+        user = await firebaseApp.auth().signInWithCustomToken(text);
+      } catch (e) {
+        setError(e);
+        return;
+      }
+
+      console.log('USER:', user);
+      history.push('/home');
+    })();
+  }, [url]);
 
   if (loadingUser) {
     return (
@@ -96,7 +129,7 @@ const Auth: React.FC<AuthProps> = ({ className }) => {
       <FakeMacOSFrame />
       <S.Wrapper className={className}>
         <S.Logo>Harbor</S.Logo>
-        {link == null && !guest ? (
+        {url == null && !guest ? (
           <S.Buttons>
             <S.LoginButton
               variant="contained"
@@ -132,7 +165,7 @@ const Auth: React.FC<AuthProps> = ({ className }) => {
             <Button
               variant="contained"
               onClick={() => {
-                setLink(undefined);
+                setUrl(undefined);
                 setError(undefined);
                 setGuest(false);
               }}

@@ -25,10 +25,16 @@ export const FirebaseContextProvider: React.FC = ({ children }) => {
   const [user, setUser] = React.useState<firebase.User | null>(null);
   const [loadingUser, setLoadingUser] = React.useState(true);
 
-  app.auth().onAuthStateChanged((u) => {
-    setLoadingUser(false);
-    setUser(u);
-  });
+  React.useEffect(() => {
+    app.auth().onAuthStateChanged((u) => {
+      setLoadingUser(false);
+      setUser(u);
+    });
+
+    app.auth().onIdTokenChanged((u) => {
+      setUser(u);
+    });
+  }, []);
 
   return (
     <FirebaseContext.Provider value={{ app, user, loadingUser }}>

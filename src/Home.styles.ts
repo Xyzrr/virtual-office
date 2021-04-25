@@ -149,3 +149,13 @@ export const CreateSpaceSubTitle = styled.h3`
   font-size: 12px;
   margin-top: 0;
 `;
+
+export const GuestSignInButton = styled.a`
+  text-decoration: none;
+  font-size: 13px;
+  margin-right: 12px;
+  color: #777;
+  &:hover {
+    color: #ddd;
+  }
+`;
