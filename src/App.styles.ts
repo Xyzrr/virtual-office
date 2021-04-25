@@ -81,7 +81,7 @@ export const TopBar = styled.div<{ focused: boolean; hide?: boolean }>`
 
 export const TabIcon = styled(Icon)`
   color: #bbb;
-  font-size: 15px;
+  font-size: 16px;
   margin-right: 4px;
 `;
 

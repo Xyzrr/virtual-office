@@ -72,6 +72,7 @@ const Home: React.FC<HomeProps> = ({ className }) => {
             spaces.map((space) => {
               return (
                 <S.Space
+                  key={space.metadata.spaceId}
                   onClick={() => {
                     history.push(`/s/${space.metadata.spaceId}`);
                   }}

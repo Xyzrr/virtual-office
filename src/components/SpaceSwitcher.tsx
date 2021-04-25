@@ -30,6 +30,7 @@ const SpaceSwitcher: React.FC<SpaceSwitcherProps> = ({ className }) => {
           resortedSpaces.map((space) => {
             return (
               <MenuItem
+                key={space.metadata.spaceId}
                 onClick={() => {
                   history.push('/s/' + space.metadata.spaceId);
                 }}
