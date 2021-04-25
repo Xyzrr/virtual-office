@@ -8,7 +8,11 @@ import { useImmer } from 'use-immer';
 import { ColyseusYoutubePlayer } from '../App';
 
 import HoverMenu from './HoverMenu';
-import { MAX_INTERACTION_DISTANCE } from './constants';
+import {
+  MAX_INTERACTION_DISTANCE,
+  MAX_YOUTUBE_POSITION_DISTANCE_S,
+  YOUTUBE_POSITION_UPDATE_INTERVAL_S,
+} from './constants';
 import { useMouseIsIdle } from '../util/useMouseIsIdle';
 import PanelWrapper from './PanelWrapper';
 import Loader from './Loader';
@@ -69,6 +73,16 @@ const YoutubePanel: React.FC<YoutubeProps> = React.memo(
           (2 * (MAX_INTERACTION_DISTANCE - distance)) / MAX_INTERACTION_DISTANCE
         );
 
+    const sendColyseusUpdate = (clientPlayer, event, data) => {
+      colyseusRoom?.send(event, {
+        ...data,
+        id: youtubePlayer.id,
+        syn: clientPlayer.syn,
+        localIdentity,
+      });
+      clientPlayer.syn += 1;
+    };
+
     React.useEffect(() => {
       const script = document.createElement('script');
       script.src = "https://www.youtube.com/iframe_api";
@@ -79,12 +93,24 @@ const YoutubePanel: React.FC<YoutubeProps> = React.memo(
         setClientPlayer(new YT.Player(youtubePlayer.id, {
           height: '100%',
           width: '100%',
-          origin: "https://www.youtube.com",
+          playerVars: {
+            fs: '0',
+            // origin: "file://",
+          },
           events: {
             'onReady': (e) => setPlayerReady(true),
             'onStateChange': (e) => {
               if (e.data === YT.PlayerState.ENDED) {
-                colyseusRoom?.send('endVideo', { id: youtubePlayer.id, videoId: youtubePlayer.currentVideo });
+                sendColyseusUpdate(e.target, 'endVideo', {});
+              } else {
+                sendColyseusUpdate(e.target, 'updateVideoPosition', {
+                  videoPosition: e.target.getCurrentTime(),
+                });
+                if (e.data === YT.PlayerState.PLAYING || e.data === YT.PlayerState.PAUSED) {
+                  sendColyseusUpdate(e.target, 'updateVideoIsPlaying', {
+                    isPlaying: e.data === YT.PlayerState.PLAYING,
+                  });
+                }
               }
             },
           }
@@ -98,6 +124,37 @@ const YoutubePanel: React.FC<YoutubeProps> = React.memo(
     }, []);
 
     React.useEffect(() => {
+      if (!clientPlayer) {
+        return;
+      }
+      const youtubePosUpdate = setInterval(() => {
+        if (clientPlayer.getCurrentTime && clientPlayer.getPlayerState() == YT.PlayerState.PLAYING) { // not a function if the video is not fully loaded
+          sendColyseusUpdate(clientPlayer, 'updateVideoPosition', {
+            videoPosition: clientPlayer.getCurrentTime(),
+          });
+        }
+      }, YOUTUBE_POSITION_UPDATE_INTERVAL_S * 1000);
+
+      return () => clearInterval(youtubePosUpdate)
+    }, [clientPlayer]);
+
+    const updateClientPlayer = (youtubePlayer, clientPlayer) => {
+      if (!clientPlayer.getCurrentTime()) { // not yet fully loaded
+        return false;
+      }
+      if (youtubePlayer.isPlaying && clientPlayer.getPlayerState() !== YT.PlayerState.PLAYING) {
+        clientPlayer.playVideo();
+      } else if (!youtubePlayer.isPlaying && clientPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
+        clientPlayer.pauseVideo();
+      }
+      if (Math.abs(clientPlayer.getCurrentTime() - youtubePlayer.videoPosition) > MAX_YOUTUBE_POSITION_DISTANCE_S) {
+        clientPlayer.seekTo(youtubePlayer.videoPosition, true); // allowSeekAhead = true
+      }
+      clientPlayer.syn = youtubePlayer.syn;
+      return true;
+    }
+
+    React.useEffect(() => {
       if (!youtubePlayer || !playerReady) {
         return;
       }
@@ -105,9 +162,16 @@ const YoutubePanel: React.FC<YoutubeProps> = React.memo(
       youtubePlayer.onChange = (changes: any) => {
         for (let c of changes) {
           if (c.field === 'currentVideo') {
-            clientPlayer.loadVideoById(c.value)
+            clientPlayer.loadVideoById(c.value);
           }
         }
+
+        const update = () => {
+          if (!updateClientPlayer(youtubePlayer, clientPlayer)) {
+            setTimeout(() => update(), 1000)
+          }
+        }
+        update();
       }
 
       youtubePlayer.videoQueue.onRemove = (videoId: any, i: any) => {
