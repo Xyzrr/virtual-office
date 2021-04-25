@@ -24,6 +24,7 @@ import FakeMacOSFrame from './components/FakeMacOSFrame';
 import PopupTrigger from './components/PopupTrigger';
 import SpaceSwitcher from './components/SpaceSwitcher';
 import { initials } from './util/text';
+import SpaceAvatar from './components/SpaceAvatar';
 
 export interface NearbyPlayer {
   sid?: string;
@@ -514,12 +515,13 @@ const App: React.FC = () => {
                 transformOrigin="top left"
                 popupContent={() => <SpaceSwitcher></SpaceSwitcher>}
               >
-                {({ anchorAttributes, open }) => {
+                {({ anchorAttributes }) => {
                   return (
-                    <S.SpaceSwitcher {...anchorAttributes}>
-                      {colyseusRoom?.state.spaceName &&
-                        initials(colyseusRoom?.state.spaceName)}
-                    </S.SpaceSwitcher>
+                    <span {...anchorAttributes}>
+                      <SpaceAvatar
+                        spaceName={colyseusRoom?.state.spaceName}
+                      ></SpaceAvatar>
+                    </span>
                   );
                 }}
               </PopupTrigger>

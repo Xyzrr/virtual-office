@@ -4,6 +4,7 @@ import useSpaces from '../hooks/useSpaces';
 import { Divider, MenuItem, MenuList, Paper } from '@material-ui/core';
 import Loader from './Loader';
 import { useHistory } from 'react-router-dom';
+import SpaceAvatar from './SpaceAvatar';
 
 export interface SpaceSwitcherProps {
   className?: string;
@@ -23,6 +24,9 @@ const SpaceSwitcher: React.FC<SpaceSwitcherProps> = ({ className }) => {
                   history.push('/s/' + space.metadata.spaceId);
                 }}
               >
+                <S.StyledSpaceAvatar
+                  spaceName={space.metadata.spaceName}
+                ></S.StyledSpaceAvatar>
                 {space.metadata.spaceName}
               </MenuItem>
             );
@@ -32,7 +36,7 @@ const SpaceSwitcher: React.FC<SpaceSwitcherProps> = ({ className }) => {
             <Loader></Loader>
           </S.LoaderMenuItem>
         )}
-        <Divider></Divider>
+        <S.StyledDivider></S.StyledDivider>
         <MenuItem
           onClick={() => {
             history.push('/home');
