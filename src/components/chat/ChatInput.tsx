@@ -39,7 +39,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ className }) => {
 
             if (e.key === 'Enter') {
               e.preventDefault();
-              room.send('chatMessage', value);
+              room.send('chatMessage', { blocks: value, sentAt: Date.now() });
               Transforms.select(editor, Editor.start(editor, []));
               setValue([
                 {
