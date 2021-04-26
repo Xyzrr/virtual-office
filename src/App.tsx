@@ -26,7 +26,7 @@ import SpaceSwitcher from './components/SpaceSwitcher';
 import { initials } from './util/text';
 import SpaceAvatar from './components/SpaceAvatar';
 import { useHistory } from 'react-router-dom';
-import Chatbox from './ChatBox';
+import Chatbox from './components/chat/ChatBox';
 
 export interface NearbyPlayer {
   sid?: string;
