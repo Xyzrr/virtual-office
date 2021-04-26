@@ -16,7 +16,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ className }) => {
   const [value, setValue] = React.useState([
     {
       type: 'paragraph',
-      children: [{ text: 'A line of text in a paragraph.' }],
+      children: [{ text: '' }],
     },
   ] as Descendant[]);
 
@@ -34,6 +34,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ className }) => {
         onChange={(newValue) => setValue(newValue)}
       >
         <Editable
+          placeholder="Send a message..."
           onKeyDown={(e) => {
             e.stopPropagation();
 
