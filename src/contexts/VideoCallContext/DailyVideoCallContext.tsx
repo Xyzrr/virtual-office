@@ -75,6 +75,10 @@ export const DailyVideoCallContextProvider: React.FC = ({ children }) => {
         callObject.setBandwidth({
           trackConstraints: { width: 32, height: 18 },
         });
+      } else {
+        callObject.setBandwidth({
+          trackConstraints: { width: 240, height: 135 },
+        });
       }
     },
     [callObject]
