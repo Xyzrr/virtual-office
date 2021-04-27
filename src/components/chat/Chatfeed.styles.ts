@@ -3,8 +3,8 @@ import styled from 'styled-components';
 export const Wrapper = styled.div`
   display: flex;
   flex-direction: column-reverse;
+  height: 100%;
   overflow: auto;
-  flex-grow: 1;
   scrollbar-width: 0;
   &::-webkit-scrollbar {
     display: none;
@@ -13,4 +13,5 @@ export const Wrapper = styled.div`
 
 export const InnerWrapper = styled.div`
   padding-top: 16px;
+  padding-bottom: 8px;
 `;
