@@ -20,8 +20,7 @@ export const ChatFeedInnerWrapper = styled.div`
 
 export const Wrapper = styled.div<{ expanded?: boolean }>`
   position: absolute;
-  padding: 16px;
-  padding-top: 0;
+  padding: 0 16px;
   width: 300px;
   display: flex;
   bottom: 0;

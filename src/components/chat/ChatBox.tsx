@@ -22,8 +22,6 @@ const Chatbox: React.FC<ChatboxProps> = ({ className }) => {
     };
   }, []);
 
-  const mouseIsIdle = useMouseIsIdle();
-
   return (
     <S.Wrapper
       className={className}
@@ -41,7 +39,7 @@ const Chatbox: React.FC<ChatboxProps> = ({ className }) => {
           <ChatFeed></ChatFeed>
         </S.ChatFeedInnerWrapper>
       </S.ChatFeedOuterWrapper>
-      <ChatInput></ChatInput>
+      <ChatInput noHide={expanded}></ChatInput>
     </S.Wrapper>
   );
 };

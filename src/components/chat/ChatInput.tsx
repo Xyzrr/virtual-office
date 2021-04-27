@@ -11,22 +11,28 @@ import {
 } from 'slate-react';
 import { createEditor, Descendant, Editor, Transforms } from 'slate';
 import { ColyseusContext } from '../../contexts/ColyseusContext';
+import { useMouseIsIdle } from '../../util/useMouseIsIdle';
 
 export interface ChatInputEditableProps {
   className?: string;
+  noHide?: boolean;
   onSend(): void;
 }
 
 export const ChatInputEditable: React.FC<ChatInputEditableProps> = ({
   className,
+  noHide,
   onSend,
 }) => {
   const focused = useFocused();
   const editor = useSlateStatic() as ReactEditor;
 
+  const mouseIsIdle = useMouseIsIdle();
+
   return (
     <S.StyledEditable
       focused={focused}
+      hide={mouseIsIdle && !focused && !noHide}
       placeholder="Send a message..."
       onKeyDown={(e) => {
         e.stopPropagation();
@@ -47,9 +53,10 @@ export const ChatInputEditable: React.FC<ChatInputEditableProps> = ({
 
 export interface ChatInputProps {
   className?: string;
+  noHide?: boolean;
 }
 
-const ChatInput: React.FC<ChatInputProps> = ({ className }) => {
+const ChatInput: React.FC<ChatInputProps> = ({ className, noHide }) => {
   const editor = React.useMemo(
     () => withReact(createEditor() as ReactEditor),
     []
@@ -74,6 +81,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ className }) => {
         onChange={(newValue) => setValue(newValue)}
       >
         <ChatInputEditable
+          noHide={noHide}
           onSend={() => {
             room.send('chatMessage', { blocks: value, sentAt: Date.now() });
             Transforms.select(editor, Editor.start(editor, []));
