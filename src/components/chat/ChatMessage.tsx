@@ -3,13 +3,19 @@ import React from 'react';
 import { Editable, ReactEditor, Slate, withReact } from 'slate-react';
 import { createEditor } from 'slate';
 import { ColyseusContext } from '../../contexts/ColyseusContext';
+import { mergeWith } from 'lodash';
 
 export interface ChatMessageProps {
   className?: string;
   message: any;
+  mergeWithAbove?: boolean;
 }
 
-const ChatMessage: React.FC<ChatMessageProps> = ({ className, message }) => {
+const ChatMessage: React.FC<ChatMessageProps> = ({
+  className,
+  message,
+  mergeWithAbove,
+}) => {
   const editor = React.useMemo(
     () => withReact(createEditor() as ReactEditor),
     []
@@ -17,11 +23,20 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ className, message }) => {
   const { room } = React.useContext(ColyseusContext);
   const player = room?.state.players.get(message.senderIdentity);
   const { name } = player;
+  const readableDate = new Date(message.sentAt).toLocaleTimeString([], {
+    hour: 'numeric',
+    minute: '2-digit',
+  });
   return (
-    <S.Wrapper className={className}>
-      <S.SenderName>{name}</S.SenderName>
+    <S.Wrapper className={className} mergeWithAbove={mergeWithAbove}>
+      {!mergeWithAbove && (
+        <S.MessageSignature>
+          <S.SenderName>{name}</S.SenderName>
+          <S.SentAt>{readableDate}</S.SentAt>
+        </S.MessageSignature>
+      )}
       <Slate editor={editor} value={message.blocks} onChange={() => {}}>
-        <Editable readOnly></Editable>
+        <S.Message readOnly></S.Message>
       </Slate>
     </S.Wrapper>
   );
