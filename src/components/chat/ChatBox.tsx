@@ -2,6 +2,7 @@ import * as S from './Chatbox.styles';
 import React from 'react';
 import ChatFeed from './ChatFeed';
 import ChatInput from './ChatInput';
+import { useMouseIsIdle } from '../../util/useMouseIsIdle';
 
 export interface ChatboxProps {
   className?: string;
@@ -20,6 +21,8 @@ const Chatbox: React.FC<ChatboxProps> = ({ className }) => {
       window.removeEventListener('mousedown', onMouseDown);
     };
   }, []);
+
+  const mouseIsIdle = useMouseIsIdle();
 
   return (
     <S.Wrapper

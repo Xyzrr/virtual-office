@@ -1,8 +1,49 @@
 import * as S from './ChatInput.styles';
 import React from 'react';
-import { Editable, ReactEditor, Slate, withReact } from 'slate-react';
+import {
+  Editable,
+  ReactEditor,
+  Slate,
+  useEditor,
+  useFocused,
+  useSlateStatic,
+  withReact,
+} from 'slate-react';
 import { createEditor, Descendant, Editor, Transforms } from 'slate';
 import { ColyseusContext } from '../../contexts/ColyseusContext';
+
+export interface ChatInputEditableProps {
+  className?: string;
+  onSend(): void;
+}
+
+export const ChatInputEditable: React.FC<ChatInputEditableProps> = ({
+  className,
+  onSend,
+}) => {
+  const focused = useFocused();
+  const editor = useSlateStatic() as ReactEditor;
+
+  return (
+    <S.StyledEditable
+      focused={focused}
+      placeholder="Send a message..."
+      onKeyDown={(e) => {
+        e.stopPropagation();
+
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          onSend();
+        }
+
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          ReactEditor.blur(editor);
+        }
+      }}
+    />
+  );
+};
 
 export interface ChatInputProps {
   className?: string;
@@ -21,7 +62,6 @@ const ChatInput: React.FC<ChatInputProps> = ({ className }) => {
   ] as Descendant[]);
 
   const { room } = React.useContext(ColyseusContext);
-
   if (!room) {
     return null;
   }
@@ -33,24 +73,18 @@ const ChatInput: React.FC<ChatInputProps> = ({ className }) => {
         value={value}
         onChange={(newValue) => setValue(newValue)}
       >
-        <Editable
-          placeholder="Send a message..."
-          onKeyDown={(e) => {
-            e.stopPropagation();
-
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              room.send('chatMessage', { blocks: value, sentAt: Date.now() });
-              Transforms.select(editor, Editor.start(editor, []));
-              setValue([
-                {
-                  type: 'paragraph',
-                  children: [{ text: '' }],
-                },
-              ]);
-            }
+        <ChatInputEditable
+          onSend={() => {
+            room.send('chatMessage', { blocks: value, sentAt: Date.now() });
+            Transforms.select(editor, Editor.start(editor, []));
+            setValue([
+              {
+                type: 'paragraph',
+                children: [{ text: '' }],
+              },
+            ]);
           }}
-        ></Editable>
+        />
       </Slate>
     </S.Wrapper>
   );
