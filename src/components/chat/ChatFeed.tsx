@@ -3,26 +3,19 @@ import React from 'react';
 import ChatMessage from './ChatMessage';
 import ChatInput from './ChatInput';
 import { v4 as uuid } from 'uuid';
-import { Transforms } from 'slate';
-import { useSlateStatic } from 'slate-react';
 import { ColyseusContext } from '../../contexts/ColyseusContext';
+import useFeed from './hooks/useFeed';
 
 export interface ChatFeedProps {
   className?: string;
-  feed: any[];
 }
 
-const ChatFeed: React.FC<ChatFeedProps> = ({ className, feed }) => {
+const ChatFeed: React.FC<ChatFeedProps> = ({ className }) => {
   const [currentMessageId, setCurrentMessageId] = React.useState<string | null>(
     null
   );
   const { room } = React.useContext(ColyseusContext);
-  React.useEffect(() => {
-    console.log('MOUNT FEED');
-    return () => {
-      console.log('UNMOUNT FEED');
-    };
-  }, []);
+  const feed = useFeed();
 
   if (!room) {
     return null;
@@ -58,36 +51,32 @@ const ChatFeed: React.FC<ChatFeedProps> = ({ className, feed }) => {
 
   const currentMessageIndex = feed.findIndex((m) => m.id === currentMessageId);
 
-  let mfeed = feed;
+  const messageElements = feed.map((message, i) => {
+    if (i === currentMessageIndex) {
+      return chatInput;
+    }
+
+    let mergeWithAbove =
+      i > 0 &&
+      message.senderIdentity === feed[i - 1].senderIdentity &&
+      message.sentAt - feed[i - 1].sentAt < 60 * 1000;
+
+    return (
+      <ChatMessage
+        key={message.sentAt}
+        message={message}
+        mergeWithAbove={mergeWithAbove}
+      ></ChatMessage>
+    );
+  });
+
   if (currentMessageIndex === -1) {
-    mfeed = [...feed, { fake: true }];
+    messageElements.push(chatInput);
   }
 
   return (
     <S.Wrapper className={className}>
-      <S.InnerWrapper>
-        {mfeed.map((message, i) => {
-          if (
-            (currentMessageIndex === -1 && message.fake) ||
-            i === currentMessageIndex
-          ) {
-            return chatInput;
-          }
-
-          let mergeWithAbove =
-            i > 0 &&
-            message.senderIdentity === mfeed[i - 1].senderIdentity &&
-            message.sentAt - mfeed[i - 1].sentAt < 60 * 1000;
-
-          return (
-            <ChatMessage
-              key={message.sentAt}
-              message={message}
-              mergeWithAbove={mergeWithAbove}
-            ></ChatMessage>
-          );
-        })}
-      </S.InnerWrapper>
+      <S.InnerWrapper>{messageElements}</S.InnerWrapper>
     </S.Wrapper>
   );
 };

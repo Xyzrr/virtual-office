@@ -1,9 +1,6 @@
 import * as S from './Chatbox.styles';
 import React from 'react';
 import ChatFeed from './ChatFeed';
-import ChatInput from './ChatInput';
-import { useMouseIsIdle } from '../../util/useMouseIsIdle';
-import useFeed from './hooks/useFeed';
 
 export interface ChatboxProps {
   className?: string;
@@ -11,8 +8,6 @@ export interface ChatboxProps {
 
 const Chatbox: React.FC<ChatboxProps> = ({ className }) => {
   const [expanded, setExpanded] = React.useState(false);
-
-  const feed = useFeed();
 
   React.useEffect(() => {
     const onMouseDown = () => {
@@ -37,7 +32,7 @@ const Chatbox: React.FC<ChatboxProps> = ({ className }) => {
       }}
     >
       <S.ChatFeedInnerWrapper>
-        <ChatFeed feed={feed}></ChatFeed>
+        <ChatFeed />
       </S.ChatFeedInnerWrapper>
     </S.Wrapper>
   );
