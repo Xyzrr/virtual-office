@@ -44,7 +44,7 @@ export const ChatInputEditable: React.FC<ChatInputEditableProps> = ({
       renderElement={renderElement}
       focused={focused}
       hide={mouseIsIdle && !focused && !noHide}
-      placeholder="Send a message..."
+      placeholder="Type a realtime message..."
       // onMouseDown={() => {
       //   if (!messageStartedRef.current) {
       //     onStart();
