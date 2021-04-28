@@ -38,8 +38,12 @@ export const ChatInputEditable: React.FC<ChatInputEditableProps> = ({
         e.stopPropagation();
 
         if (e.key === 'Enter') {
-          e.preventDefault();
-          onSend();
+          if (!e.shiftKey) {
+            e.preventDefault();
+            if (Editor.string(editor, [])) {
+              onSend();
+            }
+          }
         }
 
         if (e.key === 'Escape') {
