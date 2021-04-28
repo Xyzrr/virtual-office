@@ -15,6 +15,7 @@ import { CustomElement } from './slate-plugins/types';
 import { Room } from 'colyseus.js';
 import { withLinks } from './slate-plugins/links';
 import { withRealtime } from './slate-plugins/realtime';
+import { withHistory } from 'slate-history';
 
 export interface ChatInputEditableProps {
   className?: string;
@@ -92,7 +93,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ className, noHide }) => {
     }
 
     return withRealtime(
-      withLinks(withReact(createEditor())),
+      withLinks(withHistory(withReact(createEditor()))),
       room,
       currentMessageIdRef
     );
