@@ -1,7 +1,7 @@
 import * as S from './links.styles';
 
 import React from 'react';
-import { Node, Element, Editor, Transforms, Range } from 'slate';
+import { Node, Element, Editor, Transforms, Range, Text } from 'slate';
 import { RenderElementProps, ReactEditor, useSlate } from 'slate-react';
 import isUrl from 'is-url';
 
@@ -62,8 +62,10 @@ export const LinkElement: React.FC<RenderElementProps & { element: Link }> = ({
   );
 };
 
+const protocolAndDomainRE = /^(?:\w+:)?\/\/(\S+)$/;
+
 export const withLinks = <T extends Editor>(editor: T) => {
-  const { insertText, isInline } = editor;
+  const { insertText, isInline, normalizeNode } = editor;
 
   editor.isInline = (element) => {
     return isLink(element) ? true : isInline(element);
@@ -75,6 +77,20 @@ export const withLinks = <T extends Editor>(editor: T) => {
     } else {
       insertText(text);
     }
+  };
+
+  editor.normalizeNode = (entry) => {
+    const [node, path] = entry;
+
+    if (isLink(node)) {
+      const s = Editor.string(editor, path);
+      if (s !== node.url && isUrl(s)) {
+        Transforms.setNodes(editor, { url: s }, { at: path });
+        return;
+      }
+    }
+
+    normalizeNode(entry);
   };
 
   // editor.insertData = data => {
