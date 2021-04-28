@@ -27,7 +27,10 @@ export const useMouseIsIdle = (opts?: {
     };
 
     const onKeyDown = () => {
-      setMouseIsIdle(true);
+      // This made sense for editable documents, but I find
+      // it to be annoying here when you want to move while
+      // using the mouse.
+      // setMouseIsIdle(true);
     };
 
     container?.addEventListener('mousemove', onMouseMove);
