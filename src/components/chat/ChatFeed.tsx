@@ -6,6 +6,7 @@ import { createEditor, Editor, Operation, Transforms } from 'slate';
 import { ColyseusContext } from '../../contexts/ColyseusContext';
 import ChatMessage from './ChatMessage';
 import { createEditorWithPlugins } from './slate-plugins/merge';
+import { withLinks } from './slate-plugins/links';
 
 export interface ChatFeedProps {
   className?: string;
@@ -32,6 +33,7 @@ const ChatFeed: React.FC<ChatFeedProps> = ({ className }) => {
     });
 
     const removeOnStartMessage = room.onMessage('startMessage', (message) => {
+      console.log('starting message');
       setFeed((draft) => {
         draft.push(message);
       });
@@ -40,10 +42,12 @@ const ChatFeed: React.FC<ChatFeedProps> = ({ className }) => {
     const removeOnMessageOperation = room.onMessage(
       'messageOperation',
       (operation) => {
+        console.log('RECEIVED OPERATION', operation.operation);
         setFeed((draft) => {
           const toEdit = draft.find((m) => m.id === operation.messageId);
           const tempEditor = createEditor();
-          tempEditor.children = toEdit;
+          tempEditor.normalizeNode = () => {};
+          tempEditor.children = toEdit.blocks;
           tempEditor.apply(operation.operation);
           toEdit.blocks = tempEditor.children;
         });

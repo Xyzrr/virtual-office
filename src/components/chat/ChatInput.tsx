@@ -42,6 +42,12 @@ export const ChatInputEditable: React.FC<ChatInputEditableProps> = ({
       focused={focused}
       hide={mouseIsIdle && !focused && !noHide}
       placeholder="Send a message..."
+      // onMouseDown={() => {
+      //   if (!messageStartedRef.current) {
+      //     onStart();
+      //   }
+      //   messageStartedRef.current = true;
+      // }}
       onKeyDown={(e) => {
         e.stopPropagation();
 
@@ -99,6 +105,8 @@ const ChatInput: React.FC<ChatInputProps> = ({ className, noHide }) => {
     },
   ]);
 
+  // console.log('room and editor', room, editor);
+
   if (!room || !editor) {
     return null;
   }
@@ -113,8 +121,9 @@ const ChatInput: React.FC<ChatInputProps> = ({ className, noHide }) => {
         <ChatInputEditable
           noHide={noHide}
           onStart={() => {
+            console.log('SENDING START MESSAGE');
             room.send('startMessage', {
-              messageId: currentMessageIdRef.current,
+              id: currentMessageIdRef.current,
               sentAt: Date.now(),
               blocks: [
                 {

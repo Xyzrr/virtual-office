@@ -9,10 +9,15 @@ export const withRealtime = <T extends Editor>(
   const { apply } = editor;
 
   editor.apply = (operation) => {
-    room.send('messageOperation', {
-      messageId: messageIdRef.current,
-      operation,
-    });
+    if (operation.type !== 'set_selection') {
+      console.log('SENDING OPERATION', operation);
+      room.send('messageOperation', {
+        messageId: messageIdRef.current,
+        operation,
+      });
+    }
     apply(operation);
   };
+
+  return editor;
 };
