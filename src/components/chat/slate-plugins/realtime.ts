@@ -6,21 +6,28 @@ export const withRealtime = <T extends Editor>(
   room: Room,
   messageIdRef: React.MutableRefObject<string | null>
 ) => {
-  const { apply } = editor;
+  const { onChange } = editor;
 
-  editor.apply = (operation) => {
-    if (operation.type !== 'set_selection') {
-      console.log('SENDING OPERATION', operation);
-      if (messageIdRef.current == null) {
-        throw new Error('Attempted to send operation with no message ID');
-      }
-
-      room.send('messageOperation', {
-        messageId: messageIdRef.current,
-        operation,
-      });
+  editor.onChange = (...args) => {
+    const operations = editor.operations.filter(
+      (o) => o.type !== 'set_selection'
+    );
+    if (operations.length === 0) {
+      return onChange(...args);
     }
-    apply(operation);
+
+    if (messageIdRef.current == null) {
+      throw new Error(
+        'Attempted to send message operations with null message ID'
+      );
+    }
+
+    room.send('messageOperations', {
+      messageId: messageIdRef.current,
+      operations: operations,
+    });
+
+    return onChange(...args);
   };
 
   return editor;

@@ -30,16 +30,19 @@ const useFeed = () => {
       });
     });
 
-    const removeOnMessageOperation = room.onMessage(
-      'messageOperation',
-      (operation) => {
-        console.log('RECEIVED OPERATION', operation.operation);
+    const removeOnMessageOperations = room.onMessage(
+      'messageOperations',
+      (operationsMessage) => {
+        console.log('RECEIVED OPERATIONS', operationsMessage);
         setFeed((draft) => {
-          const toEdit = draft.find((m) => m.id === operation.messageId);
+          const toEdit = draft.find(
+            (m) => m.id === operationsMessage.messageId
+          );
           const tempEditor = createEditor();
           tempEditor.normalizeNode = () => {};
           tempEditor.children = toEdit.blocks;
-          tempEditor.apply(operation.operation);
+          operationsMessage.operations.forEach(tempEditor.apply);
+          console.log('AFTER OPERATIONS', tempEditor.children);
           toEdit.blocks = tempEditor.children;
         });
       }
@@ -48,7 +51,7 @@ const useFeed = () => {
     return () => {
       removeOnChatMessage();
       removeOnStartMessage();
-      removeOnMessageOperation();
+      removeOnMessageOperations();
     };
   }, [room]);
 

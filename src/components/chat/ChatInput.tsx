@@ -117,7 +117,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     },
   ]);
 
-  console.log('VALUE', value);
+  console.log('VALUE', JSON.parse(JSON.stringify(value)));
 
   if (!room || !editor) {
     return null;
@@ -127,7 +127,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
     <Slate
       editor={editor}
       value={value}
-      onChange={(newValue) => setValue(newValue as CustomElement[])}
+      onChange={(newValue) => {
+        console.log('ON CHANGE! OPERATIONS:', editor.operations);
+        setValue(newValue as CustomElement[]);
+      }}
     >
       <ChatInputEditable
         className={className}
