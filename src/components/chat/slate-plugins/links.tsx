@@ -4,10 +4,12 @@ import React from 'react';
 import { Node, Element, Editor, Transforms, Range, Text } from 'slate';
 import { RenderElementProps, ReactEditor, useSlate } from 'slate-react';
 import isUrl from 'is-url';
+import { CustomText } from './types';
 
-export interface Link extends Element {
+export interface Link {
   type: 'link';
   url: string;
+  children: CustomText[];
 }
 
 export const EditorWithLinks = {
@@ -18,12 +20,16 @@ export const EditorWithLinks = {
   },
 
   isLinkActive(editor: Editor) {
-    const [link] = Editor.nodes(editor, { match: (n) => isLink(n) });
+    const [link] = Editor.nodes(editor, {
+      match: (n) => Element.isElement(n) && n.type === 'link',
+    });
     return !!link;
   },
 
   unwrapLink(editor: Editor) {
-    Transforms.unwrapNodes(editor, { match: (n) => isLink(n) });
+    Transforms.unwrapNodes(editor, {
+      match: (n) => Element.isElement(n) && n.type === 'link',
+    });
   },
 
   wrapLink(editor: Editor, url: string) {
@@ -33,7 +39,7 @@ export const EditorWithLinks = {
 
     const { selection } = editor;
     const isCollapsed = selection && Range.isCollapsed(selection);
-    const link = {
+    const link: Link = {
       type: 'link',
       url,
       children: isCollapsed ? [{ text: url }] : [],
@@ -47,8 +53,6 @@ export const EditorWithLinks = {
     }
   },
 };
-
-export const isLink = (node: Node): node is Link => node.type === 'link';
 
 export const LinkElement: React.FC<RenderElementProps & { element: Link }> = ({
   attributes,
@@ -68,7 +72,7 @@ export const withLinks = <T extends Editor>(editor: T) => {
   const { insertText, isInline, normalizeNode } = editor;
 
   editor.isInline = (element) => {
-    return isLink(element) ? true : isInline(element);
+    return element.type === 'link' ? true : isInline(element);
   };
 
   editor.insertText = (text) => {
@@ -82,7 +86,7 @@ export const withLinks = <T extends Editor>(editor: T) => {
   editor.normalizeNode = (entry) => {
     const [node, path] = entry;
 
-    if (isLink(node)) {
+    if (Element.isElement(node) && node.type === 'link') {
       const s = Editor.string(editor, path);
       if (s !== node.url && isUrl(s)) {
         Transforms.setNodes(editor, { url: s }, { at: path });

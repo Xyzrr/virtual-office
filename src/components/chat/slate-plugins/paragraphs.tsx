@@ -2,13 +2,12 @@ import * as S from './paragraphs.styles';
 
 import React from 'react';
 import { RenderElementProps } from 'slate-react';
+import { CustomText } from './types';
 
-export interface Paragraph extends Element {
+export interface Paragraph {
   type: 'paragraph';
+  children: CustomText[];
 }
-
-export const isParagraph = (node: Node): node is Paragraph =>
-  node.type === 'paragraph';
 
 export const ParagraphElement: React.FC<
   RenderElementProps & {

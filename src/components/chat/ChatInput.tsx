@@ -1,20 +1,11 @@
 import * as S from './ChatInput.styles';
 import React from 'react';
-import {
-  Editable,
-  ReactEditor,
-  RenderElementProps,
-  Slate,
-  useFocused,
-  useSlateStatic,
-  withReact,
-} from 'slate-react';
-import { createEditor, Descendant, Editor, Transforms } from 'slate';
+import { ReactEditor, Slate, useFocused, useSlateStatic } from 'slate-react';
+import { Editor, Transforms } from 'slate';
 import { ColyseusContext } from '../../contexts/ColyseusContext';
 import { useMouseIsIdle } from '../../util/useMouseIsIdle';
-import { isLink, LinkElement, withLinks } from './slate-plugins/links';
-import { Paragraph, ParagraphElement } from './slate-plugins/paragraphs';
 import { createEditorWithPlugins, renderElement } from './slate-plugins/merge';
+import { CustomElement } from './slate-plugins/types';
 
 export interface ChatInputEditableProps {
   className?: string;
@@ -28,7 +19,7 @@ export const ChatInputEditable: React.FC<ChatInputEditableProps> = ({
   onSend,
 }) => {
   const focused = useFocused();
-  const editor = useSlateStatic() as ReactEditor;
+  const editor = useSlateStatic();
 
   const mouseIsIdle = useMouseIsIdle();
 
@@ -66,12 +57,12 @@ export interface ChatInputProps {
 
 const ChatInput: React.FC<ChatInputProps> = ({ className, noHide }) => {
   const editor = React.useMemo(() => createEditorWithPlugins(), []);
-  const [value, setValue] = React.useState([
+  const [value, setValue] = React.useState<CustomElement[]>([
     {
       type: 'paragraph',
       children: [{ text: '' }],
     },
-  ] as Descendant[]);
+  ]);
 
   const { room } = React.useContext(ColyseusContext);
   if (!room) {
@@ -83,7 +74,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ className, noHide }) => {
       <Slate
         editor={editor}
         value={value}
-        onChange={(newValue) => setValue(newValue)}
+        onChange={(newValue) => setValue(newValue as CustomElement[])}
       >
         <ChatInputEditable
           noHide={noHide}
