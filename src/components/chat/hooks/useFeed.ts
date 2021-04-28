@@ -38,6 +38,9 @@ const useFeed = () => {
           const toEdit = draft.find(
             (m) => m.id === operationsMessage.messageId
           );
+          if (toEdit == null) {
+            return;
+          }
           const tempEditor = createEditor();
           tempEditor.normalizeNode = () => {};
           tempEditor.children = toEdit.blocks;
