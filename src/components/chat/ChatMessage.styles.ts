@@ -2,7 +2,7 @@ import { Editable } from 'slate-react';
 import styled, { css } from 'styled-components';
 
 export const Wrapper = styled.div<{ mergeWithAbove?: boolean }>`
-  padding: 8px;
+  padding: 8px 12px;
   color: white;
   ${(props) =>
     props.mergeWithAbove &&

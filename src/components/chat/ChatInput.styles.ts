@@ -20,7 +20,7 @@ export const StyledEditable = styled(Editable)<{
   }
   opacity: 1;
   margin-top: 8px;
-  transition: opacity 0.2s, margin-bottom 0.2s;
+  transition: opacity 0.2s, margin-bottom 0.2s, margin-top 0.2s;
   line-height: 20px;
   position: sticky !important;
   bottom: 0;
@@ -35,6 +35,7 @@ export const StyledEditable = styled(Editable)<{
     props.hide &&
     css`
       opacity: 0;
-      margin-bottom: -28px;
+      margin-bottom: -36px;
+      margin-top: 0;
     `}
 `;

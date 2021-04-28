@@ -5,6 +5,7 @@ import ChatInput from './ChatInput';
 import { v4 as uuid } from 'uuid';
 import { ColyseusContext } from '../../contexts/ColyseusContext';
 import useFeed from './hooks/useFeed';
+import { LocalInfoContext } from '../../contexts/LocalInfoContext';
 
 export interface ChatFeedProps {
   className?: string;
@@ -16,6 +17,7 @@ const ChatFeed: React.FC<ChatFeedProps> = ({ className, expanded }) => {
     null
   );
   const { room } = React.useContext(ColyseusContext);
+  const { localIdentity } = React.useContext(LocalInfoContext);
   const feed = useFeed();
 
   if (!room) {
@@ -66,6 +68,13 @@ const ChatFeed: React.FC<ChatFeedProps> = ({ className, expanded }) => {
   const messageElements = feed.map((message, i) => {
     if (i === currentMessageIndex) {
       return chatInput;
+    }
+
+    if (
+      message.senderIdentity === localIdentity &&
+      message.finishedAt == null
+    ) {
+      return null;
     }
 
     let mergeWithAbove =
