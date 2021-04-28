@@ -79,7 +79,6 @@ export const ChatInputEditable: React.FC<ChatInputEditableProps> = ({
 export interface ChatInputProps {
   className?: string;
   noHide?: boolean;
-  room: Room;
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({ className, noHide }) => {
