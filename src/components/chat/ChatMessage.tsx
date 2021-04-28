@@ -37,6 +37,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
       <Slate editor={editor} value={message.blocks} onChange={() => {}}>
         <S.Message readOnly renderElement={renderElement}></S.Message>
       </Slate>
+      <div id={`container-${message.id}`} />
     </S.Wrapper>
   );
 };

@@ -13,5 +13,4 @@ export const Wrapper = styled.div`
 
 export const InnerWrapper = styled.div`
   padding-top: 16px;
-  padding-bottom: 8px;
 `;

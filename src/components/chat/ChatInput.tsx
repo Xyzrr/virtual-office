@@ -40,6 +40,7 @@ export const ChatInputEditable: React.FC<ChatInputEditableProps> = ({
 
   return (
     <S.StyledEditable
+      className={className}
       renderElement={renderElement}
       focused={focused}
       hide={mouseIsIdle && !focused && !noHide}
@@ -80,16 +81,22 @@ export const ChatInputEditable: React.FC<ChatInputEditableProps> = ({
 export interface ChatInputProps {
   className?: string;
   noHide?: boolean;
-  feed: any[];
+  currentMessageId: string | null;
+  onStart(): void;
+  onSend(): void;
 }
 
-const ChatInput: React.FC<ChatInputProps> = ({ className, noHide, feed }) => {
+const ChatInput: React.FC<ChatInputProps> = ({
+  className,
+  noHide,
+  currentMessageId,
+  onStart,
+  onSend,
+}) => {
   const { room } = React.useContext(ColyseusContext);
 
-  const [currentMessageId, setCurrentMessageId] = React.useState<number | null>(
-    null
-  );
-  const currentMessageIdRef = React.useRef(currentMessageId);
+  const currentMessageIdRef = React.useRef<string | null>(currentMessageId);
+  currentMessageIdRef.current = currentMessageId;
 
   const editor = React.useMemo(() => {
     if (!room) {
@@ -110,69 +117,35 @@ const ChatInput: React.FC<ChatInputProps> = ({ className, noHide, feed }) => {
     },
   ]);
 
-  // console.log('room and editor', room, editor);
+  console.log('VALUE', value);
 
   if (!room || !editor) {
     return null;
   }
 
-  let portalTarget: Element | null = null;
-  if (currentMessageId != null) {
-    const activeMessage = feed.find((m) => m.id === currentMessageId);
-    if (activeMessage) {
-      portalTarget = document.querySelector(`#${currentMessageId}`);
-    }
-  }
-
-  const content = (
-    <S.Wrapper className={className}>
-      <Slate
-        editor={editor}
-        value={value}
-        onChange={(newValue) => setValue(newValue as CustomElement[])}
-      >
-        <ChatInputEditable
-          noHide={noHide}
-          onStart={() => {
-            console.log('SENDING START MESSAGE');
-            const newId = Math.random();
-            currentMessageIdRef.current = newId;
-            setCurrentMessageId(newId);
-
-            room.send('startMessage', {
-              id: currentMessageIdRef.current,
-              sentAt: Date.now(),
-              blocks: [
-                {
-                  type: 'paragraph',
-                  children: [{ text: '' }],
-                },
-              ],
-            });
-          }}
-          onSend={() => {
-            currentMessageIdRef.current = null;
-            setCurrentMessageId(null);
-
-            // room.send('chatMessage', { blocks: value, sentAt: Date.now() });
-            Transforms.select(editor, Editor.start(editor, []));
-            setValue([
-              {
-                type: 'paragraph',
-                children: [{ text: '' }],
-              },
-            ]);
-          }}
-        />
-      </Slate>
-    </S.Wrapper>
+  return (
+    <Slate
+      editor={editor}
+      value={value}
+      onChange={(newValue) => setValue(newValue as CustomElement[])}
+    >
+      <ChatInputEditable
+        className={className}
+        noHide={noHide}
+        onStart={onStart}
+        onSend={() => {
+          Transforms.select(editor, Editor.start(editor, []));
+          setValue([
+            {
+              type: 'paragraph',
+              children: [{ text: '' }],
+            },
+          ]);
+          onSend();
+        }}
+      />
+    </Slate>
   );
-
-  if (portalTarget == null) {
-    return content;
-  } else {
-    return ReactDOM.createPortal(content, portalTarget);
-  }
 };
 
 // interface ChatInputProps {

@@ -4,7 +4,7 @@ import { Node, Element, Editor, Transforms, Range, Text } from 'slate';
 export const withRealtime = <T extends Editor>(
   editor: T,
   room: Room,
-  messageIdRef: React.MutableRefObject<number | null>
+  messageIdRef: React.MutableRefObject<string | null>
 ) => {
   const { apply } = editor;
 

@@ -1,6 +1,11 @@
 import * as S from './ChatFeed.styles';
 import React from 'react';
 import ChatMessage from './ChatMessage';
+import ChatInput from './ChatInput';
+import { v4 as uuid } from 'uuid';
+import { Transforms } from 'slate';
+import { useSlateStatic } from 'slate-react';
+import { ColyseusContext } from '../../contexts/ColyseusContext';
 
 export interface ChatFeedProps {
   className?: string;
@@ -8,6 +13,14 @@ export interface ChatFeedProps {
 }
 
 const ChatFeed: React.FC<ChatFeedProps> = ({ className, feed }) => {
+  const [currentMessageId, setCurrentMessageId] = React.useState<string | null>(
+    null
+  );
+  const { room } = React.useContext(ColyseusContext);
+  if (!room) {
+    return null;
+  }
+
   return (
     <S.Wrapper className={className}>
       <S.InnerWrapper>
@@ -24,6 +37,30 @@ const ChatFeed: React.FC<ChatFeedProps> = ({ className, feed }) => {
             ></ChatMessage>
           );
         })}
+        <ChatInput
+          noHide={true}
+          currentMessageId={currentMessageId}
+          onStart={() => {
+            console.log('SENDING START MESSAGE');
+            const newId = uuid();
+            setCurrentMessageId(newId);
+
+            room.send('startMessage', {
+              id: newId,
+              sentAt: Date.now(),
+              blocks: [
+                {
+                  type: 'paragraph',
+                  children: [{ text: '' }],
+                },
+              ],
+            });
+          }}
+          onSend={() => {
+            setCurrentMessageId(null);
+            // room.send('chatMessage', { blocks: value, sentAt: Date.now() });
+          }}
+        ></ChatInput>
       </S.InnerWrapper>
     </S.Wrapper>
   );

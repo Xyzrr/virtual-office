@@ -32,17 +32,13 @@ const Chatbox: React.FC<ChatboxProps> = ({ className }) => {
       onMouseDown={(e) => {
         e.stopPropagation();
       }}
+      onWheel={() => {
+        setExpanded(true);
+      }}
     >
-      <S.ChatFeedOuterWrapper
-        onWheel={() => {
-          setExpanded(true);
-        }}
-      >
-        <S.ChatFeedInnerWrapper>
-          <ChatFeed feed={feed}></ChatFeed>
-        </S.ChatFeedInnerWrapper>
-      </S.ChatFeedOuterWrapper>
-      <ChatInput noHide={expanded} feed={feed}></ChatInput>
+      <S.ChatFeedInnerWrapper>
+        <ChatFeed feed={feed}></ChatFeed>
+      </S.ChatFeedInnerWrapper>
     </S.Wrapper>
   );
 };
