@@ -30,5 +30,6 @@ export const SentAt = styled.div`
 `;
 
 export const Message = styled(Editable)`
-  color: #ddd;
+  color: #ccc;
+  line-height: 20px;
 `;

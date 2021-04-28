@@ -4,7 +4,6 @@ import {
   Editable,
   ReactEditor,
   Slate,
-  useEditor,
   useFocused,
   useSlateStatic,
   withReact,
