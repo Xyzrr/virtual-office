@@ -44,7 +44,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
     <S.Wrapper className={className} mergeWithAbove={mergeWithAbove}>
       {!mergeWithAbove && (
         <S.MessageSignature>
-          <S.SenderName>{player && player.name}</S.SenderName>
+          <S.SenderName>{player ? player.name : 'Unknown'}</S.SenderName>
           <S.SentAt>{readableDate}</S.SentAt>
         </S.MessageSignature>
       )}
