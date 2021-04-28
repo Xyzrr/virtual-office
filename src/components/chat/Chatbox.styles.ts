@@ -1,5 +1,4 @@
 import styled, { css } from 'styled-components';
-import * as ChatFeedStyles from './ChatFeed.styles';
 
 export const ChatFeedOuterWrapper = styled.div`
   height: 160px;
@@ -15,7 +14,7 @@ export const ChatFeedOuterWrapper = styled.div`
 `;
 
 export const ChatFeedInnerWrapper = styled.div`
-  height: calc(100vh - 40px - 50px);
+  height: calc(100vh - 40px);
 `;
 
 export const Wrapper = styled.div<{ expanded?: boolean }>`
