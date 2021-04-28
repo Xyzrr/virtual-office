@@ -42,7 +42,7 @@ const Chatbox: React.FC<ChatboxProps> = ({ className }) => {
           <ChatFeed feed={feed}></ChatFeed>
         </S.ChatFeedInnerWrapper>
       </S.ChatFeedOuterWrapper>
-      <ChatInput noHide={expanded}></ChatInput>
+      <ChatInput noHide={expanded} feed={feed}></ChatInput>
     </S.Wrapper>
   );
 };
