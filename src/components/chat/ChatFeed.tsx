@@ -17,18 +17,68 @@ const ChatFeed: React.FC<ChatFeedProps> = ({ className, feed }) => {
     null
   );
   const { room } = React.useContext(ColyseusContext);
+  React.useEffect(() => {
+    console.log('MOUNT FEED');
+    return () => {
+      console.log('UNMOUNT FEED');
+    };
+  }, []);
+
   if (!room) {
     return null;
+  }
+
+  const chatInput = (
+    <ChatInput
+      key="chat-input"
+      noHide={true}
+      currentMessageId={currentMessageId}
+      onStart={() => {
+        console.log('SENDING START MESSAGE');
+        const newId = uuid();
+        setCurrentMessageId(newId);
+
+        room.send('startMessage', {
+          id: newId,
+          sentAt: Date.now(),
+          blocks: [
+            {
+              type: 'paragraph',
+              children: [{ text: '' }],
+            },
+          ],
+        });
+      }}
+      onSend={() => {
+        setCurrentMessageId(null);
+        // room.send('chatMessage', { blocks: value, sentAt: Date.now() });
+      }}
+    ></ChatInput>
+  );
+
+  const currentMessageIndex = feed.findIndex((m) => m.id === currentMessageId);
+
+  let mfeed = feed;
+  if (currentMessageIndex === -1) {
+    mfeed = [...feed, { fake: true }];
   }
 
   return (
     <S.Wrapper className={className}>
       <S.InnerWrapper>
-        {feed.map((message, i) => {
+        {mfeed.map((message, i) => {
+          if (
+            (currentMessageIndex === -1 && message.fake) ||
+            i === currentMessageIndex
+          ) {
+            return chatInput;
+          }
+
           let mergeWithAbove =
             i > 0 &&
-            message.senderIdentity === feed[i - 1].senderIdentity &&
-            message.sentAt - feed[i - 1].sentAt < 60 * 1000;
+            message.senderIdentity === mfeed[i - 1].senderIdentity &&
+            message.sentAt - mfeed[i - 1].sentAt < 60 * 1000;
+
           return (
             <ChatMessage
               key={message.sentAt}
@@ -37,30 +87,6 @@ const ChatFeed: React.FC<ChatFeedProps> = ({ className, feed }) => {
             ></ChatMessage>
           );
         })}
-        <ChatInput
-          noHide={true}
-          currentMessageId={currentMessageId}
-          onStart={() => {
-            console.log('SENDING START MESSAGE');
-            const newId = uuid();
-            setCurrentMessageId(newId);
-
-            room.send('startMessage', {
-              id: newId,
-              sentAt: Date.now(),
-              blocks: [
-                {
-                  type: 'paragraph',
-                  children: [{ text: '' }],
-                },
-              ],
-            });
-          }}
-          onSend={() => {
-            setCurrentMessageId(null);
-            // room.send('chatMessage', { blocks: value, sentAt: Date.now() });
-          }}
-        ></ChatInput>
       </S.InnerWrapper>
     </S.Wrapper>
   );
