@@ -18,7 +18,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
   message,
   mergeWithAbove,
 }) => {
-  const editor = React.useMemo(() => createEditorWithPlugins(), []);
+  const editor = React.useMemo(() => createEditor(), []);
   const { room } = React.useContext(ColyseusContext);
   const player = room?.state.players.get(message.senderIdentity);
   const { name } = player;

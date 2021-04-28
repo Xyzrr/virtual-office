@@ -2,9 +2,10 @@ import * as S from './ChatFeed.styles';
 import React from 'react';
 import { useImmer } from 'use-immer';
 import { Editable, ReactEditor, Slate, withReact } from 'slate-react';
-import { createEditor } from 'slate';
+import { createEditor, Editor, Operation, Transforms } from 'slate';
 import { ColyseusContext } from '../../contexts/ColyseusContext';
 import ChatMessage from './ChatMessage';
+import { createEditorWithPlugins } from './slate-plugins/merge';
 
 export interface ChatFeedProps {
   className?: string;
@@ -16,7 +17,11 @@ const ChatFeed: React.FC<ChatFeedProps> = ({ className }) => {
   const { room } = React.useContext(ColyseusContext);
 
   React.useEffect(() => {
-    room?.onMessage('chatMessage', (message) => {
+    if (!room) {
+      return;
+    }
+
+    const removeOnChatMessage = room.onMessage('chatMessage', (message) => {
       if (message == null) {
         return;
       }
@@ -25,6 +30,31 @@ const ChatFeed: React.FC<ChatFeedProps> = ({ className }) => {
         draft.push(message);
       });
     });
+
+    const removeOnStartMessage = room.onMessage('startMessage', (message) => {
+      setFeed((draft) => {
+        draft.push(message);
+      });
+    });
+
+    const removeOnMessageOperation = room.onMessage(
+      'messageOperation',
+      (operation) => {
+        setFeed((draft) => {
+          const toEdit = draft.find((m) => m.id === operation.messageId);
+          const tempEditor = createEditor();
+          tempEditor.children = toEdit;
+          tempEditor.apply(operation.operation);
+          toEdit.blocks = tempEditor.children;
+        });
+      }
+    );
+
+    return () => {
+      removeOnChatMessage();
+      removeOnStartMessage();
+      removeOnMessageOperation();
+    };
   }, [room]);
 
   return (
