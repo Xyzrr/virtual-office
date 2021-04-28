@@ -4,6 +4,8 @@ import { Editable, ReactEditor, Slate, withReact } from 'slate-react';
 import { createEditor } from 'slate';
 import { ColyseusContext } from '../../contexts/ColyseusContext';
 import { mergeWith } from 'lodash';
+import { withLinks } from './slate-plugins/links';
+import { createEditorWithPlugins, renderElement } from './slate-plugins/merge';
 
 export interface ChatMessageProps {
   className?: string;
@@ -16,10 +18,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
   message,
   mergeWithAbove,
 }) => {
-  const editor = React.useMemo(
-    () => withReact(createEditor() as ReactEditor),
-    []
-  );
+  const editor = React.useMemo(() => createEditorWithPlugins(), []);
   const { room } = React.useContext(ColyseusContext);
   const player = room?.state.players.get(message.senderIdentity);
   const { name } = player;
@@ -36,7 +35,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
         </S.MessageSignature>
       )}
       <Slate editor={editor} value={message.blocks} onChange={() => {}}>
-        <S.Message readOnly></S.Message>
+        <S.Message readOnly renderElement={renderElement}></S.Message>
       </Slate>
     </S.Wrapper>
   );

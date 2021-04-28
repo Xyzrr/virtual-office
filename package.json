@@ -262,6 +262,7 @@
     "history": "^5.0.0",
     "immer": "^8.0.1",
     "is-hotkey": "^0.2.0",
+    "is-url": "^1.2.4",
     "lodash": "^4.17.20",
     "normalize.css": "^8.0.1",
     "react": "^17.0.1",

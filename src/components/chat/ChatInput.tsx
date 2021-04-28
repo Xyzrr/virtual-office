@@ -3,6 +3,7 @@ import React from 'react';
 import {
   Editable,
   ReactEditor,
+  RenderElementProps,
   Slate,
   useFocused,
   useSlateStatic,
@@ -11,6 +12,9 @@ import {
 import { createEditor, Descendant, Editor, Transforms } from 'slate';
 import { ColyseusContext } from '../../contexts/ColyseusContext';
 import { useMouseIsIdle } from '../../util/useMouseIsIdle';
+import { isLink, LinkElement, withLinks } from './slate-plugins/links';
+import { Paragraph, ParagraphElement } from './slate-plugins/paragraphs';
+import { createEditorWithPlugins, renderElement } from './slate-plugins/merge';
 
 export interface ChatInputEditableProps {
   className?: string;
@@ -30,6 +34,7 @@ export const ChatInputEditable: React.FC<ChatInputEditableProps> = ({
 
   return (
     <S.StyledEditable
+      renderElement={renderElement}
       focused={focused}
       hide={mouseIsIdle && !focused && !noHide}
       placeholder="Send a message..."
@@ -60,10 +65,7 @@ export interface ChatInputProps {
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({ className, noHide }) => {
-  const editor = React.useMemo(
-    () => withReact(createEditor() as ReactEditor),
-    []
-  );
+  const editor = React.useMemo(() => createEditorWithPlugins(), []);
   const [value, setValue] = React.useState([
     {
       type: 'paragraph',
