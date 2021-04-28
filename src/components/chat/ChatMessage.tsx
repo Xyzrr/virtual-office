@@ -20,17 +20,31 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
 }) => {
   const editor = React.useMemo(() => createEditor(), []);
   const { room } = React.useContext(ColyseusContext);
-  const player = room?.state.players.get(message.senderIdentity);
-  const { name } = player;
+  const [player, setPlayer] = React.useState<any | null>(
+    () => room?.state.players.get(message.senderIdentity) || null
+  );
+
+  React.useEffect(() => {
+    if (room == null) {
+      return;
+    }
+
+    const p = room.state.players.get(message.senderIdentity);
+    if (p != null) {
+      setPlayer(p);
+    }
+  }, [room, message]);
+
   const readableDate = new Date(message.sentAt).toLocaleTimeString([], {
     hour: 'numeric',
     minute: '2-digit',
   });
+
   return (
     <S.Wrapper className={className} mergeWithAbove={mergeWithAbove}>
       {!mergeWithAbove && (
         <S.MessageSignature>
-          <S.SenderName>{name}</S.SenderName>
+          <S.SenderName>{player && player.name}</S.SenderName>
           <S.SentAt>{readableDate}</S.SentAt>
         </S.MessageSignature>
       )}
