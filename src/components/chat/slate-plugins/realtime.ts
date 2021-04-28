@@ -9,6 +9,7 @@ export const withRealtime = <T extends Editor>(
   const { onChange } = editor;
 
   editor.onChange = (...args) => {
+    console.log('PLUGIN ON CHANGE');
     const operations = editor.operations.filter(
       (o) => o.type !== 'set_selection'
     );
@@ -16,15 +17,18 @@ export const withRealtime = <T extends Editor>(
       return onChange(...args);
     }
 
-    if (messageIdRef.current == null) {
-      throw new Error(
-        'Attempted to send message operations with null message ID'
-      );
-    }
+    window.setTimeout(() => {
+      if (messageIdRef.current == null) {
+        console.log(
+          'Attempted to send message operations with null message ID'
+        );
+        return;
+      }
 
-    room.send('messageOperations', {
-      messageId: messageIdRef.current,
-      operations: operations,
+      room.send('messageOperations', {
+        messageId: messageIdRef.current,
+        operations: operations,
+      });
     });
 
     return onChange(...args);

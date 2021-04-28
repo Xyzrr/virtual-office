@@ -36,8 +36,6 @@ export const ChatInputEditable: React.FC<ChatInputEditableProps> = ({
 
   const mouseIsIdle = useMouseIsIdle();
 
-  const messageStartedRef = React.useRef(false);
-
   return (
     <S.StyledEditable
       className={className}
@@ -54,17 +52,11 @@ export const ChatInputEditable: React.FC<ChatInputEditableProps> = ({
       onKeyDown={(e) => {
         e.stopPropagation();
 
-        if (!messageStartedRef.current) {
-          onStart();
-        }
-        messageStartedRef.current = true;
-
         if (e.key === 'Enter') {
           if (!e.shiftKey) {
             e.preventDefault();
             if (Editor.string(editor, [])) {
               onSend();
-              messageStartedRef.current = false;
             }
           }
         }
@@ -84,6 +76,7 @@ export interface ChatInputProps {
   currentMessageId: string | null;
   onStart(): void;
   onSend(): void;
+  onEmpty(): void;
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({
@@ -92,6 +85,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
   currentMessageId,
   onStart,
   onSend,
+  onEmpty,
 }) => {
   const { room } = React.useContext(ColyseusContext);
 
@@ -129,12 +123,21 @@ const ChatInput: React.FC<ChatInputProps> = ({
       value={value}
       onChange={(newValue) => {
         console.log('ON CHANGE! OPERATIONS:', editor.operations);
+        if (currentMessageId == null) {
+          if (Editor.string(editor, [])) {
+            onStart();
+          }
+        } else {
+          if (!Editor.string(editor, [])) {
+            onEmpty();
+          }
+        }
         setValue(newValue as CustomElement[]);
       }}
     >
       <ChatInputEditable
         className={className}
-        noHide={noHide}
+        noHide={noHide || currentMessageId != null}
         onStart={onStart}
         onSend={() => {
           Transforms.select(editor, Editor.start(editor, []));

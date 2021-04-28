@@ -8,9 +8,10 @@ import useFeed from './hooks/useFeed';
 
 export interface ChatFeedProps {
   className?: string;
+  expanded?: boolean;
 }
 
-const ChatFeed: React.FC<ChatFeedProps> = ({ className }) => {
+const ChatFeed: React.FC<ChatFeedProps> = ({ className, expanded }) => {
   const [currentMessageId, setCurrentMessageId] = React.useState<string | null>(
     null
   );
@@ -21,11 +22,18 @@ const ChatFeed: React.FC<ChatFeedProps> = ({ className }) => {
     return null;
   }
 
+  console.log('MESSAGE ID', currentMessageId);
+
   const chatInput = (
     <ChatInput
       key="chat-input"
-      noHide={true}
+      noHide={expanded}
       currentMessageId={currentMessageId}
+      onEmpty={() => {
+        console.log('EMPTIED!');
+        room.send('deleteMessage', { messageId: currentMessageId });
+        setCurrentMessageId(null);
+      }}
       onStart={() => {
         console.log('SENDING START MESSAGE');
         const newId = uuid();
@@ -33,7 +41,7 @@ const ChatFeed: React.FC<ChatFeedProps> = ({ className }) => {
 
         room.send('startMessage', {
           id: newId,
-          sentAt: Date.now(),
+          startedAt: Date.now(),
           blocks: [
             {
               type: 'paragraph',
@@ -43,8 +51,12 @@ const ChatFeed: React.FC<ChatFeedProps> = ({ className }) => {
         });
       }}
       onSend={() => {
+        room.send('finishMessage', {
+          messageId: currentMessageId,
+          finishedAt: Date.now(),
+        });
         setCurrentMessageId(null);
-        // room.send('chatMessage', { blocks: value, sentAt: Date.now() });
+        // room.send('chatMessage', {id: uuid(), blocks: value, startedAt: Date.now(), finishedAt: Date.now() });
       }}
     ></ChatInput>
   );
@@ -59,11 +71,11 @@ const ChatFeed: React.FC<ChatFeedProps> = ({ className }) => {
     let mergeWithAbove =
       i > 0 &&
       message.senderIdentity === feed[i - 1].senderIdentity &&
-      message.sentAt - feed[i - 1].sentAt < 60 * 1000;
+      message.startedAt - feed[i - 1].finishedAt < 60 * 1000;
 
     return (
       <ChatMessage
-        key={message.sentAt}
+        key={message.id}
         message={message}
         mergeWithAbove={mergeWithAbove}
       ></ChatMessage>

@@ -32,7 +32,7 @@ const Chatbox: React.FC<ChatboxProps> = ({ className }) => {
       }}
     >
       <S.ChatFeedInnerWrapper>
-        <ChatFeed />
+        <ChatFeed expanded={expanded} />
       </S.ChatFeedInnerWrapper>
     </S.Wrapper>
   );

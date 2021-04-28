@@ -17,14 +17,14 @@ const useFeed = () => {
       if (message == null) {
         return;
       }
-      console.log('message', message);
+      console.log('RECEIVED WHOLE MESSAGE', message);
       setFeed((draft) => {
         draft.push(message);
       });
     });
 
     const removeOnStartMessage = room.onMessage('startMessage', (message) => {
-      console.log('starting message');
+      console.log('RECEIVED START MESSAGE', message);
       setFeed((draft) => {
         draft.push(message);
       });
@@ -51,10 +51,34 @@ const useFeed = () => {
       }
     );
 
+    const removeOnFinishMessage = room.onMessage('finishMessage', (options) => {
+      console.log('RECEIVED FINISHED MESSAGE', options);
+      setFeed((draft) => {
+        const message = draft.find((m) => m.id === options.messageId);
+        if (!message) {
+          return;
+        }
+        message.finishedAt = options.finishedAt;
+      });
+    });
+
+    const removeOnDeleteMessage = room.onMessage('deleteMessage', (options) => {
+      console.log('RECEIVED DELETE MESSAGE', options);
+      setFeed((draft) => {
+        const deleteIndex = draft.findIndex((m) => m.id === options.messageId);
+        if (deleteIndex === -1) {
+          return;
+        }
+        draft.splice(deleteIndex, 1);
+      });
+    });
+
     return () => {
       removeOnChatMessage();
       removeOnStartMessage();
       removeOnMessageOperations();
+      removeOnFinishMessage();
+      removeOnDeleteMessage();
     };
   }, [room]);
 

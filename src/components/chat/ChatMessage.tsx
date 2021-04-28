@@ -35,10 +35,15 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
     }
   }, [room, message]);
 
-  const readableDate = new Date(message.sentAt).toLocaleTimeString([], {
-    hour: 'numeric',
-    minute: '2-digit',
-  });
+  let readableDate: string;
+  if (message.finishedAt) {
+    readableDate = new Date(message.finishedAt).toLocaleTimeString([], {
+      hour: 'numeric',
+      minute: '2-digit',
+    });
+  } else {
+    readableDate = '...';
+  }
 
   return (
     <S.Wrapper className={className} mergeWithAbove={mergeWithAbove}>
