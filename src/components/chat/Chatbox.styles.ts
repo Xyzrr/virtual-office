@@ -1,4 +1,5 @@
 import styled, { css } from 'styled-components';
+import * as ChatInputStyles from './ChatInput.styles';
 
 export const ChatFeedOuterWrapper = styled.div`
   height: 160px;
@@ -17,7 +18,7 @@ export const ChatFeedInnerWrapper = styled.div`
   height: calc(100vh - 40px);
 `;
 
-export const Wrapper = styled.div<{ expanded?: boolean }>`
+export const Wrapper = styled.div<{ expanded?: boolean; hideInput?: boolean }>`
   position: absolute;
   padding: 0 16px 16px;
   bottom: 0;
@@ -43,6 +44,16 @@ export const Wrapper = styled.div<{ expanded?: boolean }>`
     css`
       && {
         height: calc(100vh - 40px + 128px);
+      }
+    `}
+
+  ${(props) =>
+    props.hideInput &&
+    css`
+      ${ChatInputStyles.StyledEditable} {
+        opacity: 0;
+        margin-bottom: -36px;
+        margin-top: 0;
       }
     `}
 `;

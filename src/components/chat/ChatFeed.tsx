@@ -6,20 +6,16 @@ import { v4 as uuid } from 'uuid';
 import { ColyseusContext } from '../../contexts/ColyseusContext';
 import useFeed from './hooks/useFeed';
 import { LocalInfoContext } from '../../contexts/LocalInfoContext';
+import { ChatBoxContext } from './contexts/ChatBoxContext';
 
 export interface ChatFeedProps {
   className?: string;
-  expanded?: boolean;
   onEscape?(): void;
 }
 
-const ChatFeed: React.FC<ChatFeedProps> = ({
-  className,
-  expanded,
-  onEscape,
-}) => {
-  const [currentMessageId, setCurrentMessageId] = React.useState<string | null>(
-    null
+const ChatFeed: React.FC<ChatFeedProps> = ({ className, onEscape }) => {
+  const { currentMessageId, setCurrentMessageId } = React.useContext(
+    ChatBoxContext
   );
   const { room } = React.useContext(ColyseusContext);
   const { localIdentity } = React.useContext(LocalInfoContext);
@@ -37,8 +33,6 @@ const ChatFeed: React.FC<ChatFeedProps> = ({
   const chatInput = (
     <ChatInput
       key="chat-input"
-      noHide={expanded}
-      currentMessageId={currentMessageId}
       onEmpty={() => {
         console.log('EMPTIED!');
         room.send('deleteMessage', { messageId: currentMessageId });

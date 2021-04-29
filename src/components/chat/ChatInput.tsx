@@ -17,11 +17,10 @@ import { Room } from 'colyseus.js';
 import { withLinks } from './slate-plugins/links';
 import { withRealtime } from './slate-plugins/realtime';
 import { withHistory } from 'slate-history';
+import { ChatBoxContext } from './contexts/ChatBoxContext';
 
 export interface ChatInputProps {
   className?: string;
-  noHide?: boolean;
-  currentMessageId: string | null;
   onStart(): void;
   onSend(): void;
   onEmpty(): void;
@@ -30,8 +29,6 @@ export interface ChatInputProps {
 
 const ChatInput: React.FC<ChatInputProps> = ({
   className,
-  noHide,
-  currentMessageId,
   onStart,
   onSend,
   onEmpty,
@@ -39,6 +36,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
 }) => {
   const { room } = React.useContext(ColyseusContext);
 
+  const { currentMessageId, inputFocused, setInputFocused } = React.useContext(
+    ChatBoxContext
+  );
   const currentMessageIdRef = React.useRef<string | null>(currentMessageId);
   currentMessageIdRef.current = currentMessageId;
 
@@ -62,8 +62,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
   ]);
 
   console.log('VALUE', JSON.parse(JSON.stringify(value)));
-  const mouseIsIdle = useMouseIsIdle();
-  const [focused, setFocused] = React.useState(false);
 
   if (!room || !editor) {
     return null;
@@ -90,14 +88,13 @@ const ChatInput: React.FC<ChatInputProps> = ({
       <S.StyledEditable
         className={className}
         onFocus={() => {
-          setFocused(true);
+          setInputFocused(true);
         }}
         onBlur={() => {
-          setFocused(false);
+          setInputFocused(false);
         }}
         renderElement={renderElement}
-        focused={focused}
-        hide={mouseIsIdle && !focused && !noHide}
+        focused={inputFocused}
         placeholder="Type a realtime message..."
         onKeyDown={(e) => {
           e.stopPropagation();

@@ -8,7 +8,6 @@ export const Wrapper = styled.div`
 
 export const StyledEditable = styled(Editable)<{
   focused?: boolean;
-  hide?: boolean;
 }>`
   box-shadow: inset 0 0 0 1px #444;
   background: ${DARK_BACKGROUND.toString()};
@@ -30,12 +29,5 @@ export const StyledEditable = styled(Editable)<{
       && {
         box-shadow: inset 0 0 0 1px ${HIGHLIGHT.toString()};
       }
-    `}
-  ${(props) =>
-    props.hide &&
-    css`
-      opacity: 0;
-      margin-bottom: -36px;
-      margin-top: 0;
     `}
 `;
