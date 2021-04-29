@@ -19,14 +19,30 @@ const useFeed = () => {
       }
       console.log('RECEIVED WHOLE MESSAGE', message);
       setFeed((draft) => {
-        draft.push(message);
+        const insertIndex = draft.findIndex(
+          (m) => m.startedAt > message.startedAt
+        );
+        if (insertIndex === -1) {
+          draft.push(message);
+        } else {
+          // Just in case we received messages out of order.
+          draft.splice(insertIndex, 0, message);
+        }
       });
     });
 
     const removeOnStartMessage = room.onMessage('startMessage', (message) => {
       console.log('RECEIVED START MESSAGE', message);
       setFeed((draft) => {
-        draft.push(message);
+        const insertIndex = draft.findIndex(
+          (m) => m.startedAt > message.startedAt
+        );
+        if (insertIndex === -1) {
+          draft.push(message);
+        } else {
+          // Just in case we received messages out of order.
+          draft.splice(insertIndex, 0, message);
+        }
       });
     });
 
