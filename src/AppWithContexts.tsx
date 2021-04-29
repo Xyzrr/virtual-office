@@ -3,6 +3,7 @@ import { ColyseusContextProvider } from './contexts/ColyseusContext';
 import { LocalMediaContextProvider } from './contexts/LocalMediaContext';
 import { DailyVideoCallContextProvider } from './contexts/VideoCallContext/DailyVideoCallContext';
 import { LocalInfoContextProvider } from './contexts/LocalInfoContext';
+import { ChatBoxContextProvider } from './contexts/ChatBoxContext';
 import App from './App';
 import { useParams } from 'react-router-dom';
 
@@ -17,7 +18,9 @@ const AppWithContexts: React.FC<AppWithContextsProps> = () => {
       <LocalMediaContextProvider>
         <ColyseusContextProvider key={params.spaceId}>
           <DailyVideoCallContextProvider>
-            <App></App>
+            <ChatBoxContextProvider>
+              <App></App>
+            </ChatBoxContextProvider>
           </DailyVideoCallContextProvider>
         </ColyseusContextProvider>
       </LocalMediaContextProvider>

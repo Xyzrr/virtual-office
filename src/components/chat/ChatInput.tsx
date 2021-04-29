@@ -17,7 +17,7 @@ import { Room } from 'colyseus.js';
 import { withLinks } from './slate-plugins/links';
 import { withRealtime } from './slate-plugins/realtime';
 import { withHistory } from 'slate-history';
-import { ChatBoxContext } from './contexts/ChatBoxContext';
+import { ChatBoxContext } from '../../contexts/ChatBoxContext';
 
 export interface ChatInputProps {
   className?: string;

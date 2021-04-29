@@ -4,9 +4,8 @@ import ChatMessage from './ChatMessage';
 import ChatInput from './ChatInput';
 import { v4 as uuid } from 'uuid';
 import { ColyseusContext } from '../../contexts/ColyseusContext';
-import useFeed from './hooks/useFeed';
 import { LocalInfoContext } from '../../contexts/LocalInfoContext';
-import { ChatBoxContext } from './contexts/ChatBoxContext';
+import { ChatBoxContext } from '../../contexts/ChatBoxContext';
 
 export interface ChatFeedProps {
   className?: string;
@@ -14,12 +13,11 @@ export interface ChatFeedProps {
 }
 
 const ChatFeed: React.FC<ChatFeedProps> = ({ className, onEscape }) => {
-  const { currentMessageId, setCurrentMessageId } = React.useContext(
+  const { currentMessageId, setCurrentMessageId, feed } = React.useContext(
     ChatBoxContext
   );
   const { room } = React.useContext(ColyseusContext);
   const { localIdentity } = React.useContext(LocalInfoContext);
-  const feed = useFeed();
   const [lastSentMessageId, setLastSentMessageId] = React.useState<
     string | null
   >(null);
@@ -84,7 +82,7 @@ const ChatFeed: React.FC<ChatFeedProps> = ({ className, onEscape }) => {
       message.finishedAt == null
     ) {
       if (lastSentMessageId === message.id) {
-        // This message was just sent, and the server hasn't yet acknowledged it.
+        // This message was just finished, and the server hasn't yet acknowledged it.
         pending = true;
       } else {
         // This message was just deleted, and the server hasn't yet acknowledged it.
