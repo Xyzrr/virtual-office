@@ -26,6 +26,7 @@ const Chatbox: React.FC<ChatboxProps> = ({ className }) => {
       expanded={expanded}
       onMouseDown={(e) => {
         e.stopPropagation();
+        setExpanded(true);
       }}
       onWheel={() => {
         setExpanded(true);

@@ -34,9 +34,15 @@ export const Wrapper = styled.div<{ expanded?: boolean }>`
     rgba(0, 0, 0, 1) 128px
   );
 
+  &:hover {
+    height: 260px;
+  }
+
   ${(props) =>
     props.expanded &&
     css`
-      height: calc(100vh - 40px + 128px);
+      && {
+        height: calc(100vh - 40px + 128px);
+      }
     `}
 `;
