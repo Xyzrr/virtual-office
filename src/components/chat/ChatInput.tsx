@@ -18,61 +18,6 @@ import { withLinks } from './slate-plugins/links';
 import { withRealtime } from './slate-plugins/realtime';
 import { withHistory } from 'slate-history';
 
-export interface ChatInputEditableProps {
-  className?: string;
-  noHide?: boolean;
-  onStart(): void;
-  onSend(): void;
-  onEscape?(): void;
-}
-
-export const ChatInputEditable: React.FC<ChatInputEditableProps> = ({
-  className,
-  noHide,
-  onStart,
-  onSend,
-  onEscape,
-}) => {
-  const focused = useFocused();
-  const editor = useSlateStatic();
-
-  const mouseIsIdle = useMouseIsIdle();
-
-  return (
-    <S.StyledEditable
-      className={className}
-      renderElement={renderElement}
-      focused={focused}
-      hide={mouseIsIdle && !focused && !noHide}
-      placeholder="Type a realtime message..."
-      // onMouseDown={() => {
-      //   if (!messageStartedRef.current) {
-      //     onStart();
-      //   }
-      //   messageStartedRef.current = true;
-      // }}
-      onKeyDown={(e) => {
-        e.stopPropagation();
-
-        if (e.key === 'Enter') {
-          if (!e.shiftKey) {
-            e.preventDefault();
-            if (Editor.string(editor, [])) {
-              onSend();
-            }
-          }
-        }
-
-        if (e.key === 'Escape') {
-          e.preventDefault();
-          ReactEditor.blur(editor);
-          onEscape?.();
-        }
-      }}
-    />
-  );
-};
-
 export interface ChatInputProps {
   className?: string;
   noHide?: boolean;
@@ -117,6 +62,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
   ]);
 
   console.log('VALUE', JSON.parse(JSON.stringify(value)));
+  const mouseIsIdle = useMouseIsIdle();
+  const [focused, setFocused] = React.useState(false);
 
   if (!room || !editor) {
     return null;
@@ -140,37 +87,46 @@ const ChatInput: React.FC<ChatInputProps> = ({
         setValue(newValue as CustomElement[]);
       }}
     >
-      <ChatInputEditable
+      <S.StyledEditable
         className={className}
-        noHide={noHide || currentMessageId != null}
-        onStart={onStart}
-        onSend={() => {
-          Transforms.select(editor, Editor.start(editor, []));
-          setValue([
-            {
-              type: 'paragraph',
-              children: [{ text: '' }],
-            },
-          ]);
-          onSend();
+        onFocus={() => {
+          setFocused(true);
         }}
-        onEscape={onEscape}
+        onBlur={() => {
+          setFocused(false);
+        }}
+        renderElement={renderElement}
+        focused={focused}
+        hide={mouseIsIdle && !focused && !noHide}
+        placeholder="Type a realtime message..."
+        onKeyDown={(e) => {
+          e.stopPropagation();
+
+          if (e.key === 'Enter') {
+            if (!e.shiftKey) {
+              e.preventDefault();
+              if (Editor.string(editor, [])) {
+                Transforms.select(editor, Editor.start(editor, []));
+                setValue([
+                  {
+                    type: 'paragraph',
+                    children: [{ text: '' }],
+                  },
+                ]);
+                onSend();
+              }
+            }
+          }
+
+          if (e.key === 'Escape') {
+            e.preventDefault();
+            ReactEditor.blur(editor);
+            onEscape?.();
+          }
+        }}
       />
     </Slate>
   );
 };
-
-// interface ChatInputProps {
-//   className?: string;
-// }
-
-// const ChatInput: React.FC<ChatInputProps> = ({ className }) => {
-//   const { room } = React.useContext(ColyseusContext);
-//   if (!room) {
-//     return null;
-//   }
-
-//   return <ChatInputReady className={className}></ChatInputReady>;
-// };
 
 export default ChatInput;
