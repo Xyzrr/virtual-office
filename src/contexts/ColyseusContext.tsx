@@ -90,6 +90,7 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
 
     const r: Colyseus.Room<any> = await client.joinOrCreate(roomName, {
       identity: localIdentity,
+      name: localName,
       color: localColor,
       audioInputOn: localAudioInputOn,
       videoInputOn: localVideoInputOn,
