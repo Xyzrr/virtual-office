@@ -5,7 +5,7 @@ import ChatInput from './ChatInput';
 import { v4 as uuid } from 'uuid';
 import { ColyseusContext } from '../../contexts/ColyseusContext';
 import { LocalInfoContext } from '../../contexts/LocalInfoContext';
-import { ChatBoxContext } from '../../contexts/ChatBoxContext';
+import { ChatContext } from '../../contexts/ChatContext';
 
 export interface ChatFeedProps {
   className?: string;
@@ -14,7 +14,7 @@ export interface ChatFeedProps {
 
 const ChatFeed: React.FC<ChatFeedProps> = ({ className, onEscape }) => {
   const { currentMessageId, setCurrentMessageId, feed } = React.useContext(
-    ChatBoxContext
+    ChatContext
   );
   const { room } = React.useContext(ColyseusContext);
   const { localIdentity } = React.useContext(LocalInfoContext);

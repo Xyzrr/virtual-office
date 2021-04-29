@@ -1,7 +1,7 @@
 import React from 'react';
 import useFeed from '../components/chat/hooks/useFeed';
 
-interface ChatBoxContextValue {
+interface ChatContextValue {
   currentMessageId: string | null;
   setCurrentMessageId: React.Dispatch<React.SetStateAction<string | null>>;
   expanded: boolean;
@@ -11,9 +11,9 @@ interface ChatBoxContextValue {
   feed: any[];
 }
 
-export const ChatBoxContext = React.createContext<ChatBoxContextValue>(null!);
+export const ChatContext = React.createContext<ChatContextValue>(null!);
 
-export const ChatBoxContextProvider: React.FC = ({ children }) => {
+export const ChatContextProvider: React.FC = ({ children }) => {
   const [currentMessageId, setCurrentMessageId] = React.useState<string | null>(
     null
   );
@@ -22,7 +22,7 @@ export const ChatBoxContextProvider: React.FC = ({ children }) => {
   const feed = useFeed();
 
   return (
-    <ChatBoxContext.Provider
+    <ChatContext.Provider
       value={{
         currentMessageId,
         setCurrentMessageId,
@@ -34,6 +34,6 @@ export const ChatBoxContextProvider: React.FC = ({ children }) => {
       }}
     >
       {children}
-    </ChatBoxContext.Provider>
+    </ChatContext.Provider>
   );
 };

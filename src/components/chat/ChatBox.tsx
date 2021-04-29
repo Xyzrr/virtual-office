@@ -1,20 +1,20 @@
-import * as S from './Chatbox.styles';
+import * as S from './ChatBox.styles';
 import React from 'react';
 import ChatFeed from './ChatFeed';
-import { ChatBoxContext } from '../../contexts/ChatBoxContext';
+import { ChatContext } from '../../contexts/ChatContext';
 import { useMouseIsIdle } from '../../util/useMouseIsIdle';
 
-export interface ChatboxProps {
+export interface ChatBoxProps {
   className?: string;
 }
 
-const Chatbox: React.FC<ChatboxProps> = ({ className }) => {
+const ChatBox: React.FC<ChatBoxProps> = ({ className }) => {
   const {
     expanded,
     setExpanded,
     inputFocused,
     currentMessageId,
-  } = React.useContext(ChatBoxContext);
+  } = React.useContext(ChatContext);
 
   React.useEffect(() => {
     const onMouseDown = () => {
@@ -55,4 +55,4 @@ const Chatbox: React.FC<ChatboxProps> = ({ className }) => {
   );
 };
 
-export default Chatbox;
+export default ChatBox;

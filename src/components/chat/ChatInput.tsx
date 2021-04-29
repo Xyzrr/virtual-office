@@ -1,23 +1,14 @@
 import * as S from './ChatInput.styles';
 import React from 'react';
-import ReactDOM from 'react-dom';
-import {
-  ReactEditor,
-  Slate,
-  useFocused,
-  useSlateStatic,
-  withReact,
-} from 'slate-react';
+import { ReactEditor, Slate, withReact } from 'slate-react';
 import { createEditor, Editor, Transforms } from 'slate';
 import { ColyseusContext } from '../../contexts/ColyseusContext';
-import { useMouseIsIdle } from '../../util/useMouseIsIdle';
-import { createEditorWithPlugins, renderElement } from './slate-plugins/merge';
+import { renderElement } from './slate-plugins/merge';
 import { CustomElement } from './slate-plugins/types';
-import { Room } from 'colyseus.js';
 import { withLinks } from './slate-plugins/links';
 import { withRealtime } from './slate-plugins/realtime';
 import { withHistory } from 'slate-history';
-import { ChatBoxContext } from '../../contexts/ChatBoxContext';
+import { ChatContext } from '../../contexts/ChatContext';
 
 export interface ChatInputProps {
   className?: string;
@@ -37,7 +28,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
   const { room } = React.useContext(ColyseusContext);
 
   const { currentMessageId, inputFocused, setInputFocused } = React.useContext(
-    ChatBoxContext
+    ChatContext
   );
   const currentMessageIdRef = React.useRef<string | null>(currentMessageId);
   currentMessageIdRef.current = currentMessageId;

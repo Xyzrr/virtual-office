@@ -1,11 +1,9 @@
 import * as S from './ChatMessage.styles';
 import React from 'react';
-import { Editable, ReactEditor, Slate, withReact } from 'slate-react';
+import { Slate } from 'slate-react';
 import { createEditor } from 'slate';
 import { ColyseusContext } from '../../contexts/ColyseusContext';
-import { mergeWith } from 'lodash';
-import { withLinks } from './slate-plugins/links';
-import { createEditorWithPlugins, renderElement } from './slate-plugins/merge';
+import { renderElement } from './slate-plugins/merge';
 
 export interface ChatMessageProps {
   className?: string;
