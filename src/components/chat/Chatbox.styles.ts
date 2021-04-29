@@ -1,20 +1,5 @@
-import { ProxyTypeSet } from 'immer/dist/internal';
 import styled, { css } from 'styled-components';
-import { DARK_BACKGROUND } from '../constants';
 import * as ChatInputStyles from './ChatInput.styles';
-
-export const ChatFeedOuterWrapper = styled.div`
-  height: 160px;
-  display: flex;
-  flex-direction: column-reverse;
-  overflow: hidden;
-  transition: height 0.2s;
-  mask-image: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0) 0,
-    rgba(0, 0, 0, 1) 128px
-  );
-`;
 
 export const ChatFeedInnerWrapper = styled.div`
   height: calc(100vh - 40px);
