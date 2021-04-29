@@ -10,9 +10,14 @@ import { LocalInfoContext } from '../../contexts/LocalInfoContext';
 export interface ChatFeedProps {
   className?: string;
   expanded?: boolean;
+  onEscape?(): void;
 }
 
-const ChatFeed: React.FC<ChatFeedProps> = ({ className, expanded }) => {
+const ChatFeed: React.FC<ChatFeedProps> = ({
+  className,
+  expanded,
+  onEscape,
+}) => {
   const [currentMessageId, setCurrentMessageId] = React.useState<string | null>(
     null
   );
@@ -59,6 +64,11 @@ const ChatFeed: React.FC<ChatFeedProps> = ({ className, expanded }) => {
         });
         setCurrentMessageId(null);
         // room.send('chatMessage', {id: uuid(), blocks: value, startedAt: Date.now(), finishedAt: Date.now() });
+      }}
+      onEscape={() => {
+        if (currentMessageId == null) {
+          onEscape();
+        }
       }}
     ></ChatInput>
   );

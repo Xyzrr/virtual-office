@@ -33,7 +33,12 @@ const Chatbox: React.FC<ChatboxProps> = ({ className }) => {
       }}
     >
       <S.ChatFeedInnerWrapper>
-        <ChatFeed expanded={expanded} />
+        <ChatFeed
+          expanded={expanded}
+          onEscape={() => {
+            setExpanded(false);
+          }}
+        />
       </S.ChatFeedInnerWrapper>
     </S.Wrapper>
   );

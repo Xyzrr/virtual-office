@@ -23,6 +23,7 @@ export interface ChatInputEditableProps {
   noHide?: boolean;
   onStart(): void;
   onSend(): void;
+  onEscape?(): void;
 }
 
 export const ChatInputEditable: React.FC<ChatInputEditableProps> = ({
@@ -30,6 +31,7 @@ export const ChatInputEditable: React.FC<ChatInputEditableProps> = ({
   noHide,
   onStart,
   onSend,
+  onEscape,
 }) => {
   const focused = useFocused();
   const editor = useSlateStatic();
@@ -64,6 +66,7 @@ export const ChatInputEditable: React.FC<ChatInputEditableProps> = ({
         if (e.key === 'Escape') {
           e.preventDefault();
           ReactEditor.blur(editor);
+          onEscape?.();
         }
       }}
     />
@@ -77,6 +80,7 @@ export interface ChatInputProps {
   onStart(): void;
   onSend(): void;
   onEmpty(): void;
+  onEscape?(): void;
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({
@@ -86,6 +90,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
   onStart,
   onSend,
   onEmpty,
+  onEscape,
 }) => {
   const { room } = React.useContext(ColyseusContext);
 
@@ -149,6 +154,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
           ]);
           onSend();
         }}
+        onEscape={onEscape}
       />
     </Slate>
   );
