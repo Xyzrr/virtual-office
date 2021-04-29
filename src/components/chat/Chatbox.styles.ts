@@ -1,5 +1,6 @@
 import { ProxyTypeSet } from 'immer/dist/internal';
 import styled, { css } from 'styled-components';
+import { DARK_BACKGROUND } from '../constants';
 import * as ChatInputStyles from './ChatInput.styles';
 
 export const ChatFeedOuterWrapper = styled.div`
@@ -21,7 +22,6 @@ export const ChatFeedInnerWrapper = styled.div`
 
 export const Wrapper = styled.div<{ expanded?: boolean; hideInput?: boolean }>`
   position: absolute;
-  padding: 0 16px 16px;
   bottom: 0;
   left: 0;
   width: 300px;
