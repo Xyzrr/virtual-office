@@ -1,3 +1,4 @@
+import { ProxyTypeSet } from 'immer/dist/internal';
 import styled, { css } from 'styled-components';
 import * as ChatInputStyles from './ChatInput.styles';
 
@@ -24,7 +25,7 @@ export const Wrapper = styled.div<{ expanded?: boolean; hideInput?: boolean }>`
   bottom: 0;
   left: 0;
   width: 300px;
-  height: 220px;
+  height: ${(props) => 220 - (props.hideInput ? 44 : 0)}px;
   display: flex;
   flex-direction: column-reverse;
   overflow: hidden;
