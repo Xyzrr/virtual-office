@@ -11,12 +11,14 @@ export interface ChatMessageProps {
   className?: string;
   message: any;
   mergeWithAbove?: boolean;
+  pending?: boolean;
 }
 
 const ChatMessage: React.FC<ChatMessageProps> = ({
   className,
   message,
   mergeWithAbove,
+  pending,
 }) => {
   const editor = React.useMemo(() => createEditor(), []);
   const { room } = React.useContext(ColyseusContext);
@@ -45,8 +47,14 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
     readableDate = '...';
   }
 
+  console.log('PENDINg?', pending);
+
   return (
-    <S.Wrapper className={className} mergeWithAbove={mergeWithAbove}>
+    <S.Wrapper
+      className={className}
+      mergeWithAbove={mergeWithAbove}
+      pending={pending}
+    >
       {!mergeWithAbove && (
         <S.MessageSignature>
           <S.SenderName>{player ? player.name : 'Unknown'}</S.SenderName>

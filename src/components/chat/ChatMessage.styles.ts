@@ -1,13 +1,22 @@
 import { Editable } from 'slate-react';
 import styled, { css } from 'styled-components';
 
-export const Wrapper = styled.div<{ mergeWithAbove?: boolean }>`
+export const Wrapper = styled.div<{
+  mergeWithAbove?: boolean;
+  pending?: boolean;
+}>`
   padding: 8px 12px;
   color: white;
   ${(props) =>
     props.mergeWithAbove &&
     css`
       padding-top: 0;
+    `}
+
+  ${(props) =>
+    props.pending &&
+    css`
+      opacity: 0.5;
     `}
 `;
 

@@ -24,6 +24,9 @@ const ChatFeed: React.FC<ChatFeedProps> = ({
   const { room } = React.useContext(ColyseusContext);
   const { localIdentity } = React.useContext(LocalInfoContext);
   const feed = useFeed();
+  const [lastSentMessageId, setLastSentMessageId] = React.useState<
+    string | null
+  >(null);
 
   if (!room) {
     return null;
@@ -62,12 +65,13 @@ const ChatFeed: React.FC<ChatFeedProps> = ({
           messageId: currentMessageId,
           finishedAt: Date.now(),
         });
+        setLastSentMessageId(currentMessageId);
         setCurrentMessageId(null);
         // room.send('chatMessage', {id: uuid(), blocks: value, startedAt: Date.now(), finishedAt: Date.now() });
       }}
       onEscape={() => {
         if (currentMessageId == null) {
-          onEscape();
+          onEscape?.();
         }
       }}
     ></ChatInput>
@@ -80,11 +84,18 @@ const ChatFeed: React.FC<ChatFeedProps> = ({
       return chatInput;
     }
 
+    let pending = false;
     if (
       message.senderIdentity === localIdentity &&
       message.finishedAt == null
     ) {
-      return null;
+      if (lastSentMessageId === message.id) {
+        // This message was just sent, and the server hasn't yet acknowledged it.
+        pending = true;
+      } else {
+        // This message was just deleted, and the server hasn't yet acknowledged it.
+        return null;
+      }
     }
 
     let mergeWithAbove =
@@ -97,6 +108,7 @@ const ChatFeed: React.FC<ChatFeedProps> = ({
         key={message.id}
         message={message}
         mergeWithAbove={mergeWithAbove}
+        pending={pending}
       ></ChatMessage>
     );
   });
