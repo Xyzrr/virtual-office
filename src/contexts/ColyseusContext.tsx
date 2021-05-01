@@ -163,6 +163,15 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
   }, [leave]);
 
   React.useEffect(() => {
+    window.addEventListener('beforeunload', leave);
+
+    return () => {
+      window.removeEventListener('beforeunload', leave);
+      leave();
+    };
+  }, [leave]);
+
+  React.useEffect(() => {
     if (!room || !sessionId) {
       return;
     }
