@@ -20,12 +20,17 @@ export const withRealtime = <T extends Editor>(
     window.setTimeout(() => {
       if (messageIdRef.current == null) {
         console.log(
-          'Attempted to send message operations with null message ID'
+          'Attempted to send message operations with null message ID.'
         );
         return;
       }
 
-      roomRef.current?.send('messageOperations', {
+      if (roomRef.current == null) {
+        console.log('Attempted to send message operations with null room.');
+        return;
+      }
+
+      roomRef.current.send('messageOperations', {
         messageId: messageIdRef.current,
         operations: operations,
       });
