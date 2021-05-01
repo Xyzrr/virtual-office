@@ -132,35 +132,27 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
     };
   }, []);
 
-  React.useEffect(() => {
-    if (!room) {
-      return;
-    }
-
-    return () => {
-      room.removeAllListeners();
-    };
-  }, [room]);
-
+  const roomRef = React.useRef<Colyseus.Room>();
+  roomRef.current = room;
   const leave = React.useCallback(() => {
-    if (!room) {
+    if (!roomRef.current) {
       return;
     }
 
     console.log('Leaving Colyseus room');
 
-    room.leave();
-  }, [room]);
-
-  React.useEffect(() => {
-    join('main');
-  }, [join]);
+    roomRef.current.leave();
+  }, []);
 
   React.useEffect(() => {
     return () => {
       leave();
     };
   }, [leave]);
+
+  React.useEffect(() => {
+    join('main');
+  }, [join]);
 
   React.useEffect(() => {
     window.addEventListener('beforeunload', leave);

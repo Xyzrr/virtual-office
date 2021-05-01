@@ -45,8 +45,6 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
     readableDate = '...';
   }
 
-  console.log('PENDINg?', pending);
-
   return (
     <S.Wrapper
       className={className}
