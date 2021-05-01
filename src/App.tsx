@@ -502,6 +502,11 @@ const App: React.FC = () => {
     participants[localIdentity] &&
     !!participants[localIdentity].screenVideoTrack;
 
+  const welcomePanelOnJoin = React.useCallback(() => {
+    setGotReady(true);
+    setLocalGhost(false);
+  }, []);
+
   return (
     <>
       <S.AppWrapper
@@ -574,10 +579,7 @@ const App: React.FC = () => {
         </S.AppContents>
         <WelcomePanel
           open={!gotReady}
-          onJoin={() => {
-            setGotReady(true);
-            setLocalGhost(false);
-          }}
+          onJoin={welcomePanelOnJoin}
         ></WelcomePanel>
       </S.AppWrapper>
       {screenShareTrulyOn && (
