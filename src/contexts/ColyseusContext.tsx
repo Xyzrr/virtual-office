@@ -86,21 +86,9 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
     }
   >();
 
-  const join = React.useCallback(async (roomName: string) => {
-    const r: Colyseus.Room<any> = await COLYSEUS_CLIENT.joinOrCreate(roomName, {
-      identity: localIdentity,
-      name: localName,
-      color: localColor,
-      audioInputOn: localAudioInputOn,
-      videoInputOn: localVideoInputOn,
-      spaceId: params.spaceId,
-    });
-    setSessionId(r.sessionId);
+  (window as any).room = room;
 
-    console.log('Joined or created Colyseus room:', r);
-
-    setRoom(r);
-
+  const bindListenersToRoom = React.useCallback((r: Colyseus.Room) => {
     r.state.players.onAdd = (player: any, identity: string) => {
       console.log('Colyseus player added:', identity);
 
@@ -130,6 +118,26 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
         removeListeners.forEach((l) => l({ identity, player }));
       }
     };
+  }, []);
+
+  const join = React.useCallback(async (roomName: string) => {
+    const r: Colyseus.Room<any> = await COLYSEUS_CLIENT.joinOrCreate(roomName, {
+      identity: localIdentity,
+      name: localName,
+      color: localColor,
+      audioInputOn: localAudioInputOn,
+      videoInputOn: localVideoInputOn,
+      spaceId: params.spaceId,
+    });
+    setSessionId(r.sessionId);
+
+    console.log('Joined or created Colyseus room:', r);
+
+    setRoom(r);
+
+    console.log('INTIIAL ROOM STATE:', JSON.parse(JSON.stringify(r.state)));
+
+    bindListenersToRoom(r);
   }, []);
 
   const roomRef = React.useRef<Colyseus.Room>();
@@ -174,11 +182,17 @@ export const ColyseusContextProvider: React.FC<ColyseusContextProviderProps> = (
       let newRoom: Colyseus.Room | undefined;
       try {
         newRoom = await COLYSEUS_CLIENT.reconnect(room.id, sessionId);
+        console.log(
+          'STATE RIGHT AFTER RECONNECTING:',
+          JSON.parse(JSON.stringify(newRoom.state))
+        );
+        console.log('SUCCESSFULLY RECONNECTED:', newRoom);
       } catch (e) {
         console.log('FAILED TO RECONNECT:', e);
         setError('Failed to reconnect. Please try again later.');
       }
       if (newRoom) {
+        bindListenersToRoom(newRoom);
         setRoom(newRoom);
         setError(null);
       }

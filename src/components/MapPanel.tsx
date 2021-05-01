@@ -224,7 +224,8 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
 
         worldObjectGraphicsRef.current.set(worldObject, sphere);
 
-        console.log('ADDED WORLD OBJECT', worldObject);
+        console.log('ADDED WORLD OBJECT:', worldObject);
+        console.log('Number of things:', scene.children.length);
       };
 
       colyseusRoom.state.worldObjects.onRemove = (worldObject: any) => {
@@ -232,12 +233,16 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
         if (graphic != null) {
           scene.remove(graphic);
           worldObjectGraphicsRef.current.delete(worldObject);
+          console.log('REMOVED WORLD OBJECT:', worldObject);
+        } else {
+          console.log('WORLD OBJECT ALREADY REMOVED:', worldObject);
         }
       };
     }, [colyseusRoom, scene]);
 
     React.useEffect(() => {
       const onPlayerAdded = ({ identity, player }: any) => {
+        console.log('PLAYER ADDED:', identity);
         const geometry = new THREE.SphereGeometry(PLAYER_RADIUS, 16, 16);
         const material = new THREE.MeshBasicMaterial({
           color: player.color,
@@ -262,6 +267,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
       };
 
       const onPlayerUpdated = ({ identity, player }: any) => {
+        console.log('PLAYER UPDATED:', identity);
         const graphic = playerGraphicsRef.current[identity];
         (graphic.material as THREE.MeshBasicMaterial).color.setHex(
           player.color
@@ -274,6 +280,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
       };
 
       const onPlayerRemoved = ({ identity }: any) => {
+        console.log('PLAYER REMOVED:', identity);
         scene.remove(playerGraphicsRef.current[identity]);
         delete playerGraphicsRef.current[identity];
       };
