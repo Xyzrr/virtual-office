@@ -213,68 +213,6 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
         return;
       }
 
-      const events: ColyseusEvent[] = [
-        'player-added',
-        'player-updated',
-        'player-removed',
-      ];
-
-      const onPlayersUpdated = () => {
-        for (const [identity, player] of colyseusRoom.state.players.entries()) {
-          // handle new players
-          if (!playerGraphicsRef.current[identity]) {
-            const geometry = new THREE.SphereGeometry(PLAYER_RADIUS, 16, 16);
-            const material = new THREE.MeshBasicMaterial({
-              color: player.color,
-            });
-            const sphere = new THREE.Mesh(geometry, material);
-
-            playerGraphicsRef.current[identity] = sphere;
-            scene.add(sphere);
-
-            if (identity === localPlayerIdentity) {
-              localPlayerRef.current = {
-                x: player.x,
-                y: player.y,
-                dir: player.dir,
-                speed: player.speed,
-              };
-              onPositionChanged();
-            } else {
-              sphere.position.setX(player.x);
-              sphere.position.setY(player.y);
-            }
-          }
-
-          // update players
-          const graphic = playerGraphicsRef.current[identity];
-          (graphic.material as THREE.MeshBasicMaterial).color.setHex(
-            player.color
-          );
-
-          if (identity !== localPlayerIdentity) {
-            graphic.position.setX(player.x);
-            graphic.position.setY(player.y);
-          }
-        }
-
-        // handle removed players
-        for (const [identity, graphic] of Object.entries(
-          playerGraphicsRef.current
-        )) {
-          if (!colyseusRoom.state.players.has(identity)) {
-            scene.remove(playerGraphicsRef.current[identity]);
-            delete playerGraphicsRef.current[identity];
-          }
-        }
-      };
-
-      onPlayersUpdated();
-
-      for (const event of events) {
-        addColyseusListener(event, onPlayersUpdated);
-      }
-
       colyseusRoom.state.worldObjects.onAdd = (worldObject: any) => {
         const geometry = new THREE.SphereGeometry(4);
         const material = new THREE.MeshBasicMaterial({ color: 0x444444 });
@@ -296,11 +234,58 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
           worldObjectGraphicsRef.current.delete(worldObject);
         }
       };
+    }, [colyseusRoom, scene]);
+
+    React.useEffect(() => {
+      const onPlayerAdded = ({ identity, player }: any) => {
+        const geometry = new THREE.SphereGeometry(PLAYER_RADIUS, 16, 16);
+        const material = new THREE.MeshBasicMaterial({
+          color: player.color,
+        });
+        const sphere = new THREE.Mesh(geometry, material);
+
+        playerGraphicsRef.current[identity] = sphere;
+        scene.add(sphere);
+
+        if (identity === localPlayerIdentity) {
+          localPlayerRef.current = {
+            x: player.x,
+            y: player.y,
+            dir: player.dir,
+            speed: player.speed,
+          };
+          onPositionChanged();
+        } else {
+          sphere.position.setX(player.x);
+          sphere.position.setY(player.y);
+        }
+      };
+
+      const onPlayerUpdated = ({ identity, player }: any) => {
+        const graphic = playerGraphicsRef.current[identity];
+        (graphic.material as THREE.MeshBasicMaterial).color.setHex(
+          player.color
+        );
+
+        if (identity !== localPlayerIdentity) {
+          graphic.position.setX(player.x);
+          graphic.position.setY(player.y);
+        }
+      };
+
+      const onPlayerRemoved = ({ identity }: any) => {
+        scene.remove(playerGraphicsRef.current[identity]);
+        delete playerGraphicsRef.current[identity];
+      };
+
+      addColyseusListener('player-added', onPlayerAdded);
+      addColyseusListener('player-updated', onPlayerUpdated);
+      addColyseusListener('player-removed', onPlayerRemoved);
 
       return () => {
-        for (const event of events) {
-          removeColyseusListener(event, onPlayersUpdated);
-        }
+        removeColyseusListener('player-added', onPlayerAdded);
+        removeColyseusListener('player-updated', onPlayerUpdated);
+        removeColyseusListener('player-removed', onPlayerRemoved);
       };
     }, [colyseusRoom, scene, onPositionChanged]);
 
