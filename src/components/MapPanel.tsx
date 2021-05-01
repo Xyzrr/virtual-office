@@ -297,6 +297,18 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
     }, [colyseusRoom, scene, onPositionChanged]);
 
     React.useEffect(() => {
+      if (colyseusRoom == null) {
+        return;
+      }
+
+      return () => {
+        playerGraphicsRef.current = {};
+        worldObjectGraphicsRef.current = new WeakMap();
+        scene.clear();
+      };
+    }, [colyseusRoom, scene]);
+
+    React.useEffect(() => {
       wrapperRef.current?.appendChild(glRenderer.domElement);
 
       return () => {
