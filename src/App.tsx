@@ -321,7 +321,7 @@ const App: React.FC = () => {
     }
   }, [nearbyPlayers, participants]);
 
-  console.log('Nearby players:', nearbyPlayers);
+  console.debug('Nearby players:', nearbyPlayers);
 
   Object.entries(nearbyPlayers).forEach(([identity, np]) => {
     if (identity == localIdentity) {

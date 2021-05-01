@@ -269,7 +269,7 @@ export const DailyVideoCallContextProvider: React.FC = ({ children }) => {
     removeListener: removeColyseusListener,
   } = React.useContext(ColyseusContext);
 
-  console.log('Daily participants:', participants);
+  console.debug('Daily participants:', participants);
 
   React.useEffect(() => {
     if (!colyseusRoom) {

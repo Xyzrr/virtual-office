@@ -82,7 +82,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
           setInputFocused(false);
         }}
         renderElement={renderElement}
-        focused={inputFocused}
+        $focused={inputFocused}
         placeholder="Type a realtime message..."
         onKeyDown={(e) => {
           e.stopPropagation();

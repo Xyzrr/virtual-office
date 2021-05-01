@@ -134,7 +134,7 @@ export const useAppTracker = () => {
       }
       lastAppRef.current = result;
 
-      console.log('AppTracker found:', result);
+      console.debug('AppTracker found:', result);
       if (result == null) {
         return;
       }
