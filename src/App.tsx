@@ -27,6 +27,7 @@ import { initials } from './util/text';
 import SpaceAvatar from './components/SpaceAvatar';
 import { useHistory } from 'react-router-dom';
 import Chatbox from './components/chat/ChatBox';
+import SpaceTopBar from './components/SpaceTopBar';
 
 export interface NearbyPlayer {
   sid?: string;
@@ -517,58 +518,19 @@ const App: React.FC = () => {
       >
         {!minimized && <FakeMacOSFrame />}
         {!minimized && (
-          <S.TopBar focused={appFocused} hide={!gotReady}>
-            <S.LeftButtons>
-              <PopupTrigger
-                anchorOrigin="top left"
-                transformOrigin="top left"
-                popupContent={() => <SpaceSwitcher></SpaceSwitcher>}
-              >
-                {({ anchorAttributes }) => {
-                  return (
-                    <span {...anchorAttributes}>
-                      <SpaceAvatar
-                        spaceName={colyseusRoom?.state.spaceName}
-                      ></SpaceAvatar>
-                    </span>
-                  );
-                }}
-              </PopupTrigger>
-
-              {/* <S.ExitButton name="logout"></S.ExitButton> */}
-            </S.LeftButtons>
-            <S.MiddleButtons>
-              <S.Tab
-                selected={minimized}
-                onClick={() => {
-                  setMinimized(true);
-                }}
-              >
-                <S.TabIcon name="splitscreen"></S.TabIcon>Floating
-              </S.Tab>
-              <S.Tab
-                selected={!minimized}
-                onClick={() => {
-                  setMinimized(false);
-                }}
-              >
-                <S.TabIcon name="view_sidebar"></S.TabIcon>
-                Focused
-              </S.Tab>
-              {/* <S.Tab>
-              <S.TabIcon name="grid_view"></S.TabIcon>
-              Grid
-            </S.Tab> */}
-            </S.MiddleButtons>
-            <S.RightButtons>
-              <S.Tab>
-                <S.TabIcon name="link"></S.TabIcon>Copy invite link
-              </S.Tab>
-              {/* <S.Tab iconOnly>
-              <S.TabIcon name="settings"></S.TabIcon>
-            </S.Tab> */}
-            </S.RightButtons>
-          </S.TopBar>
+          <SpaceTopBar
+            focused={appFocused}
+            hide={!gotReady}
+            activeTab={minimized ? 'floating' : 'focused'}
+            onSelectTab={(tab) => {
+              if (tab === 'floating') {
+                setMinimized(true);
+              }
+              if (tab === 'focused') {
+                setMinimized(false);
+              }
+            }}
+          ></SpaceTopBar>
         )}
         {colyseusError && <S.ColyseusError>{colyseusError}</S.ColyseusError>}
         <S.AppContents>
