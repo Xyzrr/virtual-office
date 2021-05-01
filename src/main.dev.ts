@@ -117,7 +117,8 @@ const createWindow = async () => {
     icon: getAssetPath('icon.png'),
     frame: false,
     transparent: true,
-    titleBarStyle: 'hiddenInset',
+    titleBarStyle: 'hidden',
+    trafficLightPosition: { x: 12, y: 24 },
     webPreferences: {
       contextIsolation: false,
       nodeIntegration: true,
