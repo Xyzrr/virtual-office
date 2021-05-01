@@ -115,6 +115,30 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
       centerCameraOnPoint(localPlayerRef.current.x, localPlayerRef.current.y);
     }, [width, height, adjustedZoomLevel]);
 
+    const onPositionChanged = React.useCallback(() => {
+      const localPlayer = localPlayerRef.current;
+
+      if (!localPlayer) {
+        return;
+      }
+
+      const localPlayerGraphic = playerGraphicsRef.current[localPlayerIdentity];
+
+      if (!localPlayerGraphic) {
+        return;
+      }
+
+      localPlayerGraphic.position.setX(localPlayer.x);
+      localPlayerGraphic.position.setY(localPlayer.y);
+
+      centerCameraOnPoint(localPlayer.x, localPlayer.y);
+
+      colyseusRoom?.send('setPlayerPosition', {
+        x: localPlayer.x,
+        y: localPlayer.y,
+      });
+    }, [localPlayerIdentity, colyseusRoom]);
+
     React.useEffect(() => {
       if (!colyseusRoom) {
         return;
@@ -129,6 +153,8 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
         const localPlayer = localPlayerRef.current;
 
         if (localPlayer) {
+          let positionChanged = localPlayer.speed > 0;
+
           localPlayer.x +=
             localPlayer.speed * Math.cos(localPlayer.dir) * delta;
           localPlayer.y +=
@@ -159,22 +185,14 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
 
               localPlayer.x += Math.cos(pushDir) * pushDist;
               localPlayer.y -= Math.sin(pushDir) * pushDist;
+
+              positionChanged = true;
             }
           }
 
-          playerGraphicsRef.current[localPlayerIdentity].position.setX(
-            localPlayer.x
-          );
-          playerGraphicsRef.current[localPlayerIdentity].position.setY(
-            localPlayer.y
-          );
-
-          centerCameraOnPoint(localPlayer.x, localPlayer.y);
-
-          colyseusRoom.send('setPlayerPosition', {
-            x: localPlayer.x,
-            y: localPlayer.y,
-          });
+          if (positionChanged) {
+            onPositionChanged();
+          }
         }
 
         TWEEN.update(time);
@@ -188,7 +206,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
       return () => {
         cancelAnimationFrame(animationFrame);
       };
-    }, [colyseusRoom, glRenderer]);
+    }, [colyseusRoom, glRenderer, onPositionChanged]);
 
     React.useEffect(() => {
       if (!colyseusRoom) {
@@ -205,15 +223,6 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
         for (const [identity, player] of colyseusRoom.state.players.entries()) {
           // handle new players
           if (!playerGraphicsRef.current[identity]) {
-            if (identity === localPlayerIdentity) {
-              localPlayerRef.current = {
-                x: player.x,
-                y: player.y,
-                dir: player.dir,
-                speed: player.speed,
-              };
-            }
-
             const geometry = new THREE.SphereGeometry(PLAYER_RADIUS, 16, 16);
             const material = new THREE.MeshBasicMaterial({
               color: player.color,
@@ -223,8 +232,18 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
             playerGraphicsRef.current[identity] = sphere;
             scene.add(sphere);
 
-            sphere.position.setX(player.x);
-            sphere.position.setY(player.y);
+            if (identity === localPlayerIdentity) {
+              localPlayerRef.current = {
+                x: player.x,
+                y: player.y,
+                dir: player.dir,
+                speed: player.speed,
+              };
+              onPositionChanged();
+            } else {
+              sphere.position.setX(player.x);
+              sphere.position.setY(player.y);
+            }
           }
 
           // update players
@@ -283,7 +302,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
           removeColyseusListener(event, onPlayersUpdated);
         }
       };
-    }, [colyseusRoom, scene]);
+    }, [colyseusRoom, scene, onPositionChanged]);
 
     React.useEffect(() => {
       wrapperRef.current?.appendChild(glRenderer.domElement);

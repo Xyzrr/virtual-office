@@ -1,5 +1,6 @@
 import React from 'react';
 import activeWin from 'active-win';
+import * as _ from 'lodash';
 
 import iconFigma from './app-icons/figma.ico';
 import iconNotion from './app-icons/notion.ico';
@@ -114,6 +115,7 @@ export interface AppInfo {
 
 export const useAppTracker = () => {
   const [localApp, setLocalApp] = React.useState<AppInfo>();
+  const lastAppRef = React.useRef<any>();
 
   React.useEffect(() => {
     const interval = window.setInterval(async () => {
@@ -127,6 +129,10 @@ export const useAppTracker = () => {
       }
 
       const result = await activeWin({ screenRecordingPermission: false });
+      if (_.isEqual(result, lastAppRef.current)) {
+        return;
+      }
+      lastAppRef.current = result;
 
       console.log('AppTracker found:', result);
       if (result == null) {
@@ -144,7 +150,6 @@ export const useAppTracker = () => {
             name: app.name,
             url: (result as any).url,
           };
-
           setLocalApp(appInfo);
         }
       }
