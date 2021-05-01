@@ -77,6 +77,7 @@ const App: React.FC = () => {
 
   const {
     room: colyseusRoom,
+    error: colyseusError,
     addListener: addColyseusListener,
     removeListener: removeColyseusListener,
   } = React.useContext(ColyseusContext);
@@ -564,6 +565,7 @@ const App: React.FC = () => {
             </S.RightButtons>
           </S.TopBar>
         )}
+        {colyseusError && <S.ColyseusError>{colyseusError}</S.ColyseusError>}
         <S.AppContents>
           {panelElements}
           <MainToolbar minimized={minimized} hide={!gotReady} />

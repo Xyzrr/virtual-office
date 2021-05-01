@@ -26,8 +26,6 @@ const ChatFeed: React.FC<ChatFeedProps> = ({ className, onEscape }) => {
     return null;
   }
 
-  console.log('MESSAGE ID', currentMessageId);
-
   const chatInput = (
     <ChatInput
       key="chat-input"

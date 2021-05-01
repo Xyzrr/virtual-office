@@ -144,3 +144,15 @@ export const RightButtons = styled.div`
   display: flex;
   margin-right: 8px;
 `;
+
+export const ColyseusError = styled.div`
+  background: ${DANGER.toString()};
+  color: white;
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  font-size: 13px;
+`;

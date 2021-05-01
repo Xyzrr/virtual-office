@@ -7,7 +7,6 @@ import { ipcRenderer } from 'electron';
 import AppIndicator from './AppIndicator';
 
 const LocalAppShareIndicator: React.FC = () => {
-  console.log('sharing render');
   const { appSharingOn, setAppSharingOn, localApp } = React.useContext(
     LocalInfoContext
   );

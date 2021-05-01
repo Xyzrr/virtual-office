@@ -9,6 +9,7 @@ import { withLinks } from './slate-plugins/links';
 import { withRealtime } from './slate-plugins/realtime';
 import { withHistory } from 'slate-history';
 import { ChatContext } from '../../contexts/ChatContext';
+import { Room } from 'colyseus.js';
 
 export interface ChatInputProps {
   className?: string;
@@ -32,18 +33,16 @@ const ChatInput: React.FC<ChatInputProps> = ({
   );
   const currentMessageIdRef = React.useRef<string | null>(currentMessageId);
   currentMessageIdRef.current = currentMessageId;
+  const roomRef = React.useRef<Room>();
+  roomRef.current = room;
 
   const editor = React.useMemo(() => {
-    if (!room) {
-      return null;
-    }
-
     return withRealtime(
       withLinks(withHistory(withReact(createEditor()))),
-      room,
+      roomRef,
       currentMessageIdRef
     );
-  }, [room]);
+  }, []);
 
   const [value, setValue] = React.useState<CustomElement[]>([
     {
@@ -51,8 +50,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
       children: [{ text: '' }],
     },
   ]);
-
-  console.log('VALUE', JSON.parse(JSON.stringify(value)));
 
   if (!room || !editor) {
     return null;

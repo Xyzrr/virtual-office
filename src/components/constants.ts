@@ -1,4 +1,5 @@
 import Color from 'color';
+import * as Colyseus from 'colyseus.js';
 
 export const MAX_INTERACTION_DISTANCE = 192;
 export const PLAYER_RADIUS = 16;
@@ -35,3 +36,5 @@ export const COLOR_OPTIONS = [
   0x808000,
   0x000075,
 ];
+
+export const COLYSEUS_CLIENT = new Colyseus.Client(`ws://${HOST}`);

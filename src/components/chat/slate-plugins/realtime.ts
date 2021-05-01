@@ -3,7 +3,7 @@ import { Node, Element, Editor, Transforms, Range, Text } from 'slate';
 
 export const withRealtime = <T extends Editor>(
   editor: T,
-  room: Room,
+  roomRef: React.MutableRefObject<Room | undefined>,
   messageIdRef: React.MutableRefObject<string | null>
 ) => {
   const { onChange } = editor;
@@ -25,7 +25,7 @@ export const withRealtime = <T extends Editor>(
         return;
       }
 
-      room.send('messageOperations', {
+      roomRef.current?.send('messageOperations', {
         messageId: messageIdRef.current,
         operations: operations,
       });
