@@ -18,6 +18,52 @@ import {
 } from './VideoCallContext';
 import { useParams } from 'react-router-dom';
 
+interface DailyVideoCallDebugContextProviderProps {
+  callObject: any;
+}
+
+export const DailyVideoCallDebugContextProvider: React.FC<DailyVideoCallDebugContextProviderProps> = ({
+  children,
+  callObject,
+}) => {
+  const [
+    debugStats,
+    setDebugStats,
+  ] = React.useState<VideoCallDebugContextValue>();
+
+  React.useEffect(() => {
+    if (callObject == null) {
+      return;
+    }
+
+    const updateNetworkStats = async () => {
+      const s = await callObject.getNetworkStats();
+      setDebugStats({
+        Threshold: s.threshold,
+        Quality: s.quality,
+        'Receive bitrate': s.stats.latest.videoRecvBitsPerSecond,
+        'Send bitrate': s.stats.latest.videoSendBitsPerSecond,
+        'Worst recv pkt loss': s.stats.worstVideoRecvPacketLoss,
+        'Worst send pkt loss': s.stats.worstVideoSendPacketLoss,
+      });
+    };
+
+    callObject.on('network-quality-change', updateNetworkStats);
+    const interval = window.setInterval(updateNetworkStats, 2000);
+
+    return () => {
+      callObject.off('network-quality-change', updateNetworkStats);
+      window.clearInterval(interval);
+    };
+  }, [callObject]);
+
+  return (
+    <VideoCallDebugContext.Provider value={debugStats}>
+      {children}
+    </VideoCallDebugContext.Provider>
+  );
+};
+
 export const DailyVideoCallContextProvider: React.FC = ({ children }) => {
   const params = useParams() as any;
 
@@ -299,42 +345,11 @@ export const DailyVideoCallContextProvider: React.FC = ({ children }) => {
     };
   }, [leave]);
 
-  const [
-    debugStats,
-    setDebugStats,
-  ] = React.useState<VideoCallDebugContextValue>();
-
-  React.useEffect(() => {
-    if (callObject == null) {
-      return;
-    }
-
-    const updateNetworkStats = async () => {
-      const s = await callObject.getNetworkStats();
-      setDebugStats({
-        Threshold: s.threshold,
-        Quality: s.quality,
-        'Receive bitrate': s.stats.latest.videoRecvBitsPerSecond,
-        'Send bitrate': s.stats.latest.videoSendBitsPerSecond,
-        'Worst recv pkt loss': s.stats.worstVideoRecvPacketLoss,
-        'Worst send pkt loss': s.stats.worstVideoSendPacketLoss,
-      });
-    };
-
-    callObject.on('network-quality-change', updateNetworkStats);
-    const interval = window.setInterval(updateNetworkStats, 2000);
-
-    return () => {
-      callObject.off('network-quality-change', updateNetworkStats);
-      window.clearInterval(interval);
-    };
-  }, [callObject]);
-
   return (
     <VideoCallContext.Provider value={{ participants }}>
-      <VideoCallDebugContext.Provider value={debugStats}>
+      <DailyVideoCallDebugContextProvider callObject={callObject}>
         {children}
-      </VideoCallDebugContext.Provider>
+      </DailyVideoCallDebugContextProvider>
     </VideoCallContext.Provider>
   );
 };
