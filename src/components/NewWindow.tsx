@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { StyleSheetManager } from 'styled-components';
+import { jssPreset, StylesProvider } from '@material-ui/styles';
+import { create, Jss } from 'jss';
 
 function copyStyles(sourceDoc: Document, targetDoc: Document) {
   Array.from(sourceDoc.styleSheets).forEach((styleSheet) => {
@@ -47,6 +49,9 @@ const NewWindow: React.FC<NewWindowProps> = ({
   const [containerEl, setContainerEl] = React.useState<Element>();
   const [newWindow, setNewWindow] = React.useState<Window | null>();
 
+  const [jss, setJss] = React.useState<Jss>();
+  const [sheetsManager, setSheetsManager] = React.useState<any>();
+
   React.useEffect(() => {
     const el = document.createElement('div');
     const win = window.open('', name, features);
@@ -57,6 +62,14 @@ const NewWindow: React.FC<NewWindowProps> = ({
 
     setContainerEl(el);
     setNewWindow(win);
+
+    setJss(
+      create({
+        ...jssPreset(),
+        insertionPoint: win.document.head,
+      })
+    );
+    setSheetsManager(new Map());
 
     win.document.body.appendChild(el);
     copyStyles(window.document, win.document);
@@ -77,7 +90,9 @@ const NewWindow: React.FC<NewWindowProps> = ({
 
   return (
     <StyleSheetManager target={newWindow.document.body}>
-      <>{ReactDOM.createPortal(children, containerEl)}</>
+      <StylesProvider jss={jss} sheetsManager={sheetsManager} injectFirst>
+        {ReactDOM.createPortal(children, containerEl)}
+      </StylesProvider>
     </StyleSheetManager>
   );
 };
