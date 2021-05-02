@@ -521,10 +521,6 @@ ipcMain.on('toggleMaximized', () => {
   }
 });
 
-ipcMain.handle('isTrustedAccessibilityClient', (e, prompt: boolean) => {
-  return systemPreferences.isTrustedAccessibilityClient(prompt);
-});
-
 ipcMain.handle(
   'getMediaAccessStatus',
   (e, mediaType: 'microphone' | 'camera' | 'screen') => {

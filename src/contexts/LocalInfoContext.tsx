@@ -44,7 +44,7 @@ export const LocalInfoContextProvider: React.FC = ({ children }) => {
     () => _.sample(COLOR_OPTIONS) as number
   );
   console.log('COLOR', localColor);
-  const [appSharingOn, setAppSharingOn] = React.useState<boolean>();
+  const [appSharingOn, setAppSharingOn] = React.useState(true);
   const [gotReady, setGotReady] = React.useState(false);
   const localApp = useAppTracker();
 

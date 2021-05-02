@@ -119,15 +119,6 @@ export const useAppTracker = () => {
 
   React.useEffect(() => {
     const interval = window.setInterval(async () => {
-      if (
-        !(await electron.ipcRenderer.invoke(
-          'isTrustedAccessibilityClient',
-          false
-        ))
-      ) {
-        return;
-      }
-
       const result = await activeWin({ screenRecordingPermission: false });
       if (_.isEqual(result, lastAppRef.current)) {
         return;
