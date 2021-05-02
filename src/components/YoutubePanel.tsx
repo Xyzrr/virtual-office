@@ -112,8 +112,11 @@ const YoutubePanel: React.FC<YoutubeProps> = React.memo(
           events: {
             'onReady': (e) => setPlayerReady(true),
             'onStateChange': (e) => {
-              if (e.data === YT.PlayerState.UNSTARTED) {
-                syncClientPlayer(youtubePlayer, e.target);
+              if (e.target.loading) {
+                if (e.data === YT.PlayerState.PLAYING) {
+                  syncClientPlayer(youtubePlayer, e.target);
+                  e.target.loading = false;
+                }
               } else if (e.data === YT.PlayerState.ENDED) {
                 sendColyseusUpdate(e.target, 'endVideo', {});
               } else {
@@ -161,8 +164,11 @@ const YoutubePanel: React.FC<YoutubeProps> = React.memo(
       youtubePlayer.onChange = (changes: any) => {
         const videoChange = changes.find(c => c.field === 'currentVideo');
         if (videoChange) {
-          clientPlayer.loadVideoById(videoChange.value);
-          // after load is complete, the client player will sync (UNSTARTED event)
+          if (videoChange.value != undefined) {
+            clientPlayer.loadVideoById(videoChange.value);
+            clientPlayer.loading = true;
+            // after load is complete, the client player will sync (UNSTARTED event)
+          }
         } else {
           syncClientPlayer(youtubePlayer, clientPlayer);
         }
