@@ -94,7 +94,7 @@ const Home: React.FC<HomeProps> = ({ className }) => {
               popupContent={() => {
                 return (
                   <Paper>
-                    <MenuList dense>
+                    <MenuList dense variant="menu">
                       <MenuItem>Profile</MenuItem>
                       <MenuItem>Account settings</MenuItem>
                       <MenuItem

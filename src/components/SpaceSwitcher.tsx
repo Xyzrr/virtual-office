@@ -25,11 +25,12 @@ const SpaceSwitcher: React.FC<SpaceSwitcherProps> = ({ className }) => {
 
   return (
     <Paper>
-      <MenuList dense>
+      <MenuList dense variant="menu">
         {resortedSpaces ? (
           resortedSpaces.map((space) => {
             return (
               <MenuItem
+                selected={params.spaceId === space.metadata.spaceId}
                 key={space.metadata.spaceId}
                 onClick={() => {
                   history.push('/s/' + space.metadata.spaceId);
