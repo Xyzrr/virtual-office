@@ -83,6 +83,18 @@ const YoutubePanel: React.FC<YoutubeProps> = React.memo(
       clientPlayer.syn += 1;
     };
 
+    const syncClientPlayer = (youtubePlayer, clientPlayer) => {
+      if (youtubePlayer.isPlaying && clientPlayer.getPlayerState() !== YT.PlayerState.PLAYING) {
+        clientPlayer.playVideo();
+      } else if (!youtubePlayer.isPlaying && clientPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
+        clientPlayer.pauseVideo();
+      }
+      if (Math.abs(clientPlayer.getCurrentTime() - youtubePlayer.videoPosition) > MAX_YOUTUBE_POSITION_DISTANCE_S) {
+        clientPlayer.seekTo(youtubePlayer.videoPosition, true); // allowSeekAhead = true
+      }
+      clientPlayer.syn = youtubePlayer.syn;
+    };
+
     React.useEffect(() => {
       const script = document.createElement('script');
       script.src = "https://www.youtube.com/iframe_api";
@@ -100,7 +112,9 @@ const YoutubePanel: React.FC<YoutubeProps> = React.memo(
           events: {
             'onReady': (e) => setPlayerReady(true),
             'onStateChange': (e) => {
-              if (e.data === YT.PlayerState.ENDED) {
+              if (e.data === YT.PlayerState.UNSTARTED) {
+                syncClientPlayer(youtubePlayer, e.target);
+              } else if (e.data === YT.PlayerState.ENDED) {
                 sendColyseusUpdate(e.target, 'endVideo', {});
               } else {
                 sendColyseusUpdate(e.target, 'updateVideoPosition', {
@@ -128,7 +142,8 @@ const YoutubePanel: React.FC<YoutubeProps> = React.memo(
         return;
       }
       const youtubePosUpdate = setInterval(() => {
-        if (clientPlayer.getCurrentTime && clientPlayer.getPlayerState() == YT.PlayerState.PLAYING) { // not a function if the video is not fully loaded
+         // getCurrentTime not a function if the video is not fully loaded
+        if (clientPlayer.getCurrentTime && clientPlayer.getPlayerState() == YT.PlayerState.PLAYING) {
           sendColyseusUpdate(clientPlayer, 'updateVideoPosition', {
             videoPosition: clientPlayer.getCurrentTime(),
           });
@@ -138,40 +153,19 @@ const YoutubePanel: React.FC<YoutubeProps> = React.memo(
       return () => clearInterval(youtubePosUpdate)
     }, [clientPlayer]);
 
-    const updateClientPlayer = (youtubePlayer, clientPlayer) => {
-      if (!clientPlayer.getCurrentTime()) { // not yet fully loaded
-        return false;
-      }
-      if (youtubePlayer.isPlaying && clientPlayer.getPlayerState() !== YT.PlayerState.PLAYING) {
-        clientPlayer.playVideo();
-      } else if (!youtubePlayer.isPlaying && clientPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
-        clientPlayer.pauseVideo();
-      }
-      if (Math.abs(clientPlayer.getCurrentTime() - youtubePlayer.videoPosition) > MAX_YOUTUBE_POSITION_DISTANCE_S) {
-        clientPlayer.seekTo(youtubePlayer.videoPosition, true); // allowSeekAhead = true
-      }
-      clientPlayer.syn = youtubePlayer.syn;
-      return true;
-    }
-
     React.useEffect(() => {
       if (!youtubePlayer || !playerReady) {
         return;
       }
 
       youtubePlayer.onChange = (changes: any) => {
-        for (let c of changes) {
-          if (c.field === 'currentVideo') {
-            clientPlayer.loadVideoById(c.value);
-          }
+        const videoChange = changes.find(c => c.field === 'currentVideo');
+        if (videoChange) {
+          clientPlayer.loadVideoById(videoChange.value);
+          // after load is complete, the client player will sync (UNSTARTED event)
+        } else {
+          syncClientPlayer(youtubePlayer, clientPlayer);
         }
-
-        const update = () => {
-          if (!updateClientPlayer(youtubePlayer, clientPlayer)) {
-            setTimeout(() => update(), 1000)
-          }
-        }
-        update();
       }
 
       youtubePlayer.videoQueue.onRemove = (videoId: any, i: any) => {
@@ -185,8 +179,8 @@ const YoutubePanel: React.FC<YoutubeProps> = React.memo(
           draft[i] = videoId;
         });
       };
-      youtubePlayer.triggerAll()
 
+      youtubePlayer.triggerAll();
     }, [youtubePlayer, clientPlayer, playerReady]);
 
     const mouseIsIdle = useMouseIsIdle({ containerRef: wrapperRef });
