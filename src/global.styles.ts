@@ -6,6 +6,12 @@ const styles = createGlobalStyle`
   }
   * {
     box-sizing: border-box;
+    &:focus {
+      outline: none;
+    }
+  }
+  .MuiButtonBase-root {
+    cursor: default !important;
   }
 `;
 

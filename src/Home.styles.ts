@@ -20,7 +20,7 @@ export const TopBar = styled.div`
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  text-select: none;
+  user-select: none;
 `;
 
 export const Heading = styled.h1`

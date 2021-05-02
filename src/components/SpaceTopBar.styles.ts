@@ -3,6 +3,7 @@ import { LIGHT_BACKGROUND, DANGER } from './constants';
 import Icon from './Icon';
 
 export const Wrapper = styled.div<{ focused?: boolean; hide?: boolean }>`
+  user-select: none;
   flex-grow: 0;
   height: 40px;
   background: ${(props) =>
