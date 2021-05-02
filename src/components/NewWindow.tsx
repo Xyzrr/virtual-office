@@ -44,34 +44,39 @@ const NewWindow: React.FC<NewWindowProps> = ({
       console.log('UNMOUNTED NEWWIN');
     };
   }, []);
-  const containerEl = React.useMemo(() => document.createElement('div'), []);
-  const newWindow = React.useRef<Window | null>(null);
+  const [containerEl, setContainerEl] = React.useState<Element>();
+  const [newWindow, setNewWindow] = React.useState<Window | null>();
 
   React.useEffect(() => {
-    newWindow.current = window.open('', name, features);
+    const el = document.createElement('div');
+    const win = window.open('', name, features);
 
-    if (newWindow.current != null) {
-      newWindow.current.document.body.appendChild(containerEl);
-
-      copyStyles(window.document, newWindow.current.document);
-
-      newWindow.current.addEventListener('beforeunload', () => {
-        onClose?.();
-      });
+    if (win == null) {
+      throw new Error('Could not open new window.');
     }
 
+    setContainerEl(el);
+    setNewWindow(win);
+
+    win.document.body.appendChild(el);
+    copyStyles(window.document, win.document);
+    win.addEventListener('beforeunload', () => {
+      onClose?.();
+    });
+
     return () => {
-      if (newWindow.current != null) {
-        newWindow.current.close();
-        newWindow.current = null;
-      }
+      win.close();
     };
   }, []);
 
   console.log('CONTAINER MOUNT', containerEl);
 
+  if (newWindow == null || containerEl == null) {
+    return null;
+  }
+
   return (
-    <StyleSheetManager target={newWindow.current?.document.body}>
+    <StyleSheetManager target={newWindow.document.body}>
       <>{ReactDOM.createPortal(children, containerEl)}</>
     </StyleSheetManager>
   );
