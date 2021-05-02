@@ -9,6 +9,7 @@ export interface FakeCursorProps {
 }
 
 const FakeCursor: React.FC<FakeCursorProps> = ({ className, x, y, color }) => {
+  console.log('Rendering fake cursor:', x, y, color);
   return (
     <S.Wrapper className={className} style={{ left: x, top: y }} color={color}>
       <S.Outer>

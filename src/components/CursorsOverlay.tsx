@@ -52,22 +52,25 @@ const CursorsOverlay: React.FC<CursorsOverlayProps> = ({
     }
 
     const onPlayerUpdated = () => {
-      setCursors(
-        (Array.from(room?.state.players.entries()) as any)
-          .filter(
-            ([i, p]: [string, any]) =>
-              i !== localIdentity &&
-              p.cursor &&
-              p.cursor.surfaceType === 'screen' &&
-              p.cursor.surfaceId === screenOwnerIdentity
-          )
-          .map(([i, p]: [string, any]) => ({
-            x: p.cursor.x,
-            y: p.cursor.y,
-            color: p.color,
-            name: p.name,
-          }))
+      console.log('Updating cursors');
+      const players = room.state.players.entries();
+      const playersInAudience = players.filter(
+        ([i, p]: [string, any]) =>
+          i !== localIdentity &&
+          p.cursor &&
+          p.cursor.surfaceType === 'screen' &&
+          p.cursor.surfaceId === screenOwnerIdentity
       );
+      const newCursors: any = {};
+      playersInAudience.forEach(([i, p]: [string, any]) => {
+        newCursors[i] = {
+          x: p.cursor.x,
+          y: p.cursor.y,
+          color: p.color,
+          name: p.name,
+        };
+      });
+      setCursors(newCursors);
     };
 
     addListener('player-updated', onPlayerUpdated);
