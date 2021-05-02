@@ -10,5 +10,11 @@
     <true/>
     <key>com.apple.security.device.camera</key>
     <true/>
+    <key>com.apple.security.temporary-exception.apple-events</key>
+    <array>
+        <string>com.google.Chrome</string>
+        <string>com.apple.safari</string>
+        <string>org.mozilla.firefox</string>
+    </array>
   </dict>
 </plist>
