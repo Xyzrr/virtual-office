@@ -25,7 +25,7 @@ import { electron } from 'process';
 import { Rectangle } from 'electron/main';
 import { centerOnParent } from './util/electron-helpers';
 import ScreenSharePicker from './components/ScreenSharePicker';
-import activeWin from 'active-win';
+import activeWin from 'xyzrr/active-win';
 import * as _ from 'lodash';
 import { LIGHT_BACKGROUND } from './components/constants';
 import { openSystemPreferences } from 'electron-util';
@@ -311,7 +311,7 @@ const createWindow = async () => {
           win.setAlwaysOnTop(true, 'floating', -1);
 
           try {
-            const aw = activeWin.sync();
+            const aw = activeWin.sync({ screenRecordingPermission: false });
 
             if (aw && aw.id === sourceIdNumber) {
               win.show();

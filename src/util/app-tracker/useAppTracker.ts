@@ -1,5 +1,5 @@
 import React from 'react';
-import activeWin from 'active-win';
+import activeWin from 'xyzrr/active-win';
 import * as _ from 'lodash';
 
 import iconFigma from './app-icons/figma.ico';
