@@ -1,6 +1,7 @@
 import React from 'react';
 import activeWin from 'xyzrr/active-win';
 import * as _ from 'lodash';
+import os from 'os';
 
 import iconFigma from './app-icons/figma.ico';
 import iconNotion from './app-icons/notion.ico';
@@ -118,6 +119,10 @@ export const useAppTracker = () => {
   const lastAppRef = React.useRef<any>();
 
   React.useEffect(() => {
+    if (os.version().startsWith('Darwin Kernel Version 20.')) {
+      return;
+    }
+
     const interval = window.setInterval(async () => {
       const result = await activeWin({ screenRecordingPermission: false });
       if (_.isEqual(result, lastAppRef.current)) {
