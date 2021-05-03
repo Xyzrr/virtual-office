@@ -20,6 +20,7 @@ import {
   systemPreferences,
   Tray,
   Menu,
+  MenuItem,
 } from 'electron';
 import log from 'electron-log';
 import MenuBuilder from './menu';
@@ -33,17 +34,21 @@ import { LIGHT_BACKGROUND } from './components/constants';
 import { openSystemPreferences } from 'electron-util';
 import { autoUpdater } from 'electron-updater';
 
-let tray = null;
+const RESOURCES_PATH = app.isPackaged
+  ? path.join(process.resourcesPath, 'assets')
+  : path.join(__dirname, '../assets');
+
+const getAssetPath = (...paths: string[]): string => {
+  return path.join(RESOURCES_PATH, ...paths);
+};
+
+let tray: Tray | null = null;
 app.whenReady().then(() => {
-  console.log('hey yo bich');
-  tray = new Tray(`${__dirname}/IconTemplate.png`);
+  tray = new Tray(getAssetPath('IconTemplate.png'));
   const contextMenu = Menu.buildFromTemplate([
-    { label: 'Item1', type: 'radio' },
-    { label: 'Item2', type: 'radio' },
-    { label: 'Item3', type: 'radio', checked: true },
-    { label: 'Item4', type: 'radio' },
+    { label: 'Harbor', type: 'normal', enabled: false },
   ]);
-  tray.setToolTip('This is my application.');
+  tray.setToolTip('Harbor');
   tray.setContextMenu(contextMenu);
 });
 
@@ -51,6 +56,64 @@ export default class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';
     autoUpdater.logger = log;
+
+    autoUpdater.on('checking-for-update', () => {
+      const contextMenu = Menu.buildFromTemplate([
+        { label: 'Harbor', type: 'normal', enabled: false },
+        { label: 'Checking for update...', type: 'normal' },
+      ]);
+      tray?.setContextMenu(contextMenu);
+    });
+
+    autoUpdater.on('update-available', () => {
+      const contextMenu = Menu.buildFromTemplate([
+        { label: 'Harbor', type: 'normal', enabled: false },
+        { label: 'Update available.', type: 'normal' },
+      ]);
+      tray?.setContextMenu(contextMenu);
+    });
+
+    autoUpdater.on('update-not-available', () => {
+      const contextMenu = Menu.buildFromTemplate([
+        { label: 'Harbor', type: 'normal', enabled: false },
+        { label: 'On latest version.', type: 'normal' },
+      ]);
+      tray?.setContextMenu(contextMenu);
+    });
+
+    autoUpdater.on('error', (err) => {
+      const contextMenu = Menu.buildFromTemplate([
+        { label: 'Harbor', type: 'normal', enabled: false },
+        { label: `Error: ${err}`, type: 'normal' },
+      ]);
+      tray?.setContextMenu(contextMenu);
+    });
+
+    autoUpdater.on('download-progress', (progressObj) => {
+      const contextMenu = Menu.buildFromTemplate([
+        { label: 'Harbor', type: 'normal', enabled: false },
+        {
+          label: `Downloading update (${progressObj.percent}%)`,
+          type: 'normal',
+        },
+      ]);
+      tray?.setContextMenu(contextMenu);
+    });
+
+    autoUpdater.on('update-downloaded', () => {
+      const contextMenu = Menu.buildFromTemplate([
+        { label: 'Harbor', type: 'normal', enabled: false },
+        {
+          label: 'Update and restart',
+          type: 'normal',
+          click: () => {
+            autoUpdater.quitAndInstall();
+          },
+        },
+      ]);
+      tray?.setContextMenu(contextMenu);
+    });
+
     autoUpdater.checkForUpdatesAndNotify();
   }
 }
@@ -116,14 +179,6 @@ const createWindow = async () => {
   ) {
     await installExtensions();
   }
-
-  const RESOURCES_PATH = app.isPackaged
-    ? path.join(process.resourcesPath, 'resources')
-    : path.join(__dirname, '../resources');
-
-  const getAssetPath = (...paths: string[]): string => {
-    return path.join(RESOURCES_PATH, ...paths);
-  };
 
   mainWindow = new BrowserWindow({
     title: 'Harbor',
