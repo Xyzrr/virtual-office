@@ -222,7 +222,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
       }
 
       colyseusRoom.state.worldObjects.onAdd = (worldObject: any) => {
-        const geometry = new THREE.SphereGeometry(4);
+        const geometry = new THREE.SphereBufferGeometry(4);
         const material = new THREE.MeshBasicMaterial({ color: 0x444444 });
         const sphere = new THREE.Mesh(geometry, material);
 
@@ -251,7 +251,7 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
     React.useEffect(() => {
       const onPlayerAdded = ({ identity, player }: any) => {
         console.log('PLAYER ADDED:', identity);
-        const geometry = new THREE.SphereGeometry(PLAYER_RADIUS, 16, 16);
+        const geometry = new THREE.SphereBufferGeometry(PLAYER_RADIUS, 16, 16);
         const material = new THREE.MeshBasicMaterial({
           color: player.color,
         });
