@@ -7,7 +7,7 @@ export interface FakeMacOSFrameProps {
 }
 
 const FakeMacOSFrame: React.FC<FakeMacOSFrameProps> = ({ className }) => {
-  console.log('PROCESS VER', process.version);
+  console.log('PROCESS VER', process.version, os.);
   if (process.platform !== 'darwin') {
     return null;
   }
@@ -15,7 +15,7 @@ const FakeMacOSFrame: React.FC<FakeMacOSFrameProps> = ({ className }) => {
   return (
     <S.Wrapper
       className={className}
-      bigSur={os.version().startsWith('20.')}
+      bigSur={os.version().startsWith('Darwin Kernel Version 20.')}
     ></S.Wrapper>
   );
 };
