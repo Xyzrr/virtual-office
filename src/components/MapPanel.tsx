@@ -59,11 +59,11 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
     const [zoomLevel, setZoomLevel] = React.useState(1);
     const adjustedZoomLevel = zoomLevel * (small ? 0.5 : 1);
 
+    const fpsRef = React.useRef(30);
+
     const glRenderer = React.useMemo(() => {
       const glRenderer = new THREE.WebGLRenderer();
-      glRenderer.setPixelRatio(
-        process.env.LOW_POWER ? 1 : window.devicePixelRatio
-      );
+      glRenderer.setPixelRatio(1);
       glRenderer.setSize(width, height);
       glRenderer.shadowMap.enabled = true;
       console.log('Creating THREE renderer', glRenderer);
@@ -146,7 +146,11 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
 
       let animationFrame: number;
       let lastFrameTime = Date.now();
-      const animate = (time: number) => {
+      let lastRenderedFrameTime = Date.now();
+      const animate = () => {
+        animationFrame = requestAnimationFrame(animate);
+        const time = Date.now();
+
         const delta = (time - lastFrameTime) / 1000;
         lastFrameTime = time;
 
@@ -195,11 +199,15 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
           }
         }
 
+        if (time - lastRenderedFrameTime < 1000 / fpsRef.current) {
+          return;
+        }
+
+        lastRenderedFrameTime = time;
+
         TWEEN.update(time);
 
         glRenderer.render(scene, camera);
-
-        animationFrame = requestAnimationFrame(animate);
       };
       animationFrame = requestAnimationFrame(animate);
 
