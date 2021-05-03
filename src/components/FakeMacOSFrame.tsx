@@ -7,7 +7,6 @@ export interface FakeMacOSFrameProps {
 }
 
 const FakeMacOSFrame: React.FC<FakeMacOSFrameProps> = ({ className }) => {
-  console.log('PROCESS VER', process.version, os.);
   if (process.platform !== 'darwin') {
     return null;
   }
