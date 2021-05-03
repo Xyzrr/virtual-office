@@ -345,6 +345,27 @@ export const DailyVideoCallContextProvider: React.FC = ({ children }) => {
     };
   }, [leave]);
 
+  React.useEffect(() => {
+    if (colyseusRoom == null) {
+      return;
+    }
+
+    const removeOnCommand = colyseusRoom.onMessage('command', (options) => {
+      if (options.type === 'bandwidth') {
+        callObject.setBandwidth({
+          trackConstraints: {
+            width: parseInt(options.args[0]),
+            height: parseInt(options.args[1]),
+          },
+        });
+      }
+    });
+
+    return () => {
+      removeOnCommand();
+    };
+  }, [colyseusRoom]);
+
   return (
     <VideoCallContext.Provider value={{ participants }}>
       <DailyVideoCallDebugContextProvider callObject={callObject}>
