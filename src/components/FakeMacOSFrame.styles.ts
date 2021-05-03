@@ -8,7 +8,7 @@ export const Wrapper = styled.div<{ bigSur?: boolean }>`
   left: 0;
   box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.1),
     inset 0 0 0 1px rgba(255, 255, 255, 0.2);
-  border-radius: ${(props) => (props.bigSur ? 12 : 6)}px;
+  border-radius: ${(props) => (props.bigSur ? 10 : 6)}px;
   z-index: 100;
   pointer-events: none;
 `;
