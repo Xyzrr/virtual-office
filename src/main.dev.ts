@@ -18,6 +18,8 @@ import {
   screen,
   ipcMain,
   systemPreferences,
+  Tray,
+  Menu,
 } from 'electron';
 import log from 'electron-log';
 import MenuBuilder from './menu';
@@ -30,6 +32,20 @@ import * as _ from 'lodash';
 import { LIGHT_BACKGROUND } from './components/constants';
 import { openSystemPreferences } from 'electron-util';
 import { autoUpdater } from 'electron-updater';
+
+let tray = null;
+app.whenReady().then(() => {
+  console.log('hey yo bich');
+  tray = new Tray(`${__dirname}/IconTemplate.png`);
+  const contextMenu = Menu.buildFromTemplate([
+    { label: 'Item1', type: 'radio' },
+    { label: 'Item2', type: 'radio' },
+    { label: 'Item3', type: 'radio', checked: true },
+    { label: 'Item4', type: 'radio' },
+  ]);
+  tray.setToolTip('This is my application.');
+  tray.setContextMenu(contextMenu);
+});
 
 export default class AppUpdater {
   constructor() {

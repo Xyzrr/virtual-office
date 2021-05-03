@@ -25,7 +25,7 @@ const Home: React.FC<HomeProps> = ({ className }) => {
   }, []);
 
   const history = useHistory();
-  const spaces = useSpaces();
+  const { spaces, error } = useSpaces();
 
   // TODO: This is meant to enable upgrading from an anonymous account to
   // a permanent one, it turns out I need to build a custom auth UI to actually

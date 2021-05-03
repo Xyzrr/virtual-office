@@ -11,7 +11,7 @@ export interface SpaceSwitcherProps {
 }
 
 const SpaceSwitcher: React.FC<SpaceSwitcherProps> = ({ className }) => {
-  const spaces = useSpaces();
+  const { spaces, error } = useSpaces();
   const history = useHistory();
   const params = useParams() as any;
 
