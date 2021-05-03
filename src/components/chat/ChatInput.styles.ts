@@ -8,6 +8,7 @@ export const Wrapper = styled.div`
 
 export const StyledEditable = styled(Editable)<{
   $focused?: boolean;
+  $typingCommand?: boolean;
 }>`
   box-shadow: inset 0 0 0 1px #444;
   background: ${DARK_BACKGROUND.toString()};
@@ -27,7 +28,8 @@ export const StyledEditable = styled(Editable)<{
     props.$focused &&
     css`
       && {
-        box-shadow: inset 0 0 0 1px ${HIGHLIGHT.toString()};
+        box-shadow: inset 0 0 0 1px
+          ${props.$typingCommand ? '#87ceeb' : HIGHLIGHT.toString()};
       }
     `}
 `;

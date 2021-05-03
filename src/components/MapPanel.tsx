@@ -63,7 +63,9 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
 
     const glRenderer = React.useMemo(() => {
       const glRenderer = new THREE.WebGLRenderer();
-      glRenderer.setPixelRatio(1);
+      glRenderer.setPixelRatio(
+        process.env.LOW_POWER ? 1 : window.devicePixelRatio
+      );
       glRenderer.setSize(width, height);
       glRenderer.shadowMap.enabled = true;
       console.log('Creating THREE renderer', glRenderer);
@@ -324,6 +326,26 @@ const MapPanel: React.FC<MapPanelProps> = React.memo(
         glRenderer.dispose();
       };
     }, [glRenderer]);
+
+    React.useEffect(() => {
+      if (colyseusRoom == null) {
+        return;
+      }
+
+      const removeOnCommand = colyseusRoom.onMessage('command', (options) => {
+        if (options.type === 'fps') {
+          fpsRef.current = parseInt(options.args[0]);
+        }
+
+        if (options.type === 'pixelRatio') {
+          glRenderer.setPixelRatio(parseInt(options.args[0]));
+        }
+      });
+
+      return () => {
+        removeOnCommand();
+      };
+    }, [colyseusRoom]);
 
     const heldCommands = React.useRef<{ [key: string]: boolean }>({});
 

@@ -31,6 +31,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
   const { currentMessageId, inputFocused, setInputFocused } = React.useContext(
     ChatContext
   );
+  const [typingCommand, setTypingCommand] = React.useState(false);
   const currentMessageIdRef = React.useRef<string | null>(currentMessageId);
   currentMessageIdRef.current = currentMessageId;
   const roomRef = React.useRef<Room>();
@@ -55,15 +56,29 @@ const ChatInput: React.FC<ChatInputProps> = ({
     return null;
   }
 
+  console.log('heres whats down', currentMessageId);
+
   return (
     <Slate
       editor={editor}
       value={value}
       onChange={(newValue) => {
         console.log('ON CHANGE! OPERATIONS:', editor.operations);
+        console.log('heres whats up', currentMessageId);
         if (currentMessageId == null) {
-          if (Editor.string(editor, [])) {
-            onStart();
+          const s = Editor.string(editor, []);
+          if (typingCommand) {
+            if (!s) {
+              setTypingCommand(false);
+            }
+          } else {
+            if (s) {
+              if (s === '/') {
+                setTypingCommand(true);
+              } else {
+                onStart();
+              }
+            }
           }
         } else {
           if (!Editor.string(editor, [])) {
@@ -84,21 +99,37 @@ const ChatInput: React.FC<ChatInputProps> = ({
         renderElement={renderElement}
         $focused={inputFocused}
         placeholder="Type a realtime message..."
+        $typingCommand={typingCommand}
         onKeyDown={(e) => {
           e.stopPropagation();
 
           if (e.key === 'Enter') {
-            if (!e.shiftKey) {
+            if (typingCommand) {
               e.preventDefault();
-              if (Editor.string(editor, [])) {
-                Transforms.select(editor, Editor.start(editor, []));
-                setValue([
-                  {
-                    type: 'paragraph',
-                    children: [{ text: '' }],
-                  },
-                ]);
-                onSend();
+              const pieces = Editor.string(editor, []).split(' ');
+              const type = pieces[0].substr(1);
+              const args = pieces.slice(1);
+              Transforms.select(editor, Editor.start(editor, []));
+              setValue([
+                {
+                  type: 'paragraph',
+                  children: [{ text: '' }],
+                },
+              ]);
+              room.send('command', { type, args });
+            } else {
+              if (!e.shiftKey) {
+                e.preventDefault();
+                if (Editor.string(editor, [])) {
+                  Transforms.select(editor, Editor.start(editor, []));
+                  setValue([
+                    {
+                      type: 'paragraph',
+                      children: [{ text: '' }],
+                    },
+                  ]);
+                  onSend();
+                }
               }
             }
           }
