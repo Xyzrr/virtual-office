@@ -12,6 +12,8 @@ export const IconButtonBackground = styled.div<{
   height: 100%;
   opacity: 0.4;
   border-radius: 50%;
+  -webkit-app-region: no-drag;
+  user-select: none;
 
   &:hover {
     background: rgb(150, 150, 150);

@@ -21,6 +21,7 @@ export const Wrapper = styled.div<{ hidden?: boolean }>`
 `;
 
 export const MenuItem = styled(Icon)`
+  -webkit-app-region: no-drag;
   color: white;
   opacity: 0.5;
   font-size: 28px;
