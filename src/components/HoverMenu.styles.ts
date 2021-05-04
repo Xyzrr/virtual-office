@@ -9,7 +9,7 @@ export const Wrapper = styled.div<{ hidden?: boolean }>`
 
   display: flex;
   background: rgba(40, 40, 40, 0.9);
-  border-radius: 18px;
+  border-radius: 19px;
 
   transition: opacity 0.2s;
   ${(props) =>
@@ -21,9 +21,8 @@ export const Wrapper = styled.div<{ hidden?: boolean }>`
 
 export const MenuItem = styled(Icon)`
   -webkit-app-region: no-drag;
-  color: rgb(200, 200, 200);
-  opacity: 0.5;
-  font-size: 24px;
+  color: rgb(150, 150, 150);
+  font-size: 26px;
   user-select: none;
   padding: 6px;
   &:hover {

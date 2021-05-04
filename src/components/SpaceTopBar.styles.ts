@@ -42,6 +42,9 @@ export const Tab = styled.div<{ selected?: boolean; iconOnly?: boolean }>`
   &:hover {
     background: rgba(255, 255, 255, 0.08);
   }
+  &:active {
+    filter: brightness(1.2);
+  }
 
   ${(props) =>
     props.iconOnly &&
