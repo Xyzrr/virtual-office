@@ -8,9 +8,8 @@ export const Wrapper = styled.div<{ hidden?: boolean }>`
   transform: translate(-50%, -50%);
 
   display: flex;
-  background: rgba(20, 20, 20, 0.9);
+  background: rgba(40, 40, 40, 0.9);
   border-radius: 18px;
-  padding: 4px;
 
   transition: opacity 0.2s;
   ${(props) =>
@@ -22,11 +21,17 @@ export const Wrapper = styled.div<{ hidden?: boolean }>`
 
 export const MenuItem = styled(Icon)`
   -webkit-app-region: no-drag;
-  color: white;
+  color: rgb(200, 200, 200);
   opacity: 0.5;
-  font-size: 28px;
+  font-size: 24px;
   user-select: none;
+  padding: 6px;
   &:hover {
+    background: rgba(80, 80, 80, 0.5);
     opacity: 1;
   }
+  &:active {
+    filter: brightness(1.2);
+  }
+  border-radius: 50%;
 `;

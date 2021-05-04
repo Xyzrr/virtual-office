@@ -19,6 +19,9 @@ export const IconButtonBackground = styled.div<{
     background: rgb(150, 150, 150);
     opacity: 0.5;
   }
+  &:active {
+    filter: brightness(1.2);
+  }
   ${(props) =>
     props.mask &&
     css`

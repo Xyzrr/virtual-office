@@ -44,7 +44,9 @@ export const LocalMediaContextProvider: React.FC = ({ children }) => {
     MediaStreamTrack | undefined
   >();
 
-  const [localAudioOutputOn, setLocalAudioOutputOn] = React.useState(true);
+  const [localAudioOutputOn, setLocalAudioOutputOn] = React.useState(
+    !process.env.NO_AUDIO
+  );
   const [
     localAudioOutputDeviceId,
     setLocalAudioOutputDeviceId,
