@@ -45,14 +45,6 @@ const SpaceTopBar: React.FC<SpaceTopBarProps> = ({
       </S.LeftButtons>
       <S.MiddleButtons>
         <S.Tab
-          selected={activeTab === 'floating'}
-          onClick={() => {
-            onSelectTab('floating');
-          }}
-        >
-          <S.TabIcon name="splitscreen"></S.TabIcon>Floating
-        </S.Tab>
-        <S.Tab
           selected={activeTab === 'focused'}
           onClick={() => {
             onSelectTab('focused');
@@ -60,6 +52,14 @@ const SpaceTopBar: React.FC<SpaceTopBarProps> = ({
         >
           <S.TabIcon name="view_sidebar"></S.TabIcon>
           Focused
+        </S.Tab>
+        <S.Tab
+          selected={activeTab === 'floating'}
+          onClick={() => {
+            onSelectTab('floating');
+          }}
+        >
+          <S.TabIcon name="splitscreen"></S.TabIcon>Floating
         </S.Tab>
         {/* <S.Tab>
     <S.TabIcon name="grid_view"></S.TabIcon>
