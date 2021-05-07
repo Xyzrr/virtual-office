@@ -4,17 +4,13 @@
   <dict>
     <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
     <true/>
+    <key>com.apple.security.automation.apple-events</key>
+    <true/>
     <key>com.apple.security.cs.allow-jit</key>
     <true/>
     <key>com.apple.security.device.audio-input</key>
     <true/>
     <key>com.apple.security.device.camera</key>
     <true/>
-    <key>com.apple.security.temporary-exception.apple-events</key>
-    <array>
-        <string>com.google.Chrome</string>
-        <string>com.apple.safari</string>
-        <string>org.mozilla.firefox</string>
-    </array>
   </dict>
 </plist>
