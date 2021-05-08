@@ -59,7 +59,7 @@
       "entitlementsInherit": "assets/entitlements.mac.plist",
       "gatekeeperAssess": false,
       "extendInfo": {
-        "NSAppleEventsUsageDescription": "Harbor can control other applications with AppleScript."
+        "NSAppleEventsUsageDescription": "Harbor uses AppleScript to share your active work app."
       }
     },
     "dmg": {
