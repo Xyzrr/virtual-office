@@ -603,9 +603,13 @@ ipcMain.on('setWindowSize', (e, size: { width: number; height: number }) => {
   }
 });
 
-const activeWinLoop = fork(path.join(__dirname, 'active-win-loop.ts'), [], {
-  stdio: 'pipe',
-});
+const activeWinLoop = fork(
+  path.join(__dirname, 'active-win-loop.prod.js'),
+  [],
+  {
+    stdio: 'pipe',
+  }
+);
 activeWinLoop.on('message', (aw: any) => {
   onActiveWin?.(aw);
   mainWindow?.webContents.send('activeWin', aw);

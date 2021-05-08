@@ -45,6 +45,7 @@
       "index.html",
       "main.prod.js",
       "main.prod.js.map",
+      "active-win-loop.prod.js",
       "package.json"
     ],
     "afterSign": ".erb/scripts/Notarize.js",
