@@ -119,12 +119,7 @@ export const useAppTracker = () => {
   const lastAppRef = React.useRef<any>();
 
   React.useEffect(() => {
-    if (os.version().startsWith('Darwin Kernel Version 20.')) {
-      return;
-    }
-
-    const interval = window.setInterval(async () => {
-      const result = await activeWin({ screenRecordingPermission: false });
+    const onActiveWin = (e: Electron.IpcRendererEvent, result: any) => {
       if (_.isEqual(result, lastAppRef.current)) {
         return;
       }
@@ -149,10 +144,12 @@ export const useAppTracker = () => {
           setLocalApp(appInfo);
         }
       }
-    }, 2000);
+    };
+
+    electron.ipcRenderer.on('activeWin', onActiveWin);
 
     return () => {
-      window.clearInterval(interval);
+      electron.ipcRenderer.off('activeWin', onActiveWin);
     };
   }, []);
 

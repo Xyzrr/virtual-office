@@ -33,6 +33,7 @@ import * as _ from 'lodash';
 import { LIGHT_BACKGROUND } from './components/constants';
 import { openSystemPreferences } from 'electron-util';
 import { autoUpdater } from 'electron-updater';
+import { fork } from 'child_process';
 
 const RESOURCES_PATH = app.isPackaged
   ? path.join(process.resourcesPath, 'assets')
@@ -171,6 +172,16 @@ ipcMain.handle('getUrl', () => {
 ipcMain.on('clearUrl', () => {
   link = undefined;
 });
+
+let onActiveWin:
+  | ((
+      aw:
+        | activeWin.MacOSResult
+        | activeWin.LinuxResult
+        | activeWin.WindowsResult
+        | undefined
+    ) => void)
+  | undefined;
 
 const createWindow = async () => {
   if (
@@ -357,8 +368,6 @@ const createWindow = async () => {
         const [sourceType, sourceId, sourceTab] = shareSourceId.split(':');
         const sourceIdNumber = parseInt(sourceId, 10);
 
-        let failed = false;
-
         if (sourceType === 'screen') {
           const sharedDisplay = screen
             .getAllDisplays()
@@ -381,78 +390,33 @@ const createWindow = async () => {
         } else {
           win.setAlwaysOnTop(true, 'floating', -1);
 
-          try {
-            const aw = activeWin.sync({ screenRecordingPermission: false });
-
+          onActiveWin = (aw) => {
             if (aw && aw.id === sourceIdNumber) {
-              win.show();
-              win.setBounds(aw.bounds);
-            }
-          } catch (e) {
-            console.log('Error trying to get active window data:', e);
-            failed = true;
-          }
-
-          if (!failed) {
-            screenShareOverlayInterval = setInterval(async () => {
-              const startTime = Date.now();
-
-              let result:
-                | activeWin.MacOSResult
-                | activeWin.LinuxResult
-                | activeWin.WindowsResult
-                | undefined;
-
-              try {
-                result = await activeWin({ screenRecordingPermission: false });
-              } catch (e) {
-                console.log(
-                  'Failed to get active window data after successfully getting it earlier:',
-                  e
-                );
+              if (!win.isVisible()) {
+                win.show();
               }
 
-              if (!result) {
+              if (!_.isEqual(win.getBounds(), aw.bounds)) {
+                win.setBounds(aw.bounds);
+              }
+              if (!win.isAlwaysOnTop()) {
+                win.setAlwaysOnTop(true, 'floating', -1);
+              }
+            } else {
+              if (!win.isVisible()) {
                 return;
               }
 
-              const endTime = Date.now();
-              console.log(
-                'TOOK',
-                endTime - startTime,
-                'ms',
-                sourceIdNumber,
-                result
-              );
-              if (result && result.id === sourceIdNumber) {
-                if (!win.isVisible()) {
-                  win.show();
-                }
-
-                if (!_.isEqual(win.getBounds(), result.bounds)) {
-                  win.setBounds(result.bounds);
-                }
-                if (!win.isAlwaysOnTop()) {
-                  win.setAlwaysOnTop(true, 'floating', -1);
-                }
-              } else {
-                if (!win.isVisible()) {
-                  return;
-                }
-
-                if (win.isAlwaysOnTop()) {
-                  win.setAlwaysOnTop(false);
-                  win.moveAbove(`window:${sourceIdNumber}:0`);
-                }
+              if (win.isAlwaysOnTop()) {
+                win.setAlwaysOnTop(false);
+                win.moveAbove(`window:${sourceIdNumber}:0`);
               }
-            }, 1000);
+            }
+          };
 
-            win.on('close', () => {
-              if (screenShareOverlayInterval) {
-                clearInterval(screenShareOverlayInterval);
-              }
-            });
-          }
+          win.on('close', () => {
+            onActiveWin = undefined;
+          });
         }
       }
 
@@ -637,4 +601,12 @@ ipcMain.on('setWindowSize', (e, size: { width: number; height: number }) => {
       height: size.height,
     });
   }
+});
+
+const activeWinLoop = fork(path.join(__dirname, 'active-win-loop.ts'), [], {
+  stdio: 'pipe',
+});
+activeWinLoop.on('message', (aw: any) => {
+  onActiveWin?.(aw);
+  mainWindow?.webContents.send('activeWin', aw);
 });
