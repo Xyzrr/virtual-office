@@ -4,6 +4,7 @@ import * as HoverMenuStyles from './HoverMenu.styles';
 import React from 'react';
 import * as Colyseus from 'colyseus.js';
 import { useImmer } from 'use-immer';
+import ReactPlayer from 'react-player'
 
 import { ColyseusYoutubePlayer } from '../App';
 
@@ -37,6 +38,26 @@ export interface YoutubeProps {
   onSetExpanded(value: boolean): void;
 }
 
+export interface Syn {
+  valid: boolean;
+  n?: number;
+}
+
+export interface SynchronizedVideoState {
+  isPlaying: boolean;
+  videoPosition: number;
+  currentVideo: string;
+}
+
+export interface LocalVideoState {
+  loaded: number;
+  loadedSeconds: number;
+  played: number;
+  playedSeconds: number;
+  isSeeking: boolean;
+  duration: number;
+}
+
 const YoutubePanel: React.FC<YoutubeProps> = React.memo(
   ({
     className,
@@ -62,6 +83,18 @@ const YoutubePanel: React.FC<YoutubeProps> = React.memo(
     const [clientPlayer, setClientPlayer] = React.useState<YT.Player>(undefined);
     const [playerReady, setPlayerReady] = React.useState<boolean>(false);
 
+    const ref = React.useRef();
+    const [syn, setSyn] = React.useState<Syn>({valid: false});
+    const [videoState, setVideoState] = React.useState<SynchronizedVideoState>(undefined);
+    const [localState, setLocalState] = React.useState<LocalVideoState>({
+      loaded: 0,
+      loadedSeconds: 0,
+      played: 0,
+      playedSeconds: 0,
+      isSeeking: false,
+      duration: -1,
+    });
+
     const [playlist, setPlaylist] = useImmer<{
       [index: string]: string
     }>({});
@@ -73,105 +106,57 @@ const YoutubePanel: React.FC<YoutubeProps> = React.memo(
           (2 * (MAX_INTERACTION_DISTANCE - distance)) / MAX_INTERACTION_DISTANCE
         );
 
-    const sendColyseusUpdate = (clientPlayer, event, data) => {
-      colyseusRoom?.send(event, {
-        ...data,
-        id: youtubePlayer.id,
-        syn: clientPlayer.syn,
-        localIdentity,
+    const positionIsSynced = (localPosition) =>
+      Math.abs(youtubePlayer.videoPosition - localPosition) <= MAX_YOUTUBE_POSITION_DISTANCE_S;
+
+    const sendColyseusUpdate = (event, data) => {
+      if (syn.valid) {
+        colyseusRoom?.send(event, {
+          ...data,
+          id: youtubePlayer.id,
+          syn: syn.n,
+          localIdentity,
+        });
+        setSyn({
+          valid: true,
+          n: syn.n + 1,
+        });
+      }
+    };
+
+    const syncClientPlayer = React.useCallback((youtubePlayer, videoState) => {
+      if (!ref || !ref.current) {
+        return;
+      }
+
+      if (!positionIsSynced(localState.playedSeconds)) {
+        ref.current.seekTo(videoState.videoPosition, 'seconds');
+      }
+
+      setSyn({
+        valid: true,
+        n: youtubePlayer.syn,
       });
-      clientPlayer.syn += 1;
-    };
-
-    const syncClientPlayer = (youtubePlayer, clientPlayer) => {
-      if (youtubePlayer.isPlaying && clientPlayer.getPlayerState() !== YT.PlayerState.PLAYING) {
-        clientPlayer.playVideo();
-      } else if (!youtubePlayer.isPlaying && clientPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
-        clientPlayer.pauseVideo();
-      }
-      if (Math.abs(clientPlayer.getCurrentTime() - youtubePlayer.videoPosition) > MAX_YOUTUBE_POSITION_DISTANCE_S) {
-        clientPlayer.seekTo(youtubePlayer.videoPosition, true); // allowSeekAhead = true
-      }
-      clientPlayer.syn = youtubePlayer.syn;
-    };
+    }, [ref, localState]);
 
     React.useEffect(() => {
-      const script = document.createElement('script');
-      script.src = "https://www.youtube.com/iframe_api";
-      script.async = true;
-      document.body.appendChild(script);
-      
-      window.onYouTubeIframeAPIReady = () => {
-        setClientPlayer(new YT.Player(youtubePlayer.id, {
-          height: '100%',
-          width: '100%',
-          playerVars: {
-            fs: '0',
-            // origin: "file://",
-          },
-          events: {
-            'onReady': (e) => setPlayerReady(true),
-            'onStateChange': (e) => {
-              if (e.target.loading) {
-                if (e.data === YT.PlayerState.PLAYING) {
-                  syncClientPlayer(youtubePlayer, e.target);
-                  e.target.loading = false;
-                }
-              } else if (e.data === YT.PlayerState.ENDED) {
-                sendColyseusUpdate(e.target, 'endVideo', {});
-              } else {
-                sendColyseusUpdate(e.target, 'updateVideoPosition', {
-                  videoPosition: e.target.getCurrentTime(),
-                });
-                if (e.data === YT.PlayerState.PLAYING || e.data === YT.PlayerState.PAUSED) {
-                  sendColyseusUpdate(e.target, 'updateVideoIsPlaying', {
-                    isPlaying: e.data === YT.PlayerState.PLAYING,
-                  });
-                }
-              }
-            },
-          }
-        }));
-      };
-
-      return () => {
-        window.onYouTubeIframeAPIReady = () => {};
-        document.body.removeChild(script);
-      }
-    }, []);
-
-    React.useEffect(() => {
-      if (!clientPlayer) {
+      if (!youtubePlayer || !ref) {
         return;
       }
-      const youtubePosUpdate = setInterval(() => {
-         // getCurrentTime not a function if the video is not fully loaded
-        if (clientPlayer.getCurrentTime && clientPlayer.getPlayerState() == YT.PlayerState.PLAYING) {
-          sendColyseusUpdate(clientPlayer, 'updateVideoPosition', {
-            videoPosition: clientPlayer.getCurrentTime(),
-          });
-        }
-      }, YOUTUBE_POSITION_UPDATE_INTERVAL_S * 1000);
-
-      return () => clearInterval(youtubePosUpdate)
-    }, [clientPlayer]);
+      syncClientPlayer(youtubePlayer, videoState);
+    }, [videoState, ref]);
 
     React.useEffect(() => {
-      if (!youtubePlayer || !playerReady) {
-        return;
-      }
-
       youtubePlayer.onChange = (changes: any) => {
-        const videoChange = changes.find(c => c.field === 'currentVideo');
-        if (videoChange) {
-          if (videoChange.value != undefined) {
-            clientPlayer.loadVideoById(videoChange.value);
-            clientPlayer.loading = true;
-            // after load is complete, the client player will sync (UNSTARTED event)
-          }
-        } else {
-          syncClientPlayer(youtubePlayer, clientPlayer);
-        }
+        setSyn({
+          ...syn,
+          valid: false,
+        });
+        setVideoState({
+          isPlaying: youtubePlayer.isPlaying,
+          videoPosition: youtubePlayer.videoPosition,
+          currentVideo: youtubePlayer.currentVideo,
+        });
       }
 
       youtubePlayer.videoQueue.onRemove = (videoId: any, i: any) => {
@@ -187,7 +172,7 @@ const YoutubePanel: React.FC<YoutubeProps> = React.memo(
       };
 
       youtubePlayer.triggerAll();
-    }, [youtubePlayer, clientPlayer, playerReady]);
+    }, [youtubePlayer]);
 
     const mouseIsIdle = useMouseIsIdle({ containerRef: wrapperRef });
 
@@ -241,7 +226,89 @@ const YoutubePanel: React.FC<YoutubeProps> = React.memo(
           ref={wrapperRef}
           videoOpacity={videoOpacity}
         >
-          {youtubePlayer && <div id={youtubePlayer.id}/>}
+          {videoState && 
+            <ReactPlayer
+              ref={ref}
+              url={`https://www.youtube.com/watch?v=${videoState.currentVideo}`}
+              playing={videoState.isPlaying}
+              width={'100%'}
+              height={'100%'}
+              config={{
+                youtube: {
+                  playerVars: {
+                    fs: '0',
+                  },
+                }
+              }}
+              controls
+              onReady={() => syncClientPlayer(youtubePlayer, videoState)}
+              onDuration={duration => {
+                setLocalState({
+                  ...localState,
+                  duration,
+                })
+              }}
+              onPause={() => {
+                if (videoState.isPlaying) {
+                  sendColyseusUpdate('updateVideoIsPlaying', { isPlaying: false });
+                }
+              }}
+              onPlay={() => {
+                if (!videoState.isPlaying) {
+                  sendColyseusUpdate('updateVideoIsPlaying', { isPlaying: true });
+                }
+              }}
+              onProgress={e => {
+                if (!localState.isSeeking) {
+                  setLocalState({
+                    ...localState,
+                    ...e,
+                  });
+                  sendColyseusUpdate('updateVideoPosition', { videoPosition: e.playedSeconds });
+                }
+              }}
+              onEnded={() => sendColyseusUpdate('endVideo', {})}
+              onBuffer={console.log}
+            />
+          }
+          {videoState &&
+            <input
+              style={{
+                position: 'absolute',
+                top: 0,
+                width: '100%',
+              }}
+              type='range' min={0} max={0.999999} step='any'
+              value={localState.played}
+              onMouseDown={e => {
+                setLocalState({
+                  ...localState,
+                  played: parseFloat(e.target.value),
+                  isSeeking: true,
+                });
+                ref.current.seekTo(parseFloat(e.target.value), 'fraction');
+              }}
+              onChange={e => {
+                setLocalState({
+                  ...localState,
+                  played: parseFloat(e.target.value),
+                });
+                ref.current.seekTo(parseFloat(e.target.value), 'fraction');
+              }}
+              onMouseUp={e => {
+                const frac = parseFloat(e.target.value);
+                setLocalState({
+                  ...localState,
+                  played: frac,
+                  isSeeking: false,
+                });
+                if (localState.duration !== -1) {
+                  sendColyseusUpdate('updateVideoPosition', { videoPosition: localState.duration * frac });
+                }
+                ref.current.seekTo(parseFloat(e.target.value), 'fraction');
+              }}
+            />
+          }
           {small && (
             <HoverMenu hidden={mouseIsIdle}>
               <HoverMenuStyles.MenuItem
